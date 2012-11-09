@@ -1,4 +1,6 @@
 nbd.js
 ======
 
-No big deal JS
+**No Big Deal, Just Saying**
+
+nbd.js is Yet Another MVC Framework
