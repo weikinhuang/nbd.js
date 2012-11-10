@@ -17,7 +17,7 @@ require.config({
     'nbd' : '../..'
   }
 });
-require(['Model'], function() {
+require(['Model', 'View', 'Controller', 'Events'], function() {
   jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
   jasmine.getEnv().execute();
 });
