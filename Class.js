@@ -2,12 +2,12 @@
  * Behanced Class
  * Built from Simple JS Inheritance by John Resig
  * Addons:
- * -    Static properties inheritance
- * -    init() auto-calls super's init()
- * -    can prevent auto-calling with stat._
- * -    __super__ for Backbone.js compatibility
- * -    Uses AMD pattern, with global fallback
- * -    mixin() for implementing abstracts
+ * - Static properties inheritance
+ * - init() auto-calls super's init()
+ * - can prevent auto-calling with stat._
+ * - __super__ for Backbone.js compatibility
+ * - Uses AMD pattern, with global fallback
+ * - mixin() for implementing abstracts
  */
 
 /*jslint sloppy:true */
@@ -24,15 +24,26 @@
 }( (jQuery && jQuery.Core) || this, function() {
   "use strict";
 
-  var initializing = false, 
-      fnTest = /xyz/.test(function(){var xyz;}) ? /\b_super\b/ : /.*/,
-      Klass, mixin;
+  var Klass, inherits, mixin,
+  initializing = false, 
+  fnTest = /xyz/.test(function(){var xyz;}) ? /\b_super\b/ : /.*/;
 
-  // The base Class implementation (does nothing)
-  Klass = function(){};
+  // Addon: mixin allows adding any object's properties into the class
+  mixin = function(abstract) {
+    var prop, descriptor = {};
+    for (prop in abstract) {
+      if (abstract.hasOwnProperty(prop)) {
+        descriptor[prop] = {
+          value:abstract[prop]
+        };
+      }
+    }
+    Object.defineProperties(this.prototype, descriptor);
+    return this;
+  };
 
   // Addon: inherits determines if current class inherits from superclass
-  Klass.inherits = function( superclass ) {
+  inherits = function(superclass) {
     var ancestor;
 
     if ( typeof this === 'function' && typeof superclass === 'function' ) {
@@ -47,7 +58,11 @@
 
     return false;
   };
- 
+
+  // The base Class implementation (does nothing)
+  Klass = function(){};
+  Klass.inherits = inherits;
+
   // Create a new Class that inherits from this class
   Klass.extend = function extend(prop, stat) {
     var prototype, name, initfn, _super = this.prototype;
@@ -150,19 +165,6 @@
     Class.__super__ = _super;
    
     return Class;
-  };
-
-  mixin = function mixin(abstract) {
-    var prop, descriptor = {};
-    for (prop in abstract) {
-      if (abstract.hasOwnProperty(prop)) {
-        descriptor[prop] = {
-          value:abstract[prop]
-        };
-      }
-    }
-    Object.defineProperties(this.prototype, descriptor);
-    return this;
   };
 
   return Klass;
