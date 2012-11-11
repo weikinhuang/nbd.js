@@ -8,7 +8,7 @@
     }, this);
   }
   if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/View', 'jquery/jquery.tmpl'], function() {
+    define(['jquery', 'nbd/View'], function() {
       var module = factory.apply(this, arguments);
       if (root) { root[name] = module; }
       return module;
@@ -52,7 +52,12 @@
         
       } // else existing
 
+      if ( $.isFunction(this.rendered) ) {
+        this.rendered();
+      }
+
     } // render
+
     
   }); // View extend
 
