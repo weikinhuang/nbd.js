@@ -24,11 +24,15 @@ define(function() {
       if (!callback) { return this; }
 
       events = events.split(eventSplitter);
-      calls = this._callbacks || Object.defineProperty(this, '_callback', {
-        configurable: true,
-        value: {},
-        writable: true
-      });
+
+      if (!this._callbacks) {
+        Object.defineProperty(this, '_callbacks', {
+          configurable: true,
+          value: {},
+          writable: true
+        });
+      }
+      calls = this._callbacks;
 
       while (event = events.shift()) {
         list = calls[event] || (calls[event] = []);
