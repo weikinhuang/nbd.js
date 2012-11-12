@@ -8,7 +8,7 @@
     }, this);
   }
   if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/Class'], function() {
+    define(['jquery', 'nbd/Class', 'nbd/utils/async', 'nbd/traits/pubsub'], function() {
       var module = factory.apply(this, arguments);
       if (root) { root[name] = module; }
       return module;
@@ -17,12 +17,45 @@
   else {
     (root||this)[name] = factory.call(this, jQuery, root.Class);
   }
-}( 'jQuery.Core.Model', function( $, Class ) {
+}( 'jQuery.Core.Model', function($, Class, async, pubsub) {
   "use strict";
 
-  var constructor = Class.extend({
+  function _set( data, prop, val, strict ) {
+    if ( strict && !data.hasOwnProperty(prop) ) {
+      throw new Error( 'Invalid property: '+ prop );
+    }
+    data[ prop ] = val;
+  }
 
-    type : null,
+  var 
+  dirtyCheck = function(old, novel) {
+    if (!this._dirty) { return; }
+    var key, i, diff = [];
+
+    for (key in novel) {
+      if (novel.hasOwnProperty(key)) {
+        if (old[key] !== novel[key]) {
+          diff.push([key, novel[key], old[key]]);
+        }
+        delete old[key];
+      }
+    }
+
+    // Any remaining keys are only in the old
+    for (key in old) {
+      if (old.hasOwnProperty(key)) {
+        diff.push([key, undefined, old[key]]);
+      }
+    }
+    
+    for (i=0; i<diff.length; ++i) {
+      this.trigger.apply(this, diff[i]);
+    }
+
+    this._dirty = false;
+  },
+
+  constructor = Class.extend({
 
     init : function( id, data ) {
 
@@ -32,11 +65,15 @@
         id = +id;
       }
 
+      Object.defineProperty(this, '_dirty', { writable: true });
+
       this.id = function() {
         return id;
       };
 
       this.data = function() {
+        this._dirty = true;
+        async(dirtyCheck.bind(this, $.extend({}, data), data));
         return data;
       };
 
@@ -49,7 +86,7 @@
       var data = this.data();
 
       if ( strict && !data.hasOwnProperty(prop) ) {
-        $.error( 'Invalid property in '+this.type+' : '+ prop );
+        $.error( 'Invalid property: '+ prop );
       }
 
       return data[prop];
@@ -58,37 +95,27 @@
 
     set : function( values, value, strict ) {
 
+      var data, key;
+
       if ( typeof values === "object" ) {
         strict = value;
       }
 
       strict = ( typeof strict === 'boolean' ) ? strict : true;
+      data = this.data();
 
-      var data = this.data(),
-          type = this.type,
-          key;
-
-      function _set( prop, val ) {
-
-        if ( strict && !data.hasOwnProperty(prop) ) {
-          $.error( "Invalid property in "+type+' : '+ prop );
-        }
-
-        data[ prop ] = val;
-
+      if ( typeof values === "string" ) {
+        _set( data, values, value, strict );
+        return this;
       }
 
-      switch( typeof values ) {
-        case "string":
-          _set( values, value );
-          break;
-        case "object":
-          for ( key in values ) {
-            if ( values.hasOwnProperty( key ) ) {
-              _set( key, values[ key ] );
-            }
+      if ( typeof values === "object" ) {
+        for ( key in values ) {
+          if ( values.hasOwnProperty( key ) ) {
+            _set( data, key, values[ key ], strict );
           }
-          break;
+        }
+        return this;
       }
 
     }, // set
@@ -137,7 +164,8 @@
 
     UPDATE_AJAX_TYPE : 'POST'
 
-  });
+  })
+  .mixin(pubsub);
 
   return constructor;
 

@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <title>Jasmine Spec Runner</title>
-<link rel="shortcut icon" type="image/png" href="lib/jasmine-core/jasmine_favicon.png">
 <link rel="stylesheet" type="text/css" href="lib/jasmine-core/jasmine.css">
 <script type="text/javascript" src="lib/jasmine-core/jasmine.js"></script>
 <script type="text/javascript" src="lib/jasmine-core/jasmine-html.js"></script>
-<script type="text/javascript" src="lib/jasmine-core/mock-ajax.js"></script>
-<script type="text/javascript" src="../utils/require.js"></script>
-<script type="text/javascript" src="../utils/jquery.js"></script>
+<script type="text/javascript" src="lib/jasmine-jquery.js"></script>
+<script type="text/javascript" src="lib/mock-ajax.js"></script>
+<script type="text/javascript" src="../vendor/requirejs/require.js"></script>
+<script type="text/javascript" src="../vendor/jquery.js"></script>
 
 <script type="text/javascript">
 require.config({
   baseUrl : 'specs',
   paths: {
-    'real' : '../'
+    'nbd' : '../..'
   }
 });
-require(['Class'], function() {
+require(['Model', 'View', 'Controller', 'Events'], function() {
   jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
   jasmine.getEnv().execute();
 });

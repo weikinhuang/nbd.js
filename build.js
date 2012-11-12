@@ -3,7 +3,7 @@
   dir: './artifacts',
   optimize: 'uglify',
   paths: {
-    'jquery':'utils/jquery',
+    'jquery':'vendor/jquery',
     'nbd':'.'
   },
   modules: [{

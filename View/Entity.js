@@ -8,7 +8,7 @@
     }, this);
   }
   if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/View', 'nbd/Model', 'jquery/jquery.tmpl'], function() {
+    define(['jquery', 'nbd/View', 'nbd/Model'], function() {
       var module = factory.apply(this, arguments);
       if (root) { root[name] = module; }
       return module;
