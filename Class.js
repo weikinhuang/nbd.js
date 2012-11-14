@@ -12,21 +12,12 @@
 
 /*jslint sloppy:true */
 /*global define, jQuery */
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(function() {
-      return (root.Class = factory.apply(this, arguments));
-    });
-  }
-  else {
-    root.Class = factory();
-  }
-}( (jQuery && jQuery.Core) || this, function() {
+define(function() {
   "use strict";
 
   var Klass, inherits, mixin,
   initializing = false, 
-  fnTest = /xyz/.test(function(){var xyz;}) ? /\b_super\b/ : /.*/;
+  fnTest = /xyz;/.test(function(){var xyz;return xyz;}) ? /\b_super\b/ : /.*/;
 
   // Addon: mixin allows adding any object's properties into the class
   mixin = function(abstract) {
@@ -168,4 +159,4 @@
   };
 
   return Klass;
-}));
+});

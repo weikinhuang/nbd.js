@@ -1,4 +1,4 @@
-/*jslint evil:true */
+/*global global */
 require([
         'nbd/Class',
         'nbd/Model',
@@ -8,30 +8,27 @@ require([
         'nbd/trait/pubsub',
         'nbd/util/async',
         'nbd/util/pipe',
+        'nbd/util/protochain',
         'nbd/util/jxon'
-], function(Class, Model, View, Controller, pubsub, async, pipe, jxon) {
+], function(Class, Model, View, Controller, Events, pubsub, async, pipe, protochain, jxon) {
   'use strict';
 
-  /**
-   * @see http://stackoverflow.com/questions/3277182/how-to-get-the-global-object-in-javascript 
-   */
-  var global = (new Function('return this'))(),
-
-  exports = {
+  var exports = {
     Class : Class,
     Model : Model,
     View : View,
     Controller : Controller,
-    traits : {
+    Events : Events,
+    trait : {
       pubsub : pubsub
     },
-    utils : {
+    util : {
       async : async,
       pipe : pipe,
+      protochain : protochain,
       jxon : jxon
     }
   };
 
   global.nbd = exports;
-
 });
