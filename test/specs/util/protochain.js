@@ -1,8 +1,8 @@
 /*global jasmine, describe, it, expect, spyOn, beforeEach */
-define(['nbd/utils/protochain'], function(protochain) {
+define(['nbd/util/protochain'], function(protochain) {
   'use strict';
 
-  describe('utils/protochain', function() {
+  describe('util/protochain', function() {
     var Usurper, Superclass, Subclass;
 
     beforeEach(function() {

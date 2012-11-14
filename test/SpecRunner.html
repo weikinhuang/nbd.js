@@ -18,7 +18,7 @@ require.config({
     'nbd' : '../..'
   }
 });
-require(['Model', 'Controller', 'Events', 'utils/protochain'], function() {
+require(['Model', 'Controller', 'Events', 'util/protochain'], function() {
   jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
   jasmine.getEnv().execute();
 });

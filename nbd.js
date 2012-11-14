@@ -5,10 +5,10 @@ require([
         'nbd/View',
         'nbd/Controller',
         'nbd/Events',
-        'nbd/traits/pubsub',
-        'nbd/utils/async',
-        'nbd/utils/pipe',
-        'nbd/utils/jxon'
+        'nbd/trait/pubsub',
+        'nbd/util/async',
+        'nbd/util/pipe',
+        'nbd/util/jxon'
 ], function(Class, Model, View, Controller, pubsub, async, pipe, jxon) {
   'use strict';
 

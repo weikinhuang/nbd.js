@@ -8,7 +8,7 @@
     }, this);
   }
   if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/Class', 'nbd/utils/async', 'nbd/traits/pubsub'], function() {
+    define(['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub'], function() {
       var module = factory.apply(this, arguments);
       if (root) { root[name] = module; }
       return module;
