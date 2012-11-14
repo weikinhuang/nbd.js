@@ -2,14 +2,14 @@
  * Utility function to break out of the current JavaScript callstack
  * Uses window.postMessage if available, falls back to window.setTimeout
  * @see https://developer.mozilla.org/en-US/docs/DOM/window.setTimeout#Minimum_delay_and_timeout_nesting
- * @module utils/async
+ * @module util/async
  */
 define(function() {
   'use strict';
 
-  var timeouts        = [], 
-  messageName     = "async-message",
-  hasPostMessage  = (
+  var timeouts = [], 
+  messageName = "async-message",
+  hasPostMessage = (
     typeof window.postMessage === "function" &&
     typeof window.addEventListener === "function"
   ),
@@ -39,7 +39,7 @@ define(function() {
     window.addEventListener("message", handleMessage, true);
   }
 
-  /** @alias module:utils/async */
+  /** @alias module:util/async */
   async = (hasPostMessage ? setZeroTimeout : function(fn) {window.setTimeout(fn,0);});
 
   return async;

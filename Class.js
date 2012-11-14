@@ -12,21 +12,12 @@
 
 /*jslint sloppy:true */
 /*global define, jQuery */
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(function() {
-      return (root.Class = factory.apply(this, arguments));
-    });
-  }
-  else {
-    root.Class = factory();
-  }
-}( (jQuery && jQuery.Core) || this, function() {
+define(function() {
   "use strict";
 
   var Klass, inherits, mixin,
   initializing = false, 
-  fnTest = /xyz/.test(function(){var xyz;}) ? /\b_super\b/ : /.*/;
+  fnTest = /xyz;/.test(function(){var xyz;return xyz;}) ? /\b_super\b/ : /.*/;
 
   // Addon: mixin allows adding any object's properties into the class
   mixin = function(abstract) {
@@ -44,19 +35,10 @@
 
   // Addon: inherits determines if current class inherits from superclass
   inherits = function(superclass) {
-    var ancestor;
-
-    if ( typeof this === 'function' && typeof superclass === 'function' ) {
-      ancestor = this.prototype;
-      while ( ancestor.constructor.__super__ ) {
-        ancestor = ancestor.constructor.__super__;
-        if ( ancestor === superclass.prototype ) {
-          return true;
-        }
-      }
+    if ( !(typeof this === 'function' && typeof superclass === 'function') ) {
+      return false;
     }
-
-    return false;
+    return superclass.prototype.isPrototypeOf( this.prototype );
   };
 
   // The base Class implementation (does nothing)
@@ -168,4 +150,4 @@
   };
 
   return Klass;
-}));
+});

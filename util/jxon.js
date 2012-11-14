@@ -3,7 +3,7 @@ define(function() {
 
   /**
    * Utility for transforming JSON to XML and back
-   * @exports utils/jxon
+   * @exports util/jxon
    * @see https://developer.mozilla.org/en-US/docs/JXON
    */
 

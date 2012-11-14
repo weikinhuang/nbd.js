@@ -1,3 +1,6 @@
 [submodule "vendor/requirejs"]
 	path = vendor/requirejs
 	url = git://github.com/jrburke/requirejs.git
+[submodule "vendor/almond"]
+	path = vendor/almond
+	url = git://github.com/jrburke/almond.git

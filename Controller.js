@@ -1,59 +1,11 @@
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/Class', 'nbd/View'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery, root.Class, root.View);
-  }
-}( 'jQuery.Core.Controller', function( $, Class, View ) {
+define(['jquery', 'nbd/Class', 'nbd/View'],  function($, Class, View) {
   "use strict";
 
   var constructor = Class.extend({
     // Stubs
     init : function() {},
-    render : function() {},
     destroy : function() {}
   },{
-
-    // Finds out if a subclass has the superclass in its inheritance chain
-    inherits : function( subclass, superclass ) {
-
-      var ancestor, isSpawn = false;
-
-      if ( !superclass ) {
-        superclass = subclass;
-        subclass = this;
-      }
-
-      if ( typeof subclass !== 'function' || typeof superclass !== 'function' ) {
-        return isSpawn;
-      }
-
-      ancestor = subclass.prototype;
-
-      while ( ancestor.constructor.__super__ ) {
-        ancestor = ancestor.constructor.__super__;
-        if ( ancestor === superclass.prototype ) {
-          isSpawn = true;
-          break;
-        }
-      }
-
-      return isSpawn;
-
-    }, // inherits
 
     addTemplate : function( id, html ) {
       return $('<script id="' + id + '" type="text/x-jquery-tmpl">' + html + '</script>').appendTo( document.body );
@@ -61,7 +13,7 @@
 
 
     // Loads a template into the page, given either the template id and URL or a view
-    // Controller.loadTemplate( Core.View, [callback(templateId)] );
+    // Controller.loadTemplate( View, [callback(templateId)] );
     loadTemplate : function( view, callback ) {
 
       var wait = $.Deferred(),
@@ -106,4 +58,4 @@
 
   return constructor;
 
-}));
+});

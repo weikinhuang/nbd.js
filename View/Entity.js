@@ -1,23 +1,4 @@
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/View', 'nbd/Model'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery, root, jQuery.Core.Model);
-  }
-}( 'jQuery.Core.View.Entity', function( $, View, Model ) {
+define(['jquery', 'nbd/View', 'nbd/Model'], function($, View, Model) {
   "use strict";
 
   var constructor = View.extend({
@@ -26,30 +7,29 @@
     
       if ( model instanceof Model ) {
         this.Model = model;
-        // this.Model.id should be a function
         this.id = this.Model.id;
       }
       else {
         this.id = function() { return model; };
       }
     
-    }, // init
+    },
     
-    // aggregates all data needed to template the view into one object
+    // all data needed to template the view
     templateData : function() {
-      return { Model: this.Model };
-    }, // templateData
+      return this.Model ? this.Model.data() : this.id();
+    },
     
     render : function( $parent ) {
 
-      // $existing could be a string from pre-templating
+      // $existing could be a string
       var $existing = this.$view,
           fresh = !!$existing ^ !!$parent;
 
-      // When there's either no rendered view or there isn't a parent
+      // When there's either no rendered view XOR there isn't a parent
       if ( fresh ) {
         if (typeof $existing !== "string" ) {
-          this.$view = this.templateScript().tmpl( this.templateData() );
+          this.$view = this.template( this.templateData() );
         }
       }
       else if ( !$existing ) {
@@ -73,10 +53,12 @@
         this.rendered();
       }
 
+      return this.$view;
+
     } // render
     
   }); // View Entity
 
   return constructor;
 
-}));
+});

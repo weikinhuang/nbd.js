@@ -1,23 +1,4 @@
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define(['jquery'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery);
-  }
-}( 'jQuery.Core.Events', function( $ ) {
+define(['jquery'], function($) {
   "use strict";
 
   // Store each registered $.Callbacks object by namespace
@@ -138,4 +119,4 @@
     updateOptions : updateOptions
   };
 
-})); // Events
+}); // Events
