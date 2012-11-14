@@ -1,23 +1,13 @@
 ({
   baseUrl: '.',
   dir: './artifacts',
-  optimize: 'uglify',
+  optimize: 'none',
   paths: {
     'jquery':'vendor/jquery',
     'nbd':'.'
   },
-  modules: [{
-    name: 'nbd/nbd',
-    include: [
-      'nbd/Model',
-      'nbd/View/Entity',
-      'nbd/View/Element',
-      'nbd/View/Dialog',
-      'nbd/Controller/Entity',
-      'nbd/Controller/Dialog',
-      'nbd/Keyhandler'
-    ],
-    // Specifically excluding jQuery because that is loaded with requirejs
-    exclude : ['jquery']
-  }]
+  name: 'nbd/nbd',
+  include : ['vendor/almond'],
+  // Specifically excluding jQuery
+  exclude : ['jquery']
 })
