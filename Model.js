@@ -1,23 +1,4 @@
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery, root.Class);
-  }
-}( 'jQuery.Core.Model', function($, Class, async, pubsub) {
+define(['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub'], function($, Class, async, pubsub) {
   "use strict";
 
   function _set( data, prop, val, strict ) {
@@ -79,6 +60,10 @@
 
     }, // init
 
+    destroy : function() {
+      this.off(null);
+    },
+
     get : function( prop, strict ) {
     
       strict = ( typeof strict !== 'boolean' ) ? true : strict;
@@ -86,7 +71,7 @@
       var data = this.data();
 
       if ( strict && !data.hasOwnProperty(prop) ) {
-        $.error( 'Invalid property: '+ prop );
+        throw new Error( 'Invalid property: '+ prop );
       }
 
       return data[prop];
@@ -122,13 +107,12 @@
 
     update : function( data, options ) {
 
-      options = options || {};
+      options = options || {type:'POST'};
       
       var Model = this,
           type  = this.constructor.UPDATE_AJAX_TYPE;
       
       return $.ajax({
-
         url   : this.constructor.URL_UPDATE,
         type  : type,
         data  : data
@@ -169,4 +153,4 @@
 
   return constructor;
 
-}));
+});

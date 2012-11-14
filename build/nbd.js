@@ -424,19 +424,10 @@ define('nbd/Class',[],function() {
 
   // Addon: inherits determines if current class inherits from superclass
   inherits = function(superclass) {
-    var ancestor;
-
-    if ( typeof this === 'function' && typeof superclass === 'function' ) {
-      ancestor = this.prototype;
-      while ( ancestor.constructor.__super__ ) {
-        ancestor = ancestor.constructor.__super__;
-        if ( ancestor === superclass.prototype ) {
-          return true;
-        }
-      }
+    if ( !(typeof this === 'function' && typeof superclass === 'function') ) {
+      return false;
     }
-
-    return false;
+    return superclass.prototype.isPrototypeOf( this.prototype );
   };
 
   // The base Class implementation (does nothing)
@@ -724,26 +715,7 @@ define('nbd/trait/pubsub',[],function() {
   };
 });
 
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define('nbd/Model',['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery, root.Class);
-  }
-}( 'jQuery.Core.Model', function($, Class, async, pubsub) {
+define('nbd/Model',['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub'], function($, Class, async, pubsub) {
   
 
   function _set( data, prop, val, strict ) {
@@ -805,6 +777,10 @@ define('nbd/trait/pubsub',[],function() {
 
     }, // init
 
+    destroy : function() {
+      this.off(null);
+    },
+
     get : function( prop, strict ) {
     
       strict = ( typeof strict !== 'boolean' ) ? true : strict;
@@ -812,7 +788,7 @@ define('nbd/trait/pubsub',[],function() {
       var data = this.data();
 
       if ( strict && !data.hasOwnProperty(prop) ) {
-        $.error( 'Invalid property: '+ prop );
+        throw new Error( 'Invalid property: '+ prop );
       }
 
       return data[prop];
@@ -848,13 +824,12 @@ define('nbd/trait/pubsub',[],function() {
 
     update : function( data, options ) {
 
-      options = options || {};
+      options = options || {type:'POST'};
       
       var Model = this,
           type  = this.constructor.UPDATE_AJAX_TYPE;
       
       return $.ajax({
-
         url   : this.constructor.URL_UPDATE,
         type  : type,
         data  : data
@@ -895,138 +870,39 @@ define('nbd/trait/pubsub',[],function() {
 
   return constructor;
 
-}));
+});
 
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define('nbd/View',['jquery', 'nbd/Class'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery, root.Class);
-  }
-}( 'jQuery.Core.View', function( $, Class ) {
+define('nbd/View',['jquery', 'nbd/Class'], function($, Class) {
   
 
   var constructor = Class.extend({
 
-    $parent  : null,
     $view    : null,
 
-    // Stub
-    init : function() {},
-
-    templateScript : function() {
-      return this.constructor.templateScript();
-    },
+    render : function() {},
+    template : function() {},
     
     destroy : function() {
-
       if ( this.$view instanceof $ ) {
         this.$view.remove();
       }
       this.$view = null;
-
-    } // destroy
-
-  }, {
-
-    templateScript : function( strict ) {
-
-      strict = ( typeof strict !== 'undefined' ) ? strict : true;
-
-      if ( !this.$TEMPLATE || !this.$TEMPLATE.length ) {
-        this.$TEMPLATE = $( '#' + this.TEMPLATE_ID );
-      }
-      
-      if ( !this.$TEMPLATE.length ) {
-
-        if ( strict === true ) {
-          $.error( 'Missing template: ' + this.TEMPLATE_ID );
-        }
-        else {
-          return false;
-        }
-
-      } // if !$TEMPLATE or !$TEMPLATE length
-
-      return this.$TEMPLATE;
-
-    } // templateScript
+    }
 
   });
 
   return constructor;
 
-}));
+});
 
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define('nbd/Controller',['jquery', 'nbd/Class', 'nbd/View'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery, root.Class, root.View);
-  }
-}( 'jQuery.Core.Controller', function( $, Class, View ) {
+define('nbd/Controller',['jquery', 'nbd/Class', 'nbd/View'],  function($, Class, View) {
   
 
   var constructor = Class.extend({
     // Stubs
     init : function() {},
-    render : function() {},
     destroy : function() {}
   },{
-
-    // Finds out if a subclass has the superclass in its inheritance chain
-    inherits : function( subclass, superclass ) {
-
-      var ancestor, isSpawn = false;
-
-      if ( !superclass ) {
-        superclass = subclass;
-        subclass = this;
-      }
-
-      if ( typeof subclass !== 'function' || typeof superclass !== 'function' ) {
-        return isSpawn;
-      }
-
-      ancestor = subclass.prototype;
-
-      while ( ancestor.constructor.__super__ ) {
-        ancestor = ancestor.constructor.__super__;
-        if ( ancestor === superclass.prototype ) {
-          isSpawn = true;
-          break;
-        }
-      }
-
-      return isSpawn;
-
-    }, // inherits
 
     addTemplate : function( id, html ) {
       return $('<script id="' + id + '" type="text/x-jquery-tmpl">' + html + '</script>').appendTo( document.body );
@@ -1034,7 +910,7 @@ define('nbd/trait/pubsub',[],function() {
 
 
     // Loads a template into the page, given either the template id and URL or a view
-    // Controller.loadTemplate( Core.View, [callback(templateId)] );
+    // Controller.loadTemplate( View, [callback(templateId)] );
     loadTemplate : function( view, callback ) {
 
       var wait = $.Deferred(),
@@ -1079,28 +955,9 @@ define('nbd/trait/pubsub',[],function() {
 
   return constructor;
 
-}));
+});
 
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define('nbd/Events',['jquery'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery);
-  }
-}( 'jQuery.Core.Events', function( $ ) {
+define('nbd/Events',['jquery'], function($) {
   
 
   // Store each registered $.Callbacks object by namespace
@@ -1221,8 +1078,44 @@ define('nbd/trait/pubsub',[],function() {
     updateOptions : updateOptions
   };
 
-})); // Events
+}); // Events
 ;
+define('nbd/trait/jquery.tmpl',['jquery'], function($) {
+  
+
+  return {
+
+    template : function() {
+      var script = this.templateScript();
+      return script.tmpl.apply(script, arguments);
+    },
+
+    templateScript : function( strict ) {
+
+      strict = ( typeof strict !== 'undefined' ) ? strict : true;
+
+      if ( !this.constructor.$TEMPLATE || !this.constructor.$TEMPLATE.length ) {
+        this.constructor.$TEMPLATE = $( '#' + this.constructor.TEMPLATE_ID );
+      }
+
+      if ( !this.constructor.$TEMPLATE.length ) {
+
+        if ( strict === true ) {
+          $.error( 'Missing template: ' + this.constructor.TEMPLATE_ID );
+        }
+        else {
+          return false;
+        }
+
+      } // if !$TEMPLATE or !$TEMPLATE length
+
+      return this.constructor.$TEMPLATE;
+
+    }
+  };
+
+});
+
 define('nbd/util/pipe',[],function() {
   
   return function chain() {
@@ -1469,11 +1362,12 @@ require([
         'nbd/Controller',
         'nbd/Events',
         'nbd/trait/pubsub',
+        'nbd/trait/jquery.tmpl',
         'nbd/util/async',
         'nbd/util/pipe',
         'nbd/util/protochain',
         'nbd/util/jxon'
-], function(Class, Model, View, Controller, Events, pubsub, async, pipe, protochain, jxon) {
+], function(Class, Model, View, Controller, Events, pubsub, jqtmpl, async, pipe, protochain, jxon) {
   
 
   var exports = {
@@ -1483,7 +1377,8 @@ require([
     Controller : Controller,
     Events : Events,
     trait : {
-      pubsub : pubsub
+      pubsub : pubsub,
+      jqtmpl : jqtmpl
     },
     util : {
       async : async,

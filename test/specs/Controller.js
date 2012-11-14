@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, mostRecentAjaxRequest */
-define(['nbd/Controller', 'Class', 'nbd/View'], function(Controller, Class, View) {
+define(['nbd/Controller', 'Class', 'nbd/View', 'nbd/trait/jquery.tmpl'], function(Controller, Class, View, jqtmpl) {
   'use strict';
 
   describe('Controller', function() {
@@ -16,7 +16,6 @@ define(['nbd/Controller', 'Class', 'nbd/View'], function(Controller, Class, View
       var instance = new Controller();
 
       expect( instance.init ).toBeDefined();
-      expect( instance.render ).toBeDefined();
       expect( instance.destroy ).toBeDefined();
     });
 
@@ -47,7 +46,7 @@ define(['nbd/Controller', 'Class', 'nbd/View'], function(Controller, Class, View
         responseText : JSON.stringify({ html : now })
       },
       promise;
-      View = View.extend({},{ TEMPLATE_ID : tmpl });
+      View = View.extend({},{ TEMPLATE_ID : tmpl }).mixin(jqtmpl);
 
       it('can load templates', function() {
         expect(function(){ Controller.loadTemplate( View ); }).toThrow("No template found");
@@ -59,8 +58,8 @@ define(['nbd/Controller', 'Class', 'nbd/View'], function(Controller, Class, View
         promise = Controller.loadTemplate( View, spies.template )
         .done(function() {
           expect( spies.template ).toHaveBeenCalledWith(tmpl);
-          expect( View.templateScript(false) ).not.toBe(false);
-          expect( +View.templateScript(false).html() ).toEqual(now);
+          expect( View.prototype.templateScript(false) ).not.toBe(false);
+          expect( +View.prototype.templateScript(false).html() ).toEqual(now);
         });
 
         expect( promise.promise ).toBeDefined();

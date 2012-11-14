@@ -1,23 +1,5 @@
-(function(root, factory) {
-  var namespace, name;
-  if (typeof root === 'string') {
-    namespace = root.split('.');
-    name = namespace.pop();
-    root = namespace.reduce(function(o,ns){
-      return o && o[ns];
-    }, this);
-  }
-  if (typeof define === 'function' && define.amd) {
-    define(['jquery', 'nbd/Controller'], function() {
-      var module = factory.apply(this, arguments);
-      if (root) { root[name] = module; }
-      return module;
-    });
-  }
-  else {
-    (root||this)[name] = factory.call(this, jQuery, root);
-  }
-}( 'jQuery.Core.Controller.Entity', function( $, Controller ) {
+define(['jquery', 'nbd/Controller'], function( $, Controller ) {
+  'use strict';
 
   var constructor = Controller.extend({
 
@@ -41,25 +23,9 @@
 
     }, // render
 
-    // refreshing the view according to its model
-    update : function() {
-
-      this.View.update();
-
-    }, // update
-
-    // post draw hook
-    fix : function() {
-      
-      this.View.fix();
-
-    }, // fix
-
     destroy : function() {
-
       this.View.destroy();
       this.Model = this.View = null;
-
     }, // destroy
 
     _initView : function( Model ) {
@@ -77,14 +43,9 @@
 
     }, // requestView
 
-    // swaps this entity's view class with another
     switchView : function( Class ) {
 
       var Existing = this.View;
-      if ( !this.constructor.inherits( Class, AMO.View.Entity ) ) {
-        $.error( "Entity Controller: Non-Entity View" );
-      }
-
       this.View = new Class( this.Model );
       this.View.Controller = this;
 
@@ -107,4 +68,4 @@
 
   return constructor;
 
-}));
+});

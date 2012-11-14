@@ -35,19 +35,10 @@ define(function() {
 
   // Addon: inherits determines if current class inherits from superclass
   inherits = function(superclass) {
-    var ancestor;
-
-    if ( typeof this === 'function' && typeof superclass === 'function' ) {
-      ancestor = this.prototype;
-      while ( ancestor.constructor.__super__ ) {
-        ancestor = ancestor.constructor.__super__;
-        if ( ancestor === superclass.prototype ) {
-          return true;
-        }
-      }
+    if ( !(typeof this === 'function' && typeof superclass === 'function') ) {
+      return false;
     }
-
-    return false;
+    return superclass.prototype.isPrototypeOf( this.prototype );
   };
 
   // The base Class implementation (does nothing)
