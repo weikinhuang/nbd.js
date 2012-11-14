@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, mostRecentAjaxRequest */
-define(['nbd/Controller', 'Class', 'View'], function(Controller, Class, View) {
+define(['nbd/Controller', 'Class', 'nbd/View'], function(Controller, Class, View) {
   'use strict';
 
   describe('Controller', function() {
