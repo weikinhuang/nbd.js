@@ -7,9 +7,9 @@
 define(function() {
   'use strict';
 
-  var timeouts        = [], 
-  messageName     = "async-message",
-  hasPostMessage  = (
+  var timeouts = [], 
+  messageName = "async-message",
+  hasPostMessage = (
     typeof window.postMessage === "function" &&
     typeof window.addEventListener === "function"
   ),
