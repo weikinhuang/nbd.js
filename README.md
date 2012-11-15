@@ -39,3 +39,5 @@ no big deal.
 2. Tests for every module
 3. Views require something to handle existant DOM structures, i.e. not
    templated by JS
+4. Templates registry for sane templates handling, engine-agnostic
+5. HTML5 Worker controllers
