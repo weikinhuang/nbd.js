@@ -26,7 +26,7 @@ version is available at **build/nbd.js**, and the minified version at
 [amd]: https://github.com/amdjs/amdjs-api/wiki/AMD
 [requirejs]: http://requirejs.org/
 
-### [`require()` All the Modules!](tree/master/docs)
+### [`require()` All the Modules!](nbd.js/tree/master/docs)
 
 ## Todos
 
