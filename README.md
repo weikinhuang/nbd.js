@@ -3,8 +3,10 @@ nbd.js
 **No Big Deal, Just Saying**
 
 **nbd.js** is not Yet Another MVC Framework in that it does not seek to be the
-end-all of client-side MVC/MVVM/MVP/MVW/etc needs. Use as much or as little of
-**nbd.js** as you like, because it is designed to provide module functionality.
+end-all of client-side MVC/MVVM/MVP/MVW/etc needs. You can use it as a
+standalone MVC framework, or in conjunction with any other frameworks. Use as
+much or as little of **nbd.js** as you like, because it is designed to provide
+modular functionality.
 
 The best way to use **nbd.js** is through an [AMD module loader][amd] like
 [RequireJS][]. Since each file is a one-to-one mapping to a module, the

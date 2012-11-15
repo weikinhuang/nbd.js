@@ -1,10 +1,10 @@
 # Modules
 
-1. [MVC modules][mvc]
-2. [Traits][trait]
-3. [Utilities][util]
+1. [MVC modules](#mvc-modules)
+2. [Traits](#traits)
+3. [Utilities](#utilities)
 
-## MVC modules [mvc]
+## MVC modules
 
 * nbd/Class
 * nbd/Model
@@ -14,7 +14,7 @@
 * nbd/Controller
   * nbd/Controller/Entity
 
-The heart of nbd.js's flexibility and power comes from the class `Class`.
+The heart of **nbd.js**'s flexibility and power comes from the class `Class`.
 `Class` provides the base functionality from which two main modes of
 inheritance are possible: linear (classical), and horizontal (trait).
 
@@ -47,7 +47,7 @@ Horizontal Inheritance
 ---
 
 Horizontal inheritance is a newer form of inheritance that allows code reuse
-by sharing a common trait. nbd.js achieves this through the `.mixin()` function
+by sharing a common trait. **nbd.js** achieves this through the `.mixin()` function
 that all descendants of `Class` have. *Note: `Class` itself does not have
 `.mixin()`*
 
@@ -82,14 +82,16 @@ The primary purpose of horizontal inheritance is to be able to add
 functionality at any time regardless of inheritance structure. For example,
 `Model` uses `.mixin()` to mix in the `nbd/trait/pubsub` trait in order to gain
 the ability to bind and trigger events. The pubsub trait itself is simply a
-slightly modified version of Backbone.js's Backbone.Event.
+slightly modified version of Backbone.js's [Backbone.Event][1].
 
-## Traits [trait]
+[1]: http://backbonejs.org/#Events
+
+## Traits
 
 * trait/pubsub
 * trait/jquery.tmpl
 
-## Utilities [util]
+## Utilities
 
 * util/async
 * util/jxon
