@@ -1,10 +1,10 @@
 # Modules
 
-1. [MVC modules][]
-2. [Traits][]
-3. [Utilities][]
+1. [MVC modules][mvc]
+2. [Traits][trait]
+3. [Utilities][util]
 
-## MVC modules
+## MVC modules [mvc]
 
 * nbd/Class
 * nbd/Model
@@ -84,12 +84,12 @@ functionality at any time regardless of inheritance structure. For example,
 the ability to bind and trigger events. The pubsub trait itself is simply a
 slightly modified version of Backbone.js's Backbone.Event.
 
-## Traits
+## Traits [trait]
 
 * trait/pubsub
 * trait/jquery.tmpl
 
-## Utilities
+## Utilities [util]
 
 * util/async
 * util/jxon
