@@ -9,9 +9,6 @@
  * - Uses AMD pattern, with global fallback
  * - mixin() for implementing abstracts
  */
-
-/*jslint sloppy:true */
-/*global define, jQuery */
 define(function() {
   "use strict";
 
@@ -35,10 +32,23 @@ define(function() {
 
   // Addon: inherits determines if current class inherits from superclass
   inherits = function(superclass) {
-    if ( !(typeof this === 'function' && typeof superclass === 'function') ) {
-      return false;
+    var prop, result = false;
+    if (typeof superclass === 'function') {
+      // Testing linear inheritance
+      return superclass.prototype.isPrototypeOf( this.prototype );
     }
-    return superclass.prototype.isPrototypeOf( this.prototype );
+    if (typeof superclass === 'object') {
+      // Testing horizontal inheritance
+      result = true;
+      for (prop in superclass) {
+        if (superclass.hasOwnProperty(prop) &&
+            superclass[prop] !== this.prototype[prop]) {
+          result = false;
+          break;
+        }
+      }
+    }
+    return result;
   };
 
   // The base Class implementation (does nothing)
