@@ -28,6 +28,11 @@ version is available at **build/nbd.js**, and the minified version at
 
 ### [`require()` All the Modules!](nbd.js/tree/master/docs)
 
+## Contribute
+Wish JavaScript frameworks provided a feature or solved a problem more
+elegantly? Open up an issue! We'd love to hear from you and adding features is
+no big deal.
+
 ## Todos
 
 1. Documentation of all the modules, especially utilities
