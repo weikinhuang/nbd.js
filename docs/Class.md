@@ -1,4 +1,7 @@
-# nbd/Class
+# `require('nbd/Class')`
+* [.extend()](#extend-prototype-static--linear-inheritance)
+* [.mixin()](#mixin-trait--horizontal-inheritance)
+* [.inherits()](#inherits-ancestor-)
 
 The heart of **nbd.js**'s flexibility and power comes from the class `Class`.
 `Class` provides the base functionality from which two main modes of
@@ -15,18 +18,20 @@ the inheritance chain properly.
 require(['nbd/Class'], function(Class) {
   var Subclass = Class.extend({
     // prototype properties here
-foo: 'bar'
+    foo: 'bar'
   }, {
     // static properties here
-foo: 'baz'
+    foo: 'baz'
   }),
 
-      instance = new Subclass();
+  instance = new Subclass();
 
   instance.foo; // 'bar'
   Subclass.foo; // 'baz'
 });
 ```
+
+**returns** *Function* The new class that was created
 
 ## `.mixin( trait )` Horizontal Inheritance
 
@@ -67,6 +72,8 @@ functionality at any time regardless of inheritance structure. For example,
 `Model` uses `.mixin()` to mix in the `nbd/trait/pubsub` trait in order to gain
 the ability to bind and trigger events. The pubsub trait itself is simply a
 slightly modified version of Backbone.js's [Backbone.Events][1].
+
+**returns** *Function* The class `.mixin()` was called on.
 
 [1]: http://backbonejs.org/#Events
 
