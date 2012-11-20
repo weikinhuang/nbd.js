@@ -43,8 +43,7 @@ define(['nbd/Model', 'Class'], function(Model, Class) {
 
       it('should expect unepxected property names', function() {
         var instance = new Model( 1, {xyz:'xyz'});
-        expect(function(){ instance.get('abc'); }).toThrow();
-        expect(function(){ instance.get('abc',false); }).not.toThrow();
+        expect(instance.get('abc')).not.toBeDefined();
       });
 
       it('should get undefined values', function() {
@@ -60,7 +59,6 @@ define(['nbd/Model', 'Class'], function(Model, Class) {
       it('should accept an object map', function() {
         expect(function(){ instance.set({xyz:0}); }).not.toThrow();
         expect( instance.get('xyz') ).toBe(0);
-        expect(function(){ instance.set({unknown:1}); }).toThrow();
       });
 
       it('should accept a key/value pair', function() {
