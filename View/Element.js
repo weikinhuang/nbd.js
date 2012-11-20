@@ -3,30 +3,25 @@ define(['jquery', 'nbd/View'], function($, View) {
 
   var constructor = View.extend({
 
+    $parent: null,
+
     init : function( $parent ) {
       this.$parent = $parent;
     },
 
     render : function( data ) {
-      var $existing = this.$view;
+      var exists = this.$view && this.$view.length;
 
-      this.$view = this.template( data );
+      this._super(data);
 
-      if ( $existing && $existing.length ) {
-        $existing.replaceWith( this.$view );
-      }
-      else {
-        this.$view.appendTo( this.$parent );
-      }
-
-      if ( $.isFunction(this.rendered) ) {
-        this.rendered();
+      if (!exists) {
+        this.$view.appendTo(this.$parent);
       }
 
       return this.$view;
     }
 
-  }); // View extend
+  });
 
   return constructor;
 
