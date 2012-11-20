@@ -40,11 +40,15 @@ define(['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub'], function($
 
     init : function( id, data ) {
 
-      data = data || {};
-
       if ( typeof id === 'string' && id.match(/^\d+$/) ) {
         id = +id;
       }
+
+      if ( data === undefined ) {
+        data = id;
+      }
+
+      data = data || {};
 
       Object.defineProperty(this, '_dirty', { writable: true });
 
