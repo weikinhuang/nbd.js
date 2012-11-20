@@ -1,8 +1,14 @@
-/*global jasmine, describe, it, expect, spyOn, loadFixtures */
+/*global jasmine, describe, xdescribe, it, expect, spyOn, beforeEach */
 define(['nbd/View', 'Class', 'jquery'], function(View, Class, $) {
   'use strict';
 
   describe('View', function() {
+
+    var instance;
+
+    beforeEach(function() {
+      instance = new View();
+    });
 
     it('should exist', function() {
       expect( View ).toBeDefined();
@@ -13,18 +19,50 @@ define(['nbd/View', 'Class', 'jquery'], function(View, Class, $) {
     });
 
     it('should have prototype methods', function() {
-      var instance = new View();
-      expect( instance.init ).toBeDefined();
-      expect( instance.templateScript ).toBeDefined();
-      expect( instance.destroy ).toBeDefined();
+      expect( instance.render ).toEqual(jasmine.any(Function));
+      expect( instance.template ).toEqual(jasmine.any(Function));
+      expect( instance.templateData ).toEqual(jasmine.any(Function));
+      expect( instance.destroy ).toEqual(jasmine.any(Function));
     });
 
-    it('should have static methods', function() {
-      expect( View.templateScript ).toBeDefined();
+    describe('View.prototype.templateData', function() {
+      it('should return an object', function() {
+        expect( instance.templateData() ).toEqual(jasmine.any(Object)); 
+      });
     });
 
-    describe('View.templateScript', function() {
+    describe('View.prototype.render', function() {
+      it('should use templateData when given no data', function() {
+        spyOn( instance, 'templateData' );
 
+        instance.render();
+
+        expect( instance.templateData ).toHaveBeenCalled();
+      });
+
+      it('should use data when given', function() {
+        var data = { rand: Math.random() };
+
+        spyOn( instance, 'template' ).andCallThrough();
+        spyOn( instance, 'templateData' );
+
+        instance.render(data);
+
+        expect( instance.templateData ).not.toHaveBeenCalled();
+        expect( instance.template ).toHaveBeenCalledWith(data);
+      });
+
+      it('should call rendered() if any', function() {
+        instance.rendered = function() {
+          expect(this).toBe(instance);
+        };
+        spyOn( instance, 'rendered' ).andCallThrough();
+        instance.render();
+        expect( instance.rendered ).toHaveBeenCalled();
+      });
+    });
+
+    xdescribe('View.templateScript', function() {
       it('should try to find the class template', function() {
         expect(function(){ View.templateScript(); }).toThrow();
         expect( View.templateScript(false) ).toBe(false);
@@ -35,11 +73,9 @@ define(['nbd/View', 'Class', 'jquery'], function(View, Class, $) {
         expect( View.templateScript(false) ).not.toBe(false);
         expect( View.templateScript().html() ).toEqual('Hello');
       });
-
     });
 
-    describe('View.prototype.templateScript', function() {
-
+    xdescribe('View.prototype.templateScript', function() {
       it('should find the class template from an instance', function() {
         var instance = new View();
 
@@ -47,21 +83,22 @@ define(['nbd/View', 'Class', 'jquery'], function(View, Class, $) {
         instance.templateScript();
         expect( View.templateScript ).toHaveBeenCalled();
       });
-
     });
 
     describe('View.prototype.destroy', function() {
-
       it('should destroy itself', function() {
         var instance = new View();
-        instance.$view = instance.templateScript();
+
+        instance.template = function() {
+          return $('<div id="mytest" />').appendTo(document.body);
+        };
+
+        instance.render();
         instance.destroy();
         expect( $('#mytest').length ).toBe(0);
         expect( instance.$view ).toBe(null);
       });
-
     });
-
   });
 
   return View;

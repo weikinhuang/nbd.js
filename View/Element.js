@@ -12,11 +12,11 @@ define(['jquery', 'nbd/View'], function($, View) {
     render : function( data ) {
       var exists = this.$view && this.$view.length;
 
-      this._super(data);
-
       if (!exists) {
-        this.$view.appendTo(this.$parent);
+        this.$view = $('<div/>').appendTo(this.$parent);
       }
+
+      this._super(data);
 
       return this.$view;
     }

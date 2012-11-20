@@ -1,8 +1,6 @@
 define(['nbd/Class'], function(Class) {
   "use strict";
 
-  function noop() {}
-
   var constructor = Class.extend({
 
     $view: null,
