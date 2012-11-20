@@ -16,7 +16,9 @@ define(['nbd/Class'], function(Class) {
         $existing.replaceWith( this.$view );
       }
 
-      (this.rendered || noop)(this.$view);
+      if(this.rendered) {
+        this.rendered(this.$view);
+      }
 
       return this.$view;
     },
