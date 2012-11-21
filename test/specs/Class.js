@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn */
-define(['nbd/Class'], function(Class) {
+define(['real/Class'], function(Class) {
   'use strict';
 
   describe('Class', function() {

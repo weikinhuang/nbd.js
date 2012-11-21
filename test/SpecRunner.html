@@ -1,4 +1,4 @@
-<?DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -13,13 +13,22 @@
 
 <script type="text/javascript">
 require.config({
-  baseUrl : 'specs',
+  baseUrl : '.',
   paths: {
-    'nbd' : '../..'
+    'nbd' : 'specs',
+    'real' : '../'
   }
 });
-require(['Model', 'Controller', 'Events', 'util/protochain'], function() {
-  jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+
+require(['nbd/View/Element',
+  'nbd/View/Entity',
+  'nbd/Controller',
+  'nbd/Events',
+  'nbd/util/async',
+  'nbd/util/protochain',
+  'nbd/util/pipe'
+], function() {
+  jasmine.getEnv().addReporter(new jasmine.HtmlReporter());
   jasmine.getEnv().execute();
 });
 </script>

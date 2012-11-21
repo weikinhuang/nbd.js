@@ -1,15 +1,17 @@
-/*global jasmine, describe, it, expect, spyOn, loadFixtures */
-define(['jquery', 'nbd/View/Entity', 'View', 'Model'], function($, Entity, View, Model) {
+/*global jasmine, describe, it, expect, spyOn, beforeEach */
+define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity, $, View, Model) {
   'use strict';
 
   describe('View.Entity', function() {
+    var instance;
 
     it('should exist', function() {
       expect( Entity ).toBeDefined();
     });
 
     it('should extend View', function() {
-      expect( Entity ).toEqual(jasmine.any(View));
+      instance = new Entity();
+      expect( instance ).toEqual(jasmine.any(View));
     });
 
     it('should have prototype methods', function() {
@@ -48,8 +50,8 @@ define(['jquery', 'nbd/View/Entity', 'View', 'Model'], function($, Entity, View,
         instance = new Entity(model);
 
         expect( instance.templateData ).toBeDefined();
-        expect( instance.templateData() ).toBeTypeOf('object');
-        expect( instance.templateData().Model ).toBe( model );
+        expect( instance.templateData() ).toEqual(jasmine.any(Object));
+        expect( instance.templateData() ).toBe( model.data() );
       });
 
     });
@@ -57,36 +59,32 @@ define(['jquery', 'nbd/View/Entity', 'View', 'Model'], function($, Entity, View,
     describe('View.Entity.prototype.render', function() {
       Entity.TEMPLATE_ID = 'entity-template';
 
-      it('should render a template into the parent element', function() {
-        loadFixtures('entity.html');
+      var id, item, $test, model, instance;
 
-        var id = Date.now(),
-        item = 'lorem ipsum',
-        $test = $('#entity-test').html('<br>'),
-        model = new Model( id, {item:item} ),
+      beforeEach(function() {
+        id = Date.now();
+        item = 'lorem ipsum';
+        $test = $('<div id="entity-test"/>');
+        model = new Model( id, {item:item} );
         instance = new Entity(model);
+        instance.template = function(data) {
+          return $('<span>', {text:this.id()+" : "+data.item});
+        };
+      });
 
+      it('should render a template into the parent element', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
 
         instance.render($test);
 
-        expect( $test ).toContain('br');
         expect( $test.text() ).toEqual(id+' : '+item);
         expect( instance.rendered ).toHaveBeenCalled();
         expect( instance.templateData ).toHaveBeenCalled();
       });
 
       it('should re-render without a parent element', function() {
-        loadFixtures('entity.html');
-
-        var id = Date.now(),
-        item = 'lorem ipsum',
-        $test = $('#entity-test'),
-        model = new Model( id, {item:null} ),
-        instance = new Entity(model);
-
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -102,14 +100,6 @@ define(['jquery', 'nbd/View/Entity', 'View', 'Model'], function($, Entity, View,
       });
 
       it('should not render when there\'s no parent and has not already been rendered', function() {
-        loadFixtures('entity.html');
-
-        var id = Date.now(),
-        item = 'lorem ipsum',
-        $test = $('#entity-test'),
-        model = new Model( id, {item:null} ),
-        instance = new Entity(model);
-
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -122,36 +112,20 @@ define(['jquery', 'nbd/View/Entity', 'View', 'Model'], function($, Entity, View,
       });
 
       it('should not re-render, only reattach, when it has been rendered and there is a parent', function() {
-        loadFixtures('entity.html');
-
-        var id = Date.now(),
-        item = 'lorem ipsum',
-        $test = $('#entity-test'),
-        model = new Model( id, {item:null} ),
-        instance = new Entity(model);
-
         instance.rendered = $.noop;
         spyOn( instance, 'templateData' ).andCallThrough();
         instance.render($test);
 
         spyOn( instance, 'rendered' );
-        model.set('item', item);
+        model.set('item', null);
         instance.render($test);
 
-        expect( $test.text() ).toEqual(id+' : null');
+        expect( $test.text() ).toEqual(id+' : '+item);
         expect( instance.rendered ).not.toHaveBeenCalled();
         expect( instance.templateData.callCount ).toBe(1);
       });
 
       it('should always render when it has been pre-templated', function() {
-        loadFixtures('entity.html');
-
-        var id = Date.now(),
-        item = 'lorem ipsum',
-        $test = $('#entity-test'),
-        model = new Model( id, {item:item} ),
-        instance = new Entity(model);
-
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -165,14 +139,6 @@ define(['jquery', 'nbd/View/Entity', 'View', 'Model'], function($, Entity, View,
       });
 
       it('should do nothing when it was pre-templated but there\'s no parent', function() {
-        loadFixtures('entity.html');
-
-        var id = Date.now(),
-        item = 'lorem ipsum',
-        $test = $('#entity-test'),
-        model = new Model( id, {item:item} ),
-        instance = new Entity(model);
-
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();

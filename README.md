@@ -26,7 +26,7 @@ version is available at **build/nbd.js**, and the minified version at
 [amd]: https://github.com/amdjs/amdjs-api/wiki/AMD
 [requirejs]: http://requirejs.org/
 
-### [`require()` All the Modules!](nbd.js/tree/master/docs)
+### [`require()` All the Modules!](nbd.js/blob/master/docs/index.md)
 
 ## Contribute
 Wish JavaScript frameworks provided a feature or solved a problem more
@@ -39,3 +39,5 @@ no big deal.
 2. Tests for every module
 3. Views require something to handle existant DOM structures, i.e. not
    templated by JS
+4. Templates registry for sane templates handling, engine-agnostic
+5. HTML5 Worker controllers
