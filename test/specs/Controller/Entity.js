@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, loadFixtures */
-define(['jquery', 'nbd/Controller/Entity', 'Controller', 'View/Entity', 'Model'], function($, Entity, Controller, View, Model) {
+define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity', 'Model'], function($, Entity, Controller, View, Model) {
   'use strict';
 
   describe('Entity controller', function() {

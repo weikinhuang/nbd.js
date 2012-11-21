@@ -1,5 +1,5 @@
 /*global jasmine, describe, xdescribe, it, expect, spyOn, beforeEach */
-define(['nbd/View', 'Class', 'jquery'], function(View, Class, $) {
+define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
   'use strict';
 
   describe('View', function() {

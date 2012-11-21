@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, afterEach */
-define(['nbd/Events'], function(Events) {
+define(['real/Events'], function(Events) {
   'use strict';
 
   describe('Events', function() {
