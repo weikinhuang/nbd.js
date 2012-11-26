@@ -8,10 +8,11 @@ require([
         'nbd/trait/pubsub',
         'nbd/trait/jquery.tmpl',
         'nbd/util/async',
+		'nbd/util/extend',
         'nbd/util/pipe',
         'nbd/util/protochain',
         'nbd/util/jxon'
-], function(Class, Model, View, Controller, Events, pubsub, jqtmpl, async, pipe, protochain, jxon) {
+], function(Class, Model, View, Controller, Events, pubsub, jqtmpl, async, extend, pipe, protochain, jxon) {
   'use strict';
 
   var exports = {
@@ -22,10 +23,11 @@ require([
     Events : Events,
     trait : {
       pubsub : pubsub,
-      jqtmpl : jqtmpl
+      'jquery.tmpl' : jqtmpl
     },
     util : {
       async : async,
+	  extend : extend,
       pipe : pipe,
       protochain : protochain,
       jxon : jxon
