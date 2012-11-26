@@ -1,30 +1,14 @@
-define(['nbd/Class', 'nbd/util/async', 'nbd/util/extend', 'nbd/trait/pubsub'], function(Class, async, extend, pubsub) {
+define(['nbd/Class',
+       'nbd/util/async',
+       'nbd/util/extend',
+       'nbd/util/diff',
+       'nbd/trait/pubsub'
+], function(Class, async, extend, diff, pubsub) {
   "use strict";
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    var key, i, diff = [];
-
-    for (key in novel) {
-      if (novel.hasOwnProperty(key)) {
-        if (old[key] !== novel[key]) {
-          diff.push([key, novel[key], old[key]]);
-        }
-        delete old[key];
-      }
-    }
-
-    // Any remaining keys are only in the old
-    for (key in old) {
-      if (old.hasOwnProperty(key)) {
-        diff.push([key, undefined, old[key]]);
-      }
-    }
-    
-    for (i=0; i<diff.length; ++i) {
-      this.trigger.apply(this, diff[i]);
-    }
-
+    diff.call(this, novel, old, this.trigger);
     this._dirty = false;
   },
 
