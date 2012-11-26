@@ -2,7 +2,7 @@
 define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity', 'Model'], function($, Entity, Controller, View, Model) {
   'use strict';
 
-  describe('Entity controller', function() {
+  describe('Controller/Entity', function() {
 
     it('should exist', function() {
       expect( Entity ).toBeDefined();

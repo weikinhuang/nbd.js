@@ -2,7 +2,7 @@
 define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity, $, View, Model) {
   'use strict';
 
-  describe('View.Entity', function() {
+  describe('View/Entity', function() {
     var instance;
 
     it('should exist', function() {

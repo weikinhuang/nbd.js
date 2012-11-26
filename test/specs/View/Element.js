@@ -2,7 +2,7 @@
 define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
   'use strict';
 
-  describe('View.Element', function() {
+  describe('View/Element', function() {
     var $parent, instance;
 
     beforeEach(function() {

@@ -78,6 +78,35 @@ define(['real/Class'], function(Class) {
 
     });
 
+    describe('Class.mixin', function() {
+      var Klass = Class.extend(),
+      kInstance = new Klass();
+
+      it('should add object properties into a prototype', function() {
+        Klass.mixin({ bigDeal: 'no' });
+        expect( Klass.prototype.bigDeal ).toBe('no');
+      });
+
+      it('should not add prototype properties into a prototype', function() {
+        var A = Class.extend({protoprop:true});
+        Klass.mixin(new A());
+        expect( Klass.prototype.protoprop ).not.toBeDefined();
+      });
+
+      it('should provide to new instances', function() {
+        expect( new Klass().bigDeal ).toBe('no');
+      });
+
+      it('should provide to existing instances', function() {
+        expect( kInstance.bigDeal ).toBe('no');
+      });
+
+      it('should provide to subclasses', function() {
+        var Qlass = Klass.extend();
+        expect( new Qlass().bigDeal ).toBe('no');
+      });
+    });
+
     describe('Class.inherits', function() {
 
       it('should be able to check its ancestor', function() {
