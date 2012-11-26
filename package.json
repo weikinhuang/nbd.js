@@ -1,0 +1,7 @@
+{
+	"name": "nbd.js",
+	"version": "0.1.0",
+	"author": "Alex Lee <aintaer@aintaer.com>",
+	"description": "A toolset library for MVC organization",
+	"license": "MIT"
+}
