@@ -40,4 +40,6 @@ define(['real/util/pipe'], function(pipe) {
     });
   });
 
+  return pipe;
+
 });
