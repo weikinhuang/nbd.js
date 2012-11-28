@@ -66,6 +66,10 @@ define(['nbd/Class',
         }
         return this;
       }
+    },
+
+    toString: function() {
+      return this.data();
     }
   })
   .mixin(pubsub);
