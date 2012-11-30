@@ -20,10 +20,14 @@ define(['real/util/protochain'], function(protochain) {
     });
 
     it('should append to the prototype chain', function() {
-      var instance = new Subclass();
+      var instance = new Subclass(),
+      pCheck;
       expect(instance).not.toEqual(jasmine.any(Usurper));
 
-      protochain(Subclass, Usurper);
+      pCheck = expect(function() {
+        protochain(Subclass, Usurper);
+      });
+      ('__proto__' in Subclass.prototype ? pCheck.not : pCheck ).toThrow();
 
       expect(instance.constructor).toBe(Subclass);
       expect(instance).toEqual(jasmine.any(Superclass));
