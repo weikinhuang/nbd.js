@@ -24,19 +24,17 @@ define(['nbd/Class',
         data = id;
       }
 
-      data = data || {};
-
-      Object.defineProperty(this, '_dirty', { writable: true });
-
       this.id = function() {
         return id;
       };
 
-      this.data = function() {
-        this._dirty = true;
-        async(dirtyCheck.bind(this, extend({}, data), data));
-        return data;
-      };
+      Object.defineProperty(this, '_dirty', { writable: true });
+      Object.defineProperty(this, '_data', {
+        enumerable: false,
+        configurable: true,
+        value: data || {},
+        writable: true
+      });
 
     },
 
@@ -44,10 +42,14 @@ define(['nbd/Class',
       this.off(null);
     },
 
+    data : function() {
+      this._dirty = true;
+      async(dirtyCheck.bind(this, extend({}, this._data), this._data));
+      return this._data;
+    },
+
     get: function(prop) {
-      var data = this.data();
-      this._dirty = false;
-      return data[prop];
+      return this._data[prop];
     },
 
     set: function(values, value) {
