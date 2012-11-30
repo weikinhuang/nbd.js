@@ -4,11 +4,11 @@ define(['real/util/pipe'], function(pipe) {
 
   describe('util/pipe', function() {
 
-    it('should return a function', function() {
+    it('is a function', function() {
       expect(pipe()).toEqual(jasmine.any(Function));
     });
 
-    it('should call function arguments', function() {
+    it('calls function arguments', function() {
       var args = jasmine.createSpyObj('args', ['first','second','third']),
       piped = pipe(args.first, args.second, args.third);
 
@@ -23,7 +23,7 @@ define(['real/util/pipe'], function(pipe) {
       expect(args.third).toHaveBeenCalled();
     });
 
-    it('should pass the return value along the pipe', function() {
+    it('passes the return value along the pipe', function() {
       var args = jasmine.createSpyObj('args', ['first','second']),
       piped = pipe(args.first, args.second),
       rand1 = Math.random(),

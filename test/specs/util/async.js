@@ -3,7 +3,7 @@ define(['real/util/async'], function(async) {
   'use strict';
 
   describe('util/async', function() {
-    it('should run the callback in a different callstack', function() {
+    it('runs the callback in a different callstack', function() {
       var flag, spy;
 
       spy = jasmine.createSpy('asyncspy').andCallFake(function() {

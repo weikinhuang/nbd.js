@@ -127,13 +127,20 @@ define(['real/Class'], function(Class) {
 
     describe('Class.inherits', function() {
 
-      it('is able to check its ancestor', function() {
-        var A = Class.extend({}), B = A.extend({}), C = Class.extend({});
-        expect(A.inherits(Class)).toBe(true);
-        expect(B.inherits(Class)).toBe(true);
-        expect(C.inherits(Class)).toBe(true);
-        expect(B.inherits(A)).toBe(true);
-        expect(B.inherits(C)).toBe(false);
+      it('can check its ancestor class', function() {
+        var A = Class.extend(), B = A.extend(), C = Class.extend();
+        expect( A.inherits(Class) ).toBe(true);
+        expect( B.inherits(Class) ).toBe(true);
+        expect( C.inherits(Class) ).toBe(true);
+        expect( B.inherits(A) ).toBe(true);
+        expect( B.inherits(C) ).toBe(false);
+      });
+
+      it('can check whether an object was mixed in', function() {
+        var Klass = Class.extend(), trait = { bigDeal: 'no' };
+        Klass.mixin( trait );
+        expect( Klass.inherits(trait) ).toBe(true);
+        expect( Klass.inherits({rTrait:null}) ).toBe(false);
       });
 
     });

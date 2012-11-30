@@ -152,4 +152,6 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
       });
     });
   });
+  
+  return Entity;
 });
