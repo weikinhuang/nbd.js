@@ -70,8 +70,8 @@ define(['nbd/Class',
       }
     },
 
-    toString: function() {
-      return this.data();
+    toJSON: function() {
+      return this._data;
     }
   })
   .mixin(pubsub);
