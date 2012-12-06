@@ -1,33 +1,33 @@
-/*global jasmine, describe, it, expect, spyOn, loadFixtures */
-define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity', 'Model'], function($, Entity, Controller, View, Model) {
+/*global jasmine, describe, it, expect, spyOn, beforeEach */
+define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity', 'nbd/Model'], function($, Entity, Controller, View, Model) {
   'use strict';
 
-  describe('Entity controller', function() {
+  describe('Controller/Entity', function() {
 
-    it('should exist', function() {
-      expect( Entity ).toBeDefined();
+    var instance;
+
+    it('is a Controller constructor', function() {
+      expect( Entity ).toEqual(jasmine.any(Function));
+      expect( Entity.inherits(Controller) ).toBe(true);
     });
 
-    it('should extend Controller', function() {
-      expect( Entity ).toEqual(jasmine.any(Controller));
-    });
+    beforeEach(function() {
+      Entity.MODEL_CLASS = Model;
+      Entity.VIEW_CLASS = View;
 
-    Entity.MODEL_CLASS = Model;
-    Entity.VIEW_CLASS = View;
+      instance = new Entity(0,{});
+    });
 
     describe('Entity.prototype.init', function() {
 
-      it('should create the Model', function() {
-        var instance = new Entity(0,{});
-        expect( instance.Model ).toBeDefined();
+      it('creates the Model', function() {
+        expect( instance.Model ).toEqual(jasmine.any(Model));
       });
 
-      it('should create the View', function() {
-        var instance = new Entity(0,{});
-
+      it('creates the View', function() {
         expect( instance.View ).toBeDefined();
         expect( instance.View.Controller ).toBe( instance );
-        expect( instance.Model.id() ).toBe( instance.View.id() );
+        expect( instance.View.id() ).toBe( instance.Model.id() );
 
       });
 
@@ -35,45 +35,25 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
 
     describe('Entity.prototype.render', function() {
 
-      it('should call View render', function() {
-        var $parent = $(),
-        instance = new Entity(0,{});
+      it('calls View render', function() {
+        var $parent = $();
 
         spyOn( instance.View, 'render' );
         instance.render( $parent );
         expect( instance.View.render ).toHaveBeenCalledWith( $parent );
       });
 
-      it('should render with the specified View class', function() {
+      it('renders with the specified View class', function() {
         var $parent = $(),
         NewViewClass = Entity.VIEW_CLASS.extend({});
-        instance = new Entity(0,{});
 
         instance.render( $parent, NewViewClass );
-        expect( instance.View ).toBeInstanceOf( NewViewClass );
+        expect( instance.View ).toEqual(jasmine.any(NewViewClass));
       });
 
-    });
-
-    describe('Entity.prototype.update', function() {
-      it('should call View update', function() {
-        var instance = new Entity(0,{});
-
-        spyOn( instance.View, 'update' );
-        instance.update();
-        expect( instance.View.update ).toHaveBeenCalled();
-      });
-    });
-
-    describe('Entity.prototype.fix', function() {
-      it('should call View fix', function() {
-        var instance = new Entity(0,{});
-
-        spyOn( instance.View, 'fix' );
-        instance.fix();
-        expect( instance.View.fix ).toHaveBeenCalled();
-      });
     });
 
   });
+
+  return Entity;
 });

@@ -1,17 +1,17 @@
-/*global jasmine, describe, it, expect, spyOn */
+/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['real/Class'], function(Class) {
   'use strict';
 
   describe('Class', function() {
 
-    it('should exist', function() {
+    it('is a constructor', function() {
       expect( Class ).toBeDefined();
       expect( Class ).toEqual(jasmine.any(Function));
     });
 
     describe('Class.extend', function() {
 
-      it('should create subclasses', function() {
+      it('creates subclasses', function() {
         var Subclass = Class.extend({});
         expect( Subclass.__super__ ).toBe( Class.prototype );
         expect( Subclass.prototype.constructor ).toBe( Subclass );
@@ -19,17 +19,17 @@ define(['real/Class'], function(Class) {
         expect( new Subclass() ).toEqual( jasmine.any(Class) );
       });
 
-      it('should inherit from prototype', function() {
+      it('inherits from prototype', function() {
         var rand = Math.random(), Subclass = Class.extend({xyz:rand});
         expect( (new Subclass()).xyz ).toEqual(rand);
       });
 
-      it('should inherit from static', function() {
+      it('inherits from static', function() {
         var rand = Math.random(), Subclass = Class.extend({},{xyz:rand});
         expect( Subclass.xyz ).toEqual(rand);
       });
 
-      it('should call up the init chain by default', function() {
+      it('calls up the init chain by default', function() {
         var superproto = {init:function(){}},
         subproto = {init:function(){}},
         Superclass, Subclass;
@@ -44,7 +44,7 @@ define(['real/Class'], function(Class) {
         expect( subproto.init ).toHaveBeenCalled();
       });
 
-      it('should be able to not call up the init chain', function() {
+      it('is able to not call up the init chain', function() {
         var superproto = {init:function(){}},
         subproto = {init:function(){}},
         Superclass, Subclass;
@@ -78,15 +78,69 @@ define(['real/Class'], function(Class) {
 
     });
 
+    describe('Class.mixin', function() {
+      var Klass, kInstance;
+
+      beforeEach(function() {
+        Klass = Class.extend();
+        kInstance = new Klass();
+      });
+
+      it('adds object properties into a prototype', function() {
+        Klass.mixin({ bigDeal: 'no' });
+        expect( Klass.prototype.bigDeal ).toBe('no');
+      });
+
+      it('doesn\'t add prototype properties into a prototype', function() {
+        var A = Class.extend({protoprop:true});
+        Klass.mixin(new A());
+        expect( Klass.prototype.protoprop ).not.toBeDefined();
+      });
+
+      it('provides to new instances', function() {
+        Klass.mixin({ bigDeal: 'no' });
+        expect( new Klass().bigDeal ).toBe('no');
+      });
+
+      it('provides to existing instances', function() {
+        Klass.mixin({ bigDeal: 'no' });
+        expect( kInstance.bigDeal ).toBe('no');
+      });
+
+      it('provides to subclasses', function() {
+        var Qlass = Klass.extend();
+        Klass.mixin({ bigDeal: 'no' });
+
+        expect( new Qlass().bigDeal ).toBe('no');
+      });
+
+      it('cannot mixin two conflicting objects', function() {
+        Klass.mixin({ bigDeal: 'no' });
+        
+        expect(function() {
+          Klass.mixin({ bigDeal: 'yes' });
+        }).toThrow();
+
+        expect( kInstance.bigDeal ).toBe('no');
+      });
+    });
+
     describe('Class.inherits', function() {
 
-      it('should be able to check its ancestor', function() {
-        var A = Class.extend({}), B = A.extend({}), C = Class.extend({});
-        expect(A.inherits(Class)).toBe(true);
-        expect(B.inherits(Class)).toBe(true);
-        expect(C.inherits(Class)).toBe(true);
-        expect(B.inherits(A)).toBe(true);
-        expect(B.inherits(C)).toBe(false);
+      it('can check its ancestor class', function() {
+        var A = Class.extend(), B = A.extend(), C = Class.extend();
+        expect( A.inherits(Class) ).toBe(true);
+        expect( B.inherits(Class) ).toBe(true);
+        expect( C.inherits(Class) ).toBe(true);
+        expect( B.inherits(A) ).toBe(true);
+        expect( B.inherits(C) ).toBe(false);
+      });
+
+      it('can check whether an object was mixed in', function() {
+        var Klass = Class.extend(), trait = { bigDeal: 'no' };
+        Klass.mixin( trait );
+        expect( Klass.inherits(trait) ).toBe(true);
+        expect( Klass.inherits({rTrait:null}) ).toBe(false);
       });
 
     });

@@ -7,7 +7,7 @@ define(['real/util/extend'], function(extend) {
     b = {two:true}, 
     c = {one:false, three:true};
 
-    it('should add properties to first argument from subsequent arguments', function() {
+    it('adds properties from subsequent arguments to first argument', function() {
       var result = extend(a, b);
       expect(result.one).toBe(true);
       expect(result.two).toBe(true);

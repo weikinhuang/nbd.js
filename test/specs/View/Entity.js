@@ -2,27 +2,17 @@
 define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity, $, View, Model) {
   'use strict';
 
-  describe('View.Entity', function() {
+  describe('View/Entity', function() {
     var instance;
 
-    it('should exist', function() {
-      expect( Entity ).toBeDefined();
-    });
-
-    it('should extend View', function() {
-      instance = new Entity();
-      expect( instance ).toEqual(jasmine.any(View));
-    });
-
-    it('should have prototype methods', function() {
-      expect( Entity.prototype.init ).toBeDefined();
-      expect( Entity.prototype.templateData ).toBeDefined();
-      expect( Entity.prototype.render ).toBeDefined();
+    it('is a View constructor', function() {
+      expect( Entity ).toEqual(jasmine.any(Function));
+      expect( Entity.inherits(View) ).toBe(true);
     });
 
     describe('View.Entity.prototype.init', function() {
 
-      it('should accept a Model', function() {
+      it('accepts a Model', function() {
         var id = Date.now(),
         model = new Model( id, {} ),
         instance = new Entity(model);
@@ -32,7 +22,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.Model ).toBe( model );
       });
 
-      it('should accept non-Models', function() {
+      it('accepts non-Models', function() {
         var id = Date.now(),
         instance = new Entity(id);
 
@@ -45,7 +35,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
     describe('View.Entity.prototype.templateData', function() {
 
-      it('should return an object with the Model', function() {
+      it('returns an object with the Model', function() {
         var model = new Model( 0, {} ),
         instance = new Entity(model);
 
@@ -72,7 +62,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         };
       });
 
-      it('should render a template into the parent element', function() {
+      it('renders a template into the parent element', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -84,7 +74,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData ).toHaveBeenCalled();
       });
 
-      it('should re-render without a parent element', function() {
+      it('re-renders without a parent element', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -99,7 +89,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData ).toHaveBeenCalled();
       });
 
-      it('should not render when there\'s no parent and has not already been rendered', function() {
+      it('does not render when there\'s no parent and has not already been rendered', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -111,7 +101,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData ).not.toHaveBeenCalled();
       });
 
-      it('should not re-render, only reattach, when it has been rendered and there is a parent', function() {
+      it('does not re-render, only reattach, when it has been rendered and there is a parent', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'templateData' ).andCallThrough();
         instance.render($test);
@@ -125,7 +115,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData.callCount ).toBe(1);
       });
 
-      it('should always render when it has been pre-templated', function() {
+      it('always renders when it has been pre-templated', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -138,7 +128,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData ).not.toHaveBeenCalled();
       });
 
-      it('should do nothing when it was pre-templated but there\'s no parent', function() {
+      it('does nothing when it was pre-templated but there\'s no parent', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
@@ -152,4 +142,6 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
       });
     });
   });
+  
+  return Entity;
 });

@@ -1,37 +1,22 @@
 /*global jasmine, describe, it, expect, spyOn, mostRecentAjaxRequest */
-define(['real/Controller', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.tmpl'], function(Controller, Class, View, jqtmpl) {
+define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.tmpl'], function(Controller, $, Class, View, jqtmpl) {
   'use strict';
 
   describe('Controller', function() {
 
-    it('should exist', function() {
-      expect( Controller ).toBeDefined();
-    });
-
-    it('should extend Class', function() {
+    it('is a class constructor', function() {
+      expect( Controller ).toEqual(jasmine.any(Function));
       expect( Controller.inherits(Class) ).toBe(true);
-    });
-
-    it('should have prototype methods', function() {
-      var instance = new Controller();
-
-      expect( instance.init ).toBeDefined();
-      expect( instance.destroy ).toBeDefined();
-    });
-
-    it('should have static methods', function() {
-      expect( Controller.addTemplate ).toBeDefined();
-      expect( Controller.loadTemplate ).toBeDefined();
     });
 
     describe('Controller.addTemplate', function() {
       var tmpl = Controller.addTemplate( 'test-template', "Hello world" );
 
-      it('should add the test-template', function() {
+      it('adds the test-template', function() {
         expect( tmpl.html() ).toEqual('Hello world');
       });
 
-      it('should have loaded with given id', function() {
+      it('adds template with the given id', function() {
         expect( $('#test-template')[0] ).toBe( tmpl[0] );
       });
 
@@ -49,7 +34,9 @@ define(['real/Controller', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.tmpl'], fu
       View = View.extend({},{ TEMPLATE_ID : tmpl }).mixin(jqtmpl);
 
       it('can load templates', function() {
-        expect(function(){ Controller.loadTemplate( View ); }).toThrow("No template found");
+        expect(function() {
+          Controller.loadTemplate( View );
+        }).toThrow("No template found");
 
         jasmine.Ajax.useMock();
         spyOn( spies, 'template' );

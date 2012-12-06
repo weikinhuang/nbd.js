@@ -19,21 +19,23 @@ require.config({
     'real' : '../'
   }
 });
-
+var reporters = [jasmine.HtmlReporter];
+</script>
+</head>
+<body>
+<script type="text/javascript">
 require(['nbd/View/Element',
-  'nbd/View/Entity',
-  'nbd/Controller',
-  'nbd/Events',
-  'nbd/util/async',
-  'nbd/util/protochain',
-  'nbd/util/pipe'
+        'nbd/View/Entity',
+        'nbd/Controller/Entity',
+        'nbd/Events',
+        'nbd/util/protochain',
+        'nbd/util/pipe'
 ], function() {
-  jasmine.getEnv().addReporter(new jasmine.HtmlReporter());
+  reporters.forEach(function(reporter) {
+    jasmine.getEnv().addReporter(new reporter);
+  });
   jasmine.getEnv().execute();
 });
 </script>
-
-</head>
-<body>
 </body>
 </html>
