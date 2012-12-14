@@ -16,12 +16,14 @@
 
 ## Traits
 
-* trait/pubsub
-* trait/jquery.tmpl
+* nbd/trait/pubsub
+* nbd/trait/jquery.tmpl
 
 ## Utilities
 
-* util/async
-* util/jxon
-* util/pipe
-* util/protochain
+* nbd/util/async
+* nbd/util/diff
+* nbd/util/extend
+* nbd/util/media
+* nbd/util/pipe
+* nbd/util/protochain
