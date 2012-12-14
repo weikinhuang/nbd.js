@@ -1,6 +1,6 @@
 (function(global) {
 /**
- * almond 0.2.0 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
+ * almond 0.2.3 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -16,7 +16,12 @@ var requirejs, require, define;
         waiting = {},
         config = {},
         defining = {},
+        hasOwn = Object.prototype.hasOwnProperty,
         aps = [].slice;
+
+    function hasProp(obj, prop) {
+        return hasOwn.call(obj, prop);
+    }
 
     /**
      * Given a relative module name, like ./something, normalize it to
@@ -72,6 +77,10 @@ var requirejs, require, define;
                 //end trimDots
 
                 name = name.join("/");
+            } else if (name.indexOf('./') === 0) {
+                // No baseName, so this is ID is resolved relative
+                // to baseUrl, pull off the leading dot.
+                name = name.substring(2);
             }
         }
 
@@ -151,14 +160,14 @@ var requirejs, require, define;
     }
 
     function callDep(name) {
-        if (waiting.hasOwnProperty(name)) {
+        if (hasProp(waiting, name)) {
             var args = waiting[name];
             delete waiting[name];
             defining[name] = true;
             main.apply(undef, args);
         }
 
-        if (!defined.hasOwnProperty(name) && !defining.hasOwnProperty(name)) {
+        if (!hasProp(defined, name) && !hasProp(defining, name)) {
             throw new Error('No ' + name);
         }
         return defined[name];
@@ -277,9 +286,9 @@ var requirejs, require, define;
                 } else if (depName === "module") {
                     //CommonJS module spec 1.1
                     cjsModule = args[i] = handlers.module(name);
-                } else if (defined.hasOwnProperty(depName) ||
-                           waiting.hasOwnProperty(depName) ||
-                           defining.hasOwnProperty(depName)) {
+                } else if (hasProp(defined, depName) ||
+                           hasProp(waiting, depName) ||
+                           hasProp(defining, depName)) {
                     args[i] = callDep(depName);
                 } else if (map.p) {
                     map.p.load(map.n, makeRequire(relName, true), makeLoad(depName), {});
@@ -377,7 +386,9 @@ var requirejs, require, define;
             deps = [];
         }
 
-        waiting[name] = [name, deps, callback];
+        if (!hasProp(defined, name) && !hasProp(waiting, name)) {
+            waiting[name] = [name, deps, callback];
+        }
     };
 
     define.amd = {
@@ -398,9 +409,6 @@ define("vendor/almond/almond", function(){});
  * - Uses AMD pattern, with global fallback
  * - mixin() for implementing abstracts
  */
-
-/*jslint sloppy:true */
-/*global define, jQuery */
 define('nbd/Class',[],function() {
   
 
@@ -424,10 +432,23 @@ define('nbd/Class',[],function() {
 
   // Addon: inherits determines if current class inherits from superclass
   inherits = function(superclass) {
-    if ( !(typeof this === 'function' && typeof superclass === 'function') ) {
-      return false;
+    var prop, result = false;
+    if (typeof superclass === 'function') {
+      // Testing linear inheritance
+      return superclass.prototype.isPrototypeOf( this.prototype );
     }
-    return superclass.prototype.isPrototypeOf( this.prototype );
+    if (typeof superclass === 'object') {
+      // Testing horizontal inheritance
+      result = true;
+      for (prop in superclass) {
+        if (superclass.hasOwnProperty(prop) &&
+            superclass[prop] !== this.prototype[prop]) {
+          result = false;
+          break;
+        }
+      }
+    }
+    return result;
   };
 
   // The base Class implementation (does nothing)
@@ -541,11 +562,6 @@ define('nbd/Class',[],function() {
   return Klass;
 });
 
-/*jslint sloppy:true */
-define('jquery',[],function() {
-  return global.jQuery;
-});
-
 /**
  * Utility function to break out of the current JavaScript callstack
  * Uses window.postMessage if available, falls back to window.setTimeout
@@ -591,6 +607,100 @@ define('nbd/util/async',[],function() {
   async = (hasPostMessage ? setZeroTimeout : function(fn) {window.setTimeout(fn,0);});
 
   return async;
+});
+
+define('nbd/util/extend',[],function() {
+  
+
+  return function(obj) {
+    var i, prop, source;
+    for (i=1; i<arguments.length; ++i) {
+      source = arguments[i];
+      for (prop in source) {
+        obj[prop] = source[prop];
+      }
+    }
+    return obj;
+  };
+});
+
+define('nbd/util/diff',['nbd/util/extend'], function(extend) {
+  
+
+  var stack = [];
+
+  function objectCheck(cur, prev) {
+    var key, equal=true;
+
+    for (key in cur) {
+      if (cur[key] !== prev[key]) {
+        return false;
+      }
+
+      if (cur[key] && cur.hasOwnProperty(key) && typeof cur[key] === "object") {
+        // Property has been visited, skip
+        if (stack.indexOf(cur[key]) >= 0 ) { continue; }
+
+        try {
+          stack.push(cur[key]);
+
+          // Recurse into object to find diff
+          equal = equal && objectCheck(prev[key], cur[key]);
+        }
+        catch (emptyArgs) {}
+        finally {
+          stack.pop();
+        }
+      }
+
+      if (!equal) { return equal; }
+    }
+
+    return equal;
+  }
+
+  return function diff(cur, prev, callback) {
+    var key, difference, differences = {};
+
+    if (typeof prev !== "object" || typeof cur !== "object" ||
+        prev === null || cur === null) {
+      throw new TypeError('Arguments must be ojects');
+    }
+
+    // Make a copy of prev for its keys
+    prev = extend({},prev);
+
+    for (key in cur) {
+      if (cur.hasOwnProperty(key)) {
+        if (prev[key] !== cur[key] ||
+            (typeof cur[key] === "object" && 
+             cur[key] && 
+             !objectCheck(cur[key], prev[key])
+            )
+           ) 
+        {
+          differences[key] = [cur[key], prev[key]];
+          if (callback) {
+            callback.apply(this, [key, cur[key], prev[key]]);
+          }
+        }
+
+        delete prev[key];
+      }
+    }
+
+    // Any remaining keys are only in the prev
+    for (key in prev) {
+      if (prev.hasOwnProperty(key)) {
+        differences[key] = [cur[key]];
+        if (callback) {
+          callback.apply(this, [key, undefined, prev[key]]);
+        }
+      }
+    }
+    
+    return differences;
+  };
 });
 
 // Backbone.Events
@@ -715,156 +825,81 @@ define('nbd/trait/pubsub',[],function() {
   };
 });
 
-define('nbd/Model',['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub'], function($, Class, async, pubsub) {
+define('nbd/Model',['nbd/Class',
+       'nbd/util/async',
+       'nbd/util/extend',
+       'nbd/util/diff',
+       'nbd/trait/pubsub'
+], function(Class, async, extend, diff, pubsub) {
   
 
-  function _set( data, prop, val, strict ) {
-    if ( strict && !data.hasOwnProperty(prop) ) {
-      throw new Error( 'Invalid property: '+ prop );
-    }
-    data[ prop ] = val;
-  }
-
-  var 
-  dirtyCheck = function(old, novel) {
+  var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    var key, i, diff = [];
-
-    for (key in novel) {
-      if (novel.hasOwnProperty(key)) {
-        if (old[key] !== novel[key]) {
-          diff.push([key, novel[key], old[key]]);
-        }
-        delete old[key];
-      }
-    }
-
-    // Any remaining keys are only in the old
-    for (key in old) {
-      if (old.hasOwnProperty(key)) {
-        diff.push([key, undefined, old[key]]);
-      }
-    }
-    
-    for (i=0; i<diff.length; ++i) {
-      this.trigger.apply(this, diff[i]);
-    }
-
+    diff.call(this, novel, old, this.trigger);
     this._dirty = false;
   },
 
   constructor = Class.extend({
 
-    init : function( id, data ) {
-
-      data = data || {};
+    init: function(id, data) {
 
       if ( typeof id === 'string' && id.match(/^\d+$/) ) {
         id = +id;
       }
 
-      Object.defineProperty(this, '_dirty', { writable: true });
+      if ( data === undefined ) {
+        data = id;
+      }
 
       this.id = function() {
         return id;
       };
 
-      this.data = function() {
-        this._dirty = true;
-        async(dirtyCheck.bind(this, $.extend({}, data), data));
-        return data;
-      };
+      Object.defineProperty(this, '_dirty', { writable: true });
+      Object.defineProperty(this, '_data', {
+        enumerable: false,
+        configurable: true,
+        value: data || {},
+        writable: true
+      });
 
-    }, // init
+    },
 
-    destroy : function() {
+    destroy: function() {
       this.off(null);
     },
 
-    get : function( prop, strict ) {
-    
-      strict = ( typeof strict !== 'boolean' ) ? true : strict;
-      
-      var data = this.data();
+    data : function() {
+      this._dirty = true;
+      async(dirtyCheck.bind(this, extend({}, this._data), this._data));
+      return this._data;
+    },
 
-      if ( strict && !data.hasOwnProperty(prop) ) {
-        throw new Error( 'Invalid property: '+ prop );
-      }
+    get: function(prop) {
+      return this._data[prop];
+    },
 
-      return data[prop];
-
-    }, // get
-
-    set : function( values, value, strict ) {
-
-      var data, key;
-
-      if ( typeof values === "object" ) {
-        strict = value;
-      }
-
-      strict = ( typeof strict === 'boolean' ) ? strict : true;
-      data = this.data();
+    set: function(values, value) {
+      var key, data = this.data();
 
       if ( typeof values === "string" ) {
-        _set( data, values, value, strict );
+        data[values] = value;
         return this;
       }
 
       if ( typeof values === "object" ) {
         for ( key in values ) {
           if ( values.hasOwnProperty( key ) ) {
-            _set( data, key, values[ key ], strict );
+            data[key] = values[key];
           }
         }
         return this;
       }
+    },
 
-    }, // set
-
-    update : function( data, options ) {
-
-      options = options || {type:'POST'};
-      
-      var Model = this,
-          type  = this.constructor.UPDATE_AJAX_TYPE;
-      
-      return $.ajax({
-        url   : this.constructor.URL_UPDATE,
-        type  : type,
-        data  : data
-      }).done( function( json ) {
-        
-        if( Model.constructor.API === true || json.updated ) {
-          
-          if ( Model.constructor.API ) {
-            data = $.extend( json[0], $.parseJSON( data )[0] );
-            if ( Model.constructor.filterUpdateData ) {
-              Model.constructor.filterUpdateData( data );
-            }
-          }
-          
-          Model.set( data );
-        }
-          
-      });
-
-    } // update
-
-  }, {
-
-    create : function( data ) {
-
-      return $.ajax({
-        url   : this.URL_CREATE,
-        type  : 'POST',
-        data  : data
-      });
-
-    }, // create
-
-    UPDATE_AJAX_TYPE : 'POST'
-
+    toJSON: function() {
+      return this._data;
+    }
   })
   .mixin(pubsub);
 
@@ -872,18 +907,34 @@ define('nbd/Model',['jquery', 'nbd/Class', 'nbd/util/async', 'nbd/trait/pubsub']
 
 });
 
-define('nbd/View',['jquery', 'nbd/Class'], function($, Class) {
+define('nbd/View',['nbd/Class'], function(Class) {
   
 
   var constructor = Class.extend({
 
-    $view    : null,
+    $view: null,
 
-    render : function() {},
-    template : function() {},
+    render: function(data) {
+      var $existing = this.$view;
+
+      this.$view = this.template(data || this.templateData());
+
+      if ( $existing && $existing.length ) {
+        $existing.replaceWith( this.$view );
+      }
+
+      if(this.rendered) {
+        this.rendered(this.$view);
+      }
+
+      return this.$view;
+    },
+
+    template: function() {},
+    templateData: function() { return {}; },
     
-    destroy : function() {
-      if ( this.$view instanceof $ ) {
+    destroy: function() {
+      if ( this.$view && this.$view.remove ) {
         this.$view.remove();
       }
       this.$view = null;
@@ -893,6 +944,11 @@ define('nbd/View',['jquery', 'nbd/Class'], function($, Class) {
 
   return constructor;
 
+});
+
+/*jslint sloppy:true */
+define('jquery',[],function() {
+  return global.jQuery;
 });
 
 define('nbd/Controller',['jquery', 'nbd/Class', 'nbd/View'],  function($, Class, View) {
@@ -1116,6 +1172,59 @@ define('nbd/trait/jquery.tmpl',['jquery'], function($) {
 
 });
 
+/**
+ * Responsive media query callbacks
+ * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
+ */
+define('nbd/util/media',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
+  
+
+  var mqChange, mediaCheck,
+  matchMedia = window.matchMedia || window.msMatchMedia;
+
+  function bindMedia( breakpoint, query ) {
+    var match = window.matchMedia( query );
+    match.addListener( mqChange.bind(match, breakpoint) );
+    if (match.matches) { mqChange.call(match, breakpoint); }
+  }
+
+  mediaCheck = function media( options, query ) {
+    var breakpoint;
+
+    // No matchMedia support
+    if ( !matchMedia ) {
+      throw new Error('Media queries not supported.');
+    }
+
+    // Has matchMedia support
+    if ( typeof options === 'string' ) {
+      bindMedia( options, query );
+      return media;
+    }
+
+    if ( typeof options === 'object' ) {
+      for (breakpoint in options) {
+        if (options.hasOwnProperty(breakpoint)) {
+          query = options[breakpoint];
+          bindMedia( breakpoint, query );
+        }
+      }
+    }
+    return media;
+
+  };
+
+  extend(mediaCheck, pubsub);
+
+  mqChange = function(breakpoint) {
+    mediaCheck.trigger(breakpoint + this.matches ? ':enter' : ':exit');
+    mediaCheck.trigger(breakpoint);
+  };
+
+  return mediaCheck;
+
+});
+
 define('nbd/util/pipe',[],function() {
   
   return function chain() {
@@ -1195,165 +1304,6 @@ define('nbd/util/protochain',[],function() {
   }
 });
 
-define('nbd/util/jxon',[],function() {
-  
-
-  /**
-   * Utility for transforming JSON to XML and back
-   * @exports util/jxon
-   * @see https://developer.mozilla.org/en-US/docs/JXON
-   */
-
-  var exports,
-  sValueProp = "keyValue", sAttributesProp = "keyAttributes", sAttrPref = "@", /* you can customize these values */
-  aCache = [], rIsNull = /^\s*$/, rIsBool = /^(?:true|false)$/i;
-
-  function parseText (sValue) {
-    if (rIsNull.test(sValue)) { return null; }
-    if (rIsBool.test(sValue)) { return sValue.toLowerCase() === "true"; }
-    if (isFinite(sValue)) { return parseFloat(sValue); }
-    if (isFinite(Date.parse(sValue))) { return new Date(sValue); }
-    return sValue;
-  }
-
-  function EmptyTree () { }
-  EmptyTree.prototype.toString = function () { return "null"; };
-  EmptyTree.prototype.valueOf = function () { return null; };
-
-  function objectify (vValue) {
-    return vValue === null ? new EmptyTree() : vValue instanceof Object ? vValue : new vValue.constructor(vValue);
-  }
-
-  function createObjTree (oParentNode, nVerb, bFreeze, bNesteAttr) {
-    var
-    nLevelStart = aCache.length, bChildren = oParentNode.hasChildNodes(),
-    bAttributes = oParentNode.hasAttributes(), bHighVerb = Boolean(nVerb & 2),
-
-    sProp, vContent, nLength = 0, sCollectedTxt = "",
-    vResult = bHighVerb ? {} : /* put here the default value for empty nodes: */ true,
-    
-    oAttrib, nAttrib, oNode, nItem, nLevelEnd, vBuiltVal, nElId, nAttrLen, sAPrefix, oAttrParent;
-
-    if (bChildren) {
-      for (nItem = 0; nItem < oParentNode.childNodes.length; nItem++) {
-        oNode = oParentNode.childNodes.item(nItem);
-        if (oNode.nodeType === 4) { sCollectedTxt += oNode.nodeValue; } /* nodeType is "CDATASection" (4) */
-        else if (oNode.nodeType === 3) { sCollectedTxt += oNode.nodeValue.trim(); } /* nodeType is "Text" (3) */
-        else if (oNode.nodeType === 1 && !oNode.prefix) { aCache.push(oNode); } /* nodeType is "Element" (1) */
-      }
-    }
-
-    nLevelEnd = aCache.length;
-    vBuiltVal = parseText(sCollectedTxt);
-
-    if (!bHighVerb && (bChildren || bAttributes)) { vResult = nVerb === 0 ? objectify(vBuiltVal) : {}; }
-
-    for (nElId = nLevelStart; nElId < nLevelEnd; nElId++) {
-      sProp = aCache[nElId].nodeName.toLowerCase();
-      vContent = createObjTree(aCache[nElId], nVerb, bFreeze, bNesteAttr);
-      if (vResult.hasOwnProperty(sProp)) {
-        if (vResult[sProp].constructor !== Array) { vResult[sProp] = [vResult[sProp]]; }
-        vResult[sProp].push(vContent);
-      } else {
-        vResult[sProp] = vContent;
-        nLength++;
-      }
-    }
-
-    if (bAttributes) {
-      nAttrLen = oParentNode.attributes.length;
-      sAPrefix = bNesteAttr ? "" : sAttrPref;
-      oAttrParent = bNesteAttr ? {} : vResult;
-
-      for (nAttrib = 0; nAttrib < nAttrLen; nLength++, nAttrib++) {
-        oAttrib = oParentNode.attributes.item(nAttrib);
-        oAttrParent[sAPrefix + oAttrib.name.toLowerCase()] = parseText(oAttrib.value.trim());
-      }
-
-      if (bNesteAttr) {
-        if (bFreeze) { Object.freeze(oAttrParent); }
-        vResult[sAttributesProp] = oAttrParent;
-        nLength -= nAttrLen - 1;
-      }
-    }
-
-    if (nVerb === 3 || ((nVerb === 2 || (nVerb === 1 && nLength > 0)) && sCollectedTxt)) {
-      vResult[sValueProp] = vBuiltVal;
-    } else if (!bHighVerb && nLength === 0 && sCollectedTxt) {
-      vResult = vBuiltVal;
-    }
-
-    if (bFreeze && (bHighVerb || nLength > 0)) { Object.freeze(vResult); }
-
-    aCache.length = nLevelStart;
-
-    return vResult;
-  }
-
-  function loadObjTree (oXMLDoc, oParentEl, oParentObj) {
-    var vValue, oChild, sName, sAttrib, nItem;
-
-    if (oParentObj instanceof String || oParentObj instanceof Number || oParentObj instanceof Boolean) {
-      oParentEl.appendChild(oXMLDoc.createTextNode(oParentObj.toString())); /* verbosity level is 0 */
-    } else if (oParentObj.constructor === Date) {
-      oParentEl.appendChild(oXMLDoc.createTextNode(oParentObj.toGMTString()));    
-    }
-
-    for (sName in oParentObj) {
-      vValue = oParentObj[sName];
-      if (isFinite(sName) || vValue instanceof Function) { continue; } /* verbosity level is 0 */
-      if (sName === sValueProp) {
-        if (vValue !== null && vValue !== true) { oParentEl.appendChild(oXMLDoc.createTextNode(vValue.constructor === Date ? vValue.toGMTString() : String(vValue))); }
-      } else if (sName === sAttributesProp) { /* verbosity level is 3 */
-      for (sAttrib in vValue) { oParentEl.setAttribute(sAttrib, vValue[sAttrib]); }
-      } else if (sName.charAt(0) === sAttrPref) {
-        oParentEl.setAttribute(sName.slice(1), vValue);
-      } else if (vValue.constructor === Array) {
-        for (nItem = 0; nItem < vValue.length; nItem++) {
-          oChild = oXMLDoc.createElement(sName);
-          loadObjTree(oXMLDoc, oChild, vValue[nItem]);
-          oParentEl.appendChild(oChild);
-        }
-      } else {
-        oChild = oXMLDoc.createElement(sName);
-        if (vValue instanceof Object) {
-          loadObjTree(oXMLDoc, oChild, vValue);
-        } else if (vValue !== null && vValue !== true) {
-          oChild.appendChild(oXMLDoc.createTextNode(vValue.toString()));
-        }
-        oParentEl.appendChild(oChild);
-      }
-    }
-  }
-
-  exports = {
-    /**
-     * Builds a JS object out of an XML Document
-     * @example
-     * var myObject = JXON.build(doc);
-     * JSON.stringify(myObject);
-     */
-    build : function (oXMLParent, nVerbosity /* optional */, bFreeze /* optional */, bNesteAttributes /* optional */) {
-      var _nVerb = arguments.length > 1 && typeof nVerbosity === "number" ? nVerbosity & 3 : /* put here the default verbosity level: */ 1;
-      return createObjTree(oXMLParent, _nVerb, bFreeze || false, arguments.length > 3 ? bNesteAttributes : _nVerb === 3);    
-    },
-
-    /**
-     * Returns a Document from a JS object
-     * @example
-     * var newDoc = JXON.unbuild(myObject);
-     * (new XMLSerializer()).serializeToString(newDoc);
-     */
-    unbuild : function (oObjTree) {    
-      var oNewDoc = document.implementation.createDocument("", "", null);
-      loadObjTree(oNewDoc, oNewDoc, oObjTree);
-      return oNewDoc;
-    }
-  };
-
-  return exports;
-});
-
 /*global global */
 require([
         'nbd/Class',
@@ -1364,10 +1314,12 @@ require([
         'nbd/trait/pubsub',
         'nbd/trait/jquery.tmpl',
         'nbd/util/async',
+        'nbd/util/diff',
+		'nbd/util/extend',
+        'nbd/util/media',
         'nbd/util/pipe',
-        'nbd/util/protochain',
-        'nbd/util/jxon'
-], function(Class, Model, View, Controller, Events, pubsub, jqtmpl, async, pipe, protochain, jxon) {
+        'nbd/util/protochain'
+], function(Class, Model, View, Controller, events, pubsub, jqtmpl, async, diff, extend, media, pipe, protochain) {
   
 
   var exports = {
@@ -1375,16 +1327,18 @@ require([
     Model : Model,
     View : View,
     Controller : Controller,
-    Events : Events,
+    Events : events,
     trait : {
       pubsub : pubsub,
-      jqtmpl : jqtmpl
+      'jquery.tmpl' : jqtmpl
     },
     util : {
       async : async,
+      diff : diff,
+	  extend : extend,
+      media : media,
       pipe : pipe,
-      protochain : protochain,
-      jxon : jxon
+      protochain : protochain
     }
   };
 
