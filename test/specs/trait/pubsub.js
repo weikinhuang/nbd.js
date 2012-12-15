@@ -208,6 +208,17 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
       }).not.toThrow();
     });
 
+    it("fires callbacks after an error is thrown", function() {
+      var obj = extend({}, pubsub),
+      spy = jasmine.createSpy('eventerror').andCallFake(function() { throw new Error(); });
+      obj.on('event', spy);
+
+      expect(function() { obj.trigger('event'); }).toThrow();
+      expect(function() { obj.trigger('event'); }).toThrow();
+      expect(spy).toHaveBeenCalled();
+      expect(spy.callCount).toBe(2);
+    });
+
   });
   return pubsub;
 });
