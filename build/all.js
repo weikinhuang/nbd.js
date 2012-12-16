@@ -1,19 +1,21 @@
 /*global global */
-require([
-        'nbd/Class',
-        'nbd/Model',
-        'nbd/View',
-        'nbd/Controller',
-        'nbd/Events',
-        'nbd/trait/pubsub',
-        'nbd/trait/jquery.tmpl',
-        'nbd/util/async',
-        'nbd/util/diff',
-		'nbd/util/extend',
-        'nbd/util/media',
-        'nbd/util/pipe',
-        'nbd/util/protochain'
-], function(Class, Model, View, Controller, events, pubsub, jqtmpl, async, diff, extend, media, pipe, protochain) {
+define(['nbd/Class',
+       'nbd/Model',
+       'nbd/View',
+       'nbd/View/Entity',
+       'nbd/View/Element',
+       'nbd/Controller',
+       'nbd/Controller/Entity',
+       'nbd/event',
+       'nbd/trait/pubsub',
+       'nbd/trait/jquery.tmpl',
+       'nbd/util/async',
+       'nbd/util/diff',
+       'nbd/util/extend',
+       'nbd/util/media',
+       'nbd/util/pipe',
+       'nbd/util/protochain'
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, diff, extend, media, pipe, protochain) {
   'use strict';
 
   var exports = {
@@ -21,7 +23,7 @@ require([
     Model : Model,
     View : View,
     Controller : Controller,
-    Events : events,
+    event : event,
     trait : {
       pubsub : pubsub,
       'jquery.tmpl' : jqtmpl
@@ -29,12 +31,17 @@ require([
     util : {
       async : async,
       diff : diff,
-	  extend : extend,
+      extend : extend,
       media : media,
       pipe : pipe,
       protochain : protochain
     }
   };
 
+  exports.View.Element = ElementView;
+  exports.View.Entity = EntityView;
+  exports.Controller.Entity = Entity;
+
   global.nbd = exports;
+  return exports;
 });
