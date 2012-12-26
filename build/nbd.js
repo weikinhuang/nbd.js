@@ -409,12 +409,13 @@ define("vendor/almond/almond", function(){});
  * - Uses AMD pattern, with global fallback
  * - mixin() for implementing abstracts
  */
+/*global xyz */
 define('nbd/Class',[],function() {
   
 
   var Klass, inherits, mixin,
   initializing = false, 
-  fnTest = /xyz;/.test(function(){var xyz;return xyz;}) ? /\b_super\b/ : /.*/;
+  fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
 
   // Addon: mixin allows adding any object's properties into the class
   mixin = function(abstract) {
@@ -951,6 +952,100 @@ define('jquery',[],function() {
   return global.jQuery;
 });
 
+define('nbd/View/Entity',['jquery', 'nbd/View', 'nbd/Model'], function($, View, Model) {
+  
+
+  var constructor = View.extend({
+
+    init : function( model ) {
+    
+      if ( model instanceof Model ) {
+        this.Model = model;
+        this.id = this.Model.id;
+      }
+      else {
+        this.id = function() { return model; };
+      }
+    
+    },
+    
+    // all data needed to template the view
+    templateData : function() {
+      return this.Model ? this.Model.data() : this.id();
+    },
+    
+    render : function( $parent ) {
+
+      // $existing could be a string
+      var $existing = this.$view,
+          fresh = !!$existing ^ !!$parent;
+
+      // When there's either no rendered view XOR there isn't a parent
+      if ( fresh ) {
+        if (typeof $existing !== "string" ) {
+          this.$view = this.template( this.templateData() );
+        }
+      }
+      else if ( !$existing ) {
+        return;
+      }
+
+      if (typeof $existing === "string") {
+        this.$view = $(this.$view);
+        fresh = !!$parent;
+        if ( !fresh ) { return; }
+      }
+
+      if ( $parent ) {
+        $parent.append( this.$view );
+      }
+      else {
+        $existing.replaceWith( this.$view );
+      }
+
+      if ( fresh && typeof this.rendered === 'function' ) {
+        this.rendered();
+      }
+
+      return this.$view;
+
+    } // render
+    
+  }); // View Entity
+
+  return constructor;
+
+});
+
+define('nbd/View/Element',['jquery', 'nbd/View'], function($, View) {
+  
+
+  var constructor = View.extend({
+
+    $parent: null,
+
+    init : function( $parent ) {
+      this.$parent = $parent;
+    },
+
+    render : function( data ) {
+      var exists = this.$view && this.$view.length;
+
+      if (!exists) {
+        this.$view = $('<div/>').appendTo(this.$parent);
+      }
+
+      this._super(data);
+
+      return this.$view;
+    }
+
+  });
+
+  return constructor;
+
+});
+
 define('nbd/Controller',['jquery', 'nbd/Class', 'nbd/View'],  function($, Class, View) {
   
 
@@ -1013,129 +1108,91 @@ define('nbd/Controller',['jquery', 'nbd/Class', 'nbd/View'],  function($, Class,
 
 });
 
-define('nbd/Events',['jquery'], function($) {
+define('nbd/Controller/Entity',['jquery', 'nbd/Controller'], function( $, Controller ) {
   
 
-  // Store each registered $.Callbacks object by namespace
-  var cache = {};
+  var constructor = Controller.extend({
 
-  // Bind callback to event
-  function bind( ev, callback, options ) {
+    View  : null,
+    Model : null,
+
+    init : function( id, data ) {
+    
+      this.Model = new this.constructor.MODEL_CLASS( id, data );
+      this._initView( this.Model );
+
+    }, // init
+
+    // renders this entity
+    render : function( $parent, ViewClass ) {
+
+      ViewClass = ViewClass || this.constructor.VIEW_CLASS;
+
+      this.requestView( ViewClass );
+      this.View.render( $parent );
+
+    }, // render
+
+    destroy : function() {
+      this.View.destroy();
+      this.Model = this.View = null;
+    }, // destroy
+
+    _initView : function( Model ) {
+      this.View = new this.constructor.VIEW_CLASS( Model );
+      this.View.Controller = this;
+    }, // makeView
+
+    requestView : function( Class ) {
+
+      if ( this.View instanceof Class || !this.Model ) {
+        return;
+      }
+
+      this.switchView( Class );
+
+    }, // requestView
+
+    switchView : function( Class ) {
+
+      var Existing = this.View;
+      this.View = new Class( this.Model );
+      this.View.Controller = this;
+
+      if ( Existing && Existing.$view !== null ) {
+        this.View.$view = Existing.$view;
+        this.View.render();
+      }
+
+      Existing.destroy();
+    
+    } // switchView
+
+  },{
+    // Corresponding Entity View class
+    VIEW_CLASS : null,
+
+    // Corresponding Entity Model class
+    MODEL_CLASS : null
+  }); // Entity Controller
+
+  return constructor;
+
+});
+
+define('nbd/event',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   
-    if ( typeof ev !== 'string' ) {
-      $.error('Invalid event name');
-    }
 
-    if ( !$.isFunction(callback) ) {
-      $.error('Invalid callback');
-    }
+  var exports = extend({}, pubsub);
 
-    if ( options && cache[ev] ) {
-      $.error('Provided options after initial bind');
-    }
-    
-    // If this callback list does not exist, create it
-    if ( !cache[ ev ] ) {
-      // Make $.Callbacks default to having stopOnFalse
-      options = options || 'stopOnFalse';
-      cache[ ev ] = {
-        cb    : $.Callbacks( options ),
-        funcs : []
-      };
-    }
-    
-    // Add callback to $.Callbacks
-    cache[ ev ].cb.add( callback );
-    cache[ ev ].funcs.push( callback );
-   
-  } // bind
+  // Aliases
+  exports.bind = exports.on;
+  exports.unbind = exports.off;
+  exports.fire = exports.trigger;
 
-  function option( ev, options ) {
+  return exports;
+});
 
-    var inc, len, func;
-  
-    // Create the event if it didn't exist
-    if ( !cache[ ev ] ) {
-      cache[ ev ] = {
-        cb    : $.Callbacks( options ),
-        funcs : []
-      };
-      return;
-    }
-    
-    // Remove all callbacks from $.Callbacks
-    cache[ev].cb.empty();
-    
-    // Create a new $.Callbacks list with the new options
-    // Note: there's no way to restore fired/memory state from the original Callback
-    cache[ ev ].cb = $.Callbacks( options );
-    
-    // Loop through array of callback functions to insert into fresh $.Callbacks
-    for ( inc = 0, len = cache[ ev ].funcs.length; inc < len; ++inc ) {
-      func = cache[ ev ].funcs[ inc ];
-      cache[ ev ].cb.add( func );
-    } // for inc
-
-  }
-  
-  function updateOptions( ev, options ) {
-  
-    if ( !cache[ ev ] ) {
-      $.error('Event does not exist');
-    }
-
-    return option( ev, options );
-  
-  } // updateOptions
-
-  function unbind( ev, callback ) {
-  
-    // Ignore unbind if it didn't exist
-    if ( !cache[ ev ] ) {
-      return;
-    }
-    
-    if ( !callback ) {
-      cache[ ev ].cb.empty();
-      delete cache[ ev ];
-      return;
-    }
-    
-    // Remove from list
-    cache[ ev ].cb.remove( callback );
-    
-    // Remove from cache of funcs for option change
-    cache[ ev ].funcs = $.grep( cache[ ev ].funcs, function(value) {
-      return value !== callback;
-    });
-    
-  } // unbind
-
-  function trigger( ev ) {
-  
-    // Ignore trigger if it doesn't exist
-    if ( !cache[ ev ] ) {
-      return;
-    }
-  
-    // Get dynamic number of arguments, knowing first argument is always event
-    var pass = Array.prototype.slice.call( arguments, 1 );
-        
-    // Call $.Callbacks fire method with right arguments
-    cache[ ev ].cb.fireWith( null, pass );
-    
-  } // trigger
-    
-  return {
-    bind : bind,
-    unbind : unbind,
-    trigger : trigger,
-    option : option,
-    updateOptions : updateOptions
-  };
-
-}); // Events
-;
 define('nbd/trait/jquery.tmpl',['jquery'], function($) {
   
 
@@ -1305,21 +1362,23 @@ define('nbd/util/protochain',[],function() {
 });
 
 /*global global */
-require([
-        'nbd/Class',
-        'nbd/Model',
-        'nbd/View',
-        'nbd/Controller',
-        'nbd/Events',
-        'nbd/trait/pubsub',
-        'nbd/trait/jquery.tmpl',
-        'nbd/util/async',
-        'nbd/util/diff',
-		'nbd/util/extend',
-        'nbd/util/media',
-        'nbd/util/pipe',
-        'nbd/util/protochain'
-], function(Class, Model, View, Controller, events, pubsub, jqtmpl, async, diff, extend, media, pipe, protochain) {
+define('build/all',['nbd/Class',
+       'nbd/Model',
+       'nbd/View',
+       'nbd/View/Entity',
+       'nbd/View/Element',
+       'nbd/Controller',
+       'nbd/Controller/Entity',
+       'nbd/event',
+       'nbd/trait/pubsub',
+       'nbd/trait/jquery.tmpl',
+       'nbd/util/async',
+       'nbd/util/diff',
+       'nbd/util/extend',
+       'nbd/util/media',
+       'nbd/util/pipe',
+       'nbd/util/protochain'
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, diff, extend, media, pipe, protochain) {
   
 
   var exports = {
@@ -1327,7 +1386,7 @@ require([
     Model : Model,
     View : View,
     Controller : Controller,
-    Events : events,
+    event : event,
     trait : {
       pubsub : pubsub,
       'jquery.tmpl' : jqtmpl
@@ -1335,15 +1394,18 @@ require([
     util : {
       async : async,
       diff : diff,
-	  extend : extend,
+      extend : extend,
       media : media,
       pipe : pipe,
       protochain : protochain
     }
   };
 
-  global.nbd = exports;
-});
+  exports.View.Element = ElementView;
+  exports.View.Entity = EntityView;
+  exports.Controller.Entity = Entity;
 
-define("build/all", function(){});
+  global.nbd = exports;
+  return exports;
+});
 }(this));

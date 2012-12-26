@@ -9,12 +9,13 @@
  * - Uses AMD pattern, with global fallback
  * - mixin() for implementing abstracts
  */
+/*global xyz */
 define(function() {
   "use strict";
 
   var Klass, inherits, mixin,
   initializing = false, 
-  fnTest = /xyz;/.test(function(){var xyz;return xyz;}) ? /\b_super\b/ : /.*/;
+  fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
 
   // Addon: mixin allows adding any object's properties into the class
   mixin = function(abstract) {
