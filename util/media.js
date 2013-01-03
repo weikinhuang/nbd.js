@@ -43,7 +43,7 @@ define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   extend(mediaCheck, pubsub);
 
   mqChange = function(breakpoint) {
-    mediaCheck.trigger(breakpoint + this.matches ? ':enter' : ':exit');
+    mediaCheck.trigger(breakpoint + (this.matches ? ':enter' : ':exit'));
     mediaCheck.trigger(breakpoint);
   };
 
