@@ -1,6 +1,8 @@
 define(['jquery'], function($) {
   "use strict";
 
+  console.warn('nbd/Events is deprecated. See nbd/event');
+
   // Store each registered $.Callbacks object by namespace
   var cache = {};
 

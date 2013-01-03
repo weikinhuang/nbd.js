@@ -18,6 +18,11 @@ define(['real/util/extend'], function(extend) {
       expect(result.two).toBe(true);
       expect(result.three).toBe(true);
     });
+
+    it('returns the extended object', function() {
+      var result = extend(a, b);
+      expect(result).toBe(a);
+    });
   });
 
   return extend;
