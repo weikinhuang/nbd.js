@@ -35,6 +35,15 @@ define(['real/util/media'], function(media) {
         media('zeropx', '(max-width: 0px)');
         expect(spy).not.toHaveBeenCalled();
       });
+
+      describe('getState()', function() {
+
+        it('reports breakpoint states', function() {
+          expect( media.getState('onepx') ).toBe(true);
+          expect( media.getState('zeropx') ).toBe(false);
+        });
+
+      });
     }
 
   });
