@@ -5,11 +5,13 @@
 define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   'use strict';
 
-  var mqChange, mediaCheck,
+  var queries = {},
+  mqChange, mediaCheck,
   matchMedia = window.matchMedia || window.msMatchMedia;
 
   function bindMedia( breakpoint, query ) {
     var match = window.matchMedia( query );
+    queries[breakpoint] = match;
     match.addListener( mqChange.bind(match, breakpoint) );
     if (match.matches) { mqChange.call(match, breakpoint); }
   }
@@ -45,6 +47,10 @@ define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   mqChange = function(breakpoint) {
     mediaCheck.trigger(breakpoint + (this.matches ? ':enter' : ':exit'));
     mediaCheck.trigger(breakpoint);
+  };
+
+  mediaCheck.getState = function(breakpoint) {
+    return queries[breakpoint] && queries[breakpoint].matches;
   };
 
   return mediaCheck;
