@@ -28,13 +28,20 @@ define(['nbd/Class',
         return id;
       };
 
-      Object.defineProperty(this, '_dirty', { writable: true });
-      Object.defineProperty(this, '_data', {
-        enumerable: false,
-        configurable: true,
-        value: data || {},
-        writable: true
-      });
+      try {
+        Object.defineProperty(this, '_dirty', { writable: true });
+        Object.defineProperty(this, '_data', {
+          enumerable: false,
+          configurable: true,
+          value: data || {},
+          writable: true
+        });
+      }
+      catch (noDefineProperty) {
+        // Can't use ES5 Object.defineProperty, fallback
+        this._dirty = undefined;
+        this._data = data;
+      }
 
     },
 
