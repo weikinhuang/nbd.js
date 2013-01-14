@@ -219,6 +219,20 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
       expect(spy.callCount).toBe(2);
     });
 
+    it("listenTo and stopListening", function() {
+      var a = extend({}, pubsub),
+      b = extend({}, pubsub),
+      spyA = jasmine.createSpy('a');
+
+      a.listenTo(b, 'all', spyA);
+      b.trigger('anything');
+      a.listenTo(b, 'all', spyA);
+      a.stopListening();
+      b.trigger('anything');
+
+      expect(spyA).toHaveBeenCalled();
+      expect(spyA.callCount).toBe(1);
+    });
   });
   return pubsub;
 });
