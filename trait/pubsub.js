@@ -4,17 +4,16 @@ define(function() {
   'use strict';
 
   // Regular expression used to split event strings
-  var eventSplitter = /\s+/;
+  var eventSplitter = /\s+/,
+  
+  uId = function uid(prefix) {
+    uid.i = uid.i || 0;
+    return (prefix || '') + (++uid.i);
+  };
 
   // A module that can be mixed in to *any object* in order to provide it with
   // custom events. You may bind with `on` or remove with `off` callback functions
   // to an event; `trigger`-ing an event fires all callbacks in succession.
-  //
-  // var object = {};
-  // _.extend(object, Backbone.Events);
-  // object.on('expand', function(){ alert('expanded'); });
-  // object.trigger('expand');
-  //
   return {
 
     // Bind one or more space separated events, `events`, to a `callback`
@@ -114,6 +113,33 @@ define(function() {
         }
       }
 
+      return this;
+    },
+
+    // An inversion-of-control version of `on`. Tell *this* object to listen to
+    // an event in another object ... keeping track of what it's listening to.
+    listenTo: function(object, events, callback) {
+      var listeners = this._listeners || (this._listeners = {});
+      var id = object._listenerId || (object._listenerId = uId('l'));
+      listeners[id] = object;
+      object.on(events, callback || this, this);
+      return this;
+    },
+
+    // Tell this object to stop listening to either specific events ... or
+    // to every object it's currently listening to.
+    stopListening: function(object, events, callback) {
+      var listeners = this._listeners;
+      if (!listeners) return;
+      if (object) {
+        object.off(events, callback, this);
+        if (!events && !callback) delete listeners[object._listenerId];
+      } else {
+        for (var id in listeners) {
+          listeners[id].off(null, null, this);
+        }
+        this._listeners = {};
+      }
       return this;
     }
 
