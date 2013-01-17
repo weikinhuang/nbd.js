@@ -6,7 +6,7 @@ define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   'use strict';
 
   var queries = {},
-  mqChange, mediaCheck,
+  mqChange,
   matchMedia = window.matchMedia || window.msMatchMedia;
 
   function bindMedia( breakpoint, query ) {
@@ -16,7 +16,11 @@ define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
     if (match.matches) { mqChange.call(match, breakpoint); }
   }
 
-  mediaCheck = function media( options, query ) {
+  function isActive(breakpoint) {
+    return queries[breakpoint] && queries[breakpoint].matches;
+  }
+
+  function media( options, query ) {
     var breakpoint;
 
     // No matchMedia support
@@ -40,19 +44,24 @@ define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
     }
     return media;
 
-  };
+  }
 
-  extend(mediaCheck, pubsub);
+  extend(media, pubsub);
 
   mqChange = function(breakpoint) {
-    mediaCheck.trigger(breakpoint + (this.matches ? ':enter' : ':exit'));
-    mediaCheck.trigger(breakpoint, this.matches);
+    media.trigger(breakpoint + (this.matches ? ':enter' : ':exit'));
+    media.trigger(breakpoint, this.matches);
   };
 
-  mediaCheck.getState = function(breakpoint) {
-    return queries[breakpoint] && queries[breakpoint].matches;
+  media.is = isActive;
+  media.getState = function(breakpoint) {
+    if ( breakpoint ) {
+      return isActive(breakpoint);
+    }
+
+    return Object.keys(queries).filter(isActive);
   };
 
-  return mediaCheck;
+  return media;
 
 });
