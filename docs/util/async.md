@@ -6,6 +6,8 @@ The `async` module is a utility function module. Like all othe utility function 
 The purpose of `async` is to provide a platform-independent way to make use of timers in JavaScript to start another callstack after the current one.
 
 ## `( callback )`
+**callback()**
+
 Since JavaScript is primarily a single-threaded environment, execution of another callstack is kicked off with an event. The `async` module makes use of `window.postMessage()` where available in order to register an event as immediate as possible after the current callstack has completed.
 Failing `window.postMessage()`, `async` falls back to using `setTimeout()` in order to achieve nearly the same effect, but see [caveats][1].
 
