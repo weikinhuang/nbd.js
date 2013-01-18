@@ -21,7 +21,7 @@
 
 ## Utilities
 
-* nbd/util/async
+* [nbd/util/async](util/async.md)
 * nbd/util/diff
 * nbd/util/extend
 * nbd/util/media
