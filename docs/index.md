@@ -29,7 +29,7 @@ Utilities are usually functions meant to be run by themselves. However some util
 
 * [nbd/util/async](util/async.md)
 * nbd/util/diff
-* nbd/util/extend
+* [nbd/util/extend](util/extend.md)
 * nbd/util/media
 * nbd/util/pipe
 * nbd/util/protochain
