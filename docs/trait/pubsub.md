@@ -2,8 +2,8 @@
 * [.on()](#on-event-callback-context-)
 * [.off()](#off-event-callback-context-)
 * [.trigger()](#trigger-event-args-)
-* [.listenTo()](#listenTo-publisher-event-callback-)
-* [.stopListening()](#stopListening-publisher-event-callback-)
+* [.listenTo()](#listento-publisher-event-callback-)
+* [.stopListening()](#stoplistening-publisher-event-callback-)
 
 The publisher-subscriber pattern is a well established event-based pattern that **nbd.js** uses heavily. In order to provide an implementation for that pattern across many different use cases, **nbd.js** uses the `pubsub` trait.
 
@@ -42,4 +42,5 @@ The Inversion-Of-Control version of `.on()`. Whereas `.on()` puts all event mana
 ## `.stopListening( [publisher, event, callback] )`
 
 The Inversion-Of-Control version of `.off()`. Like `.listenTo`, `.stopListening()` handles the event subscriptions on the subscriber side. Calling `.stopListening()` with no arguments cancels all subscriber event subscriptions to any publisher.
+
 **returns** ___this___
