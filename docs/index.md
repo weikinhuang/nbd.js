@@ -20,7 +20,7 @@ All MVC modules are Class constructors. I.e. they return functions that are inte
 
 Traits are simply objects meant to be `extend()`ed into existing objects or `.mixin()`ed into Classes.
 
-* nbd/trait/pubsub
+* [nbd/trait/pubsub](trait/pubsub.md)
 * nbd/trait/jquery.tmpl
 
 ## Utilities
