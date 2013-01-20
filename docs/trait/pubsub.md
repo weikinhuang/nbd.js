@@ -35,7 +35,7 @@ Fires off an event. As with all uses of `pubsub` functions, `event` can be a spa
 
 ## `.listenTo( publisher, event, callback )`
 
-The Inversion-Of-Control version of `.on()`. Whereas `.on()` puts all event management responsibilities on the object providing the publishing functionality, `.listenTo()` handles the bindings on the subscriber. The subscriber can then `.listenTo()` any number of publishers.
+The Inversion-Of-Control version of `.on()`. Whereas `.on()` puts all event management responsibilities on the object providing the publishing functionality, `.listenTo()` handles the bindings on the subscriber. The subscriber can then `.listenTo()` any number of publishers; all bindings are with `this` as the context.
 
 **returns** ___this___
 
