@@ -13,7 +13,7 @@ The best way to use **nbd.js** is through an [AMD module loader][amd] like
 fastest way to use **nbd.js** inside your JavaScript project is to check it out as
 a git submodule. From the root of your own project's git repository:
 
-    git submodule add git@github.com/behance/nbd.js.git path/to/modules/nbd
+    git submodule add https://github.com/behance/nbd.js.git path/to/modules/nbd
 
 Then `require()` the modules you want into your project, and you're ready to
 go! 
@@ -36,8 +36,7 @@ no big deal.
 ## Todos
 
 1. Documentation of all the modules, especially utilities
-2. Tests for every module
-3. Views require something to handle existant DOM structures, i.e. not
+2. Views require something to handle existant DOM structures, i.e. not
    templated by JS
-4. Templates registry for sane templates handling, engine-agnostic
-5. HTML5 Worker controllers
+3. Templates registry for sane templates handling, engine-agnostic
+4. HTML5 Worker controllers

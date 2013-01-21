@@ -51,7 +51,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
     });
 
     describe('Model.prototype.set', function() {
-      var rand = Math.random(), instance = new Model( 1, {xyz:null});
+      var rand = Math.random(), instance = new Model( 1, {xyz:null, foo:'bar'});
 
       it('accepts an object map', function() {
         expect(function(){ instance.set({xyz:0}); }).not.toThrow();
@@ -63,6 +63,31 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         expect( instance.get('xyz') ).toBe(rand);
       });
 
+      it('announces changes to the data object', function() {
+        var result, cb;
+
+        cb = jasmine.createSpy('fooSpy').andCallFake(function(val) {
+          result = val;
+        });
+
+        runs(function() {
+          instance.on('foo', cb);
+
+          expect(instance.get('foo')).toBe('bar');
+          instance.set('foo', 'baz');
+        });
+
+        waitsFor(function() {
+          return !!result;
+        }, "Callback was not called", 10);
+
+        runs(function() {
+          expect(cb).toHaveBeenCalledWith('baz', 'bar');
+          expect(result).toBe('baz');
+          expect(instance.get('foo')).toBe('baz');
+        });
+
+      });
     });
 
     describe('Model.prototype.data', function() {

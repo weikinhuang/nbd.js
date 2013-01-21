@@ -8,8 +8,8 @@ define(['nbd/Class',
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    diff.call(this, novel, old, this.trigger);
-    this._dirty = false;
+    diff.call(this, novel || this._data, old, this.trigger);
+    this._dirty = 0;
   },
 
   constructor = Class.extend({
@@ -29,7 +29,7 @@ define(['nbd/Class',
       };
 
       try {
-        Object.defineProperty(this, '_dirty', { writable: true });
+        Object.defineProperty(this, '_dirty', { value: 0, writable: true });
         Object.defineProperty(this, '_data', {
           enumerable: false,
           configurable: true,
@@ -39,7 +39,7 @@ define(['nbd/Class',
       }
       catch (noDefineProperty) {
         // Can't use ES5 Object.defineProperty, fallback
-        this._dirty = undefined;
+        this._dirty = 0;
         this._data = data;
       }
 
@@ -50,8 +50,9 @@ define(['nbd/Class',
     },
 
     data : function() {
-      this._dirty = true;
-      async(dirtyCheck.bind(this, extend({}, this._data), this._data));
+      if (!(this._dirty++)) {
+        async(dirtyCheck.bind(this, extend({}, this._data)));
+      }
       return this._data;
     },
 

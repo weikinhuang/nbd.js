@@ -6,8 +6,10 @@
 
 ## MVC modules
 
-* [nbd/Class](Class.md)
-* nbd/Model
+All MVC modules are Class constructors. I.e. they return functions that are intended to be instanciated with `new`.
+
+* [nbd/Class](mvc/Class.md)
+* [nbd/Model](mvc/Model.md)
 * nbd/View
   * nbd/View/Entity
   * nbd/View/Element
@@ -16,14 +18,19 @@
 
 ## Traits
 
-* nbd/trait/pubsub
+Traits are simply objects meant to be `extend()`ed into existing objects or `.mixin()`ed into Classes.
+
+* [nbd/trait/pubsub](trait/pubsub.md)
 * nbd/trait/jquery.tmpl
 
 ## Utilities
 
-* nbd/util/async
-* nbd/util/diff
-* nbd/util/extend
+Utilities are usually functions meant to be run by themselves. However some utility functions have extra functionality attached.
+
+* [nbd/util/async](util/async.md)
+* nbd/util/deparam
+* [nbd/util/diff](util/diff.md)
+* [nbd/util/extend](util/extend.md)
 * nbd/util/media
-* nbd/util/pipe
+* [nbd/util/pipe](util/pipe.md)
 * nbd/util/protochain
