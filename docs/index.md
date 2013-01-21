@@ -9,7 +9,7 @@
 All MVC modules are Class constructors. I.e. they return functions that are intended to be instanciated with `new`.
 
 * [nbd/Class](mvc/Class.md)
-* nbd/Model
+* [nbd/Model](mvc/Model.md)
 * nbd/View
   * nbd/View/Entity
   * nbd/View/Element
