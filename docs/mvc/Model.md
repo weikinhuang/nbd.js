@@ -13,6 +13,18 @@ The data-wrapping class of **nbd.js**. It is meant to be instanciated with the d
 When a `Model` instance has its data members changed according to the [`nbd/util/diff`](util/diff.md) module, it triggers an event with the same name as the key of the member that has changed, with the value as the argument to the event.
 This change detection happens off the current callstack, so as not to put overhead on data manipulation itself.
 
+```javascript
+require(['nbd/Model'], function(Model) {
+  var car = new Model({ rims: 'plain' });
+
+  car.on('rims', function(is, was) {
+    console.log("New "+is+" rims");
+  });
+
+  car.data().rims = "kickin'"; // logs: New kickin' rims
+});
+```
+
 ## `constructor( [id, ]data )`
 
 The `Model` constructor expects the data to be managed. The data is internally stored as a reference to `data`, so modifying the original `data` object will change it in the `Model` instance.
