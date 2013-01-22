@@ -1,5 +1,5 @@
 # `require('nbd/util/media')`
-  *mixesin* [nbd/trait/pubsub](../trait/pubsub)
+  *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
 
 * [()](#-breakpoint-query-)
 * [.is()](#is-breakpoint-)
@@ -16,7 +16,9 @@ Adds a breakpoint definition to the `media` module. A breakpoint definition is a
 
 Multiple breakpoints can be specified at the same time by giving `media()` an object with the breakpoint names as keys and their media queries as values.
 
-    media({small:'all and (max-width:600px)', medium:'all and (max-width:1280px)'})
+```javascript
+media({small:'all and (max-width:600px)', medium:'all and (max-width:1280px)'})
+```
 
 `media` uses `nbd/trait/pubsub` to publish whenever a breakpoint is entered or exited. The event it fires is the name of the breakpoint with a boolean argument of the state of the breakpoint. In addition, there is a ":enter" and ":exit" event for every breakpoint.
 
@@ -49,4 +51,4 @@ For checking whether or not `breakpoint` is currently active as defined by its a
 
 Gets the currently matching breakpoints in an array. If provided a specific breakpoint, behaves exactly as `.is( breakpoint )`.
 
-**returns** *Array* All the currently active breakpoints
+**returns** *Array* All currently active breakpoints
