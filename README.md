@@ -33,6 +33,32 @@ Wish JavaScript frameworks provided a feature or solved a problem more
 elegantly? Open up an issue! We'd love to hear from you and adding features is
 no big deal.
 
+### Coding Standard
+**nbd.js** uses softtabstop=2, unix line endings. All modules are written
+expecting an ES5 conformant engine, in ES5 Strict Mode. Compatibility with
+older browsers is expected to be provided by a polyfill like [es5-shim][shim].
+
+In addition, all code is expected to pass [JSLint][] with the following rules,
+with reasonable exceptions.
+
+    {
+      bitwise: true,
+      browser: true,
+      continue: true,
+      debug: true,
+      devel: true,
+      eqeq: true,
+      forin: true,
+      nomen: true,
+      plusplus: true,
+      regexp: true,
+      undef: true,
+      white: true
+    }
+
+[shim]: https://github.com/kriskowal/es5-shim
+[jslint]: http://www.jslint.com/lint.html
+
 ## Todos
 
 1. Documentation of all the modules, especially utilities
