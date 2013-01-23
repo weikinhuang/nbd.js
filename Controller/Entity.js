@@ -54,7 +54,7 @@ define(['jquery', 'nbd/Controller'], function( $, Controller ) {
         this.View.render();
       }
 
-      Existing.destroy();
+      return Existing && Existing.destroy();
     
     } // switchView
 
