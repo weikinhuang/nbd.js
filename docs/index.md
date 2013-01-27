@@ -28,6 +28,7 @@ Traits are simply objects meant to be `extend()`ed into existing objects or `.mi
 Utilities are usually functions meant to be run by themselves. However some utility functions have extra functionality attached.
 
 * [nbd/util/async](util/async.md)
+* [nbd/util/construct](util/construct.md)
 * nbd/util/deparam
 * [nbd/util/diff](util/diff.md)
 * [nbd/util/extend](util/extend.md)
