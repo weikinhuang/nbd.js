@@ -1,58 +1,32 @@
-define(['jquery', 'nbd/Class', 'nbd/View'],  function($, Class, View) {
+define(['nbd/Class',
+       'nbd/View',
+       'nbd/util/construct'
+],  function(Class, View, construct) {
   "use strict";
 
   var constructor = Class.extend({
-    // Stubs
-    init : function() {},
-    destroy : function() {}
-  },{
+    View  : null,
+    destroy : function() {},
 
-    addTemplate : function( id, html ) {
-      return $('<script id="' + id + '" type="text/x-jquery-tmpl">' + html + '</script>').appendTo( document.body );
-    }, // addTemplate
+    _initView : function( ViewClass ) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      (this.View = construct.apply(ViewClass, args))
+      .Controller = this;
+    },
 
+    switchView : function() {
+      var Existing = this.View;
+      this._initView.apply(this, arguments);
 
-    // Loads a template into the page, given either the template id and URL or a view
-    // Controller.loadTemplate( View, [callback(templateId)] );
-    loadTemplate : function( view, callback ) {
+      if ( !Existing ) { return; }
 
-      var wait = $.Deferred(),
-          TEMPLATE_ID, TEMPLATE_URL;
-
-      if ( view.inherits && view.inherits(View) ) {
-        callback     = (typeof callback === "function" && callback !== view) ? callback : null;
-        TEMPLATE_ID  = view.TEMPLATE_ID;
-        TEMPLATE_URL = view.TEMPLATE_URL;
+      if (Existing.$view) {
+        this.View.$view = Existing.$view;
+        this.View.render();
       }
 
-      if ( $('#'+TEMPLATE_ID).length ) {
-        return $.Deferred().resolve();
-      }
-      
-      if ( !TEMPLATE_ID || !TEMPLATE_URL ) {
-        $.error("No template found");
-        return false;
-      }
-
-      $.ajax({
-        url : TEMPLATE_URL,
-        cache : true
-      }).then( function( data ) {
-        var sargs = arguments;
-        if ( !data.html ) {
-          return false;
-        }
-
-        $(function(){
-          constructor.addTemplate( TEMPLATE_ID, data.html );
-          if ( $.isFunction(callback) ) { callback( TEMPLATE_ID ); }
-          wait.resolve.apply( wait, sargs );
-        });
-      }, wait.reject, wait.notify);
-
-      return wait.promise();
-
-    } // loadTemplate
+      Existing.destroy();
+    }
 
   });
 

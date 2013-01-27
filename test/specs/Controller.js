@@ -9,7 +9,7 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.
       expect( Controller.inherits(Class) ).toBe(true);
     });
 
-    describe('Controller.addTemplate', function() {
+    xdescribe('Controller.addTemplate', function() {
       var tmpl = Controller.addTemplate( 'test-template', "Hello world" );
 
       it('adds the test-template', function() {
@@ -22,7 +22,7 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.
 
     });
 
-    describe('Controller.loadTemplate', function() {
+    xdescribe('Controller.loadTemplate', function() {
       var tmpl = 'load-test-template',
       spies = { template:function(){} },
       now = Date.now(),
