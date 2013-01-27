@@ -10,13 +10,14 @@ define(['nbd/Class',
        'nbd/trait/pubsub',
        'nbd/trait/jquery.tmpl',
        'nbd/util/async',
+       'nbd/util/construct',
        'nbd/util/deparam',
        'nbd/util/diff',
        'nbd/util/extend',
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/protochain'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, deparam, diff, extend, media, pipe, protochain) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, construct, deparam, diff, extend, media, pipe, protochain) {
   'use strict';
 
   var exports = {
@@ -31,6 +32,7 @@ define(['nbd/Class',
     },
     util : {
       async : async,
+      construct : construct,
       deparam : deparam,
       diff : diff,
       extend : extend,

@@ -1,23 +1,21 @@
-define(['jquery', 'nbd/View', 'nbd/Model'], function($, View, Model) {
+define(['jquery', 'nbd/View'], function($, View) {
   "use strict";
 
   var constructor = View.extend({
 
     init : function( model ) {
-    
-      if ( model instanceof Model ) {
+      if (typeof model === 'object') {
         this.Model = model;
-        this.id = this.Model.id;
       }
-      else {
-        this.id = function() { return model; };
-      }
-    
+
+      this.id = model.id || function() {
+        return model;
+      };
     },
     
     // all data needed to template the view
     templateData : function() {
-      return this.Model ? this.Model.data() : this.id();
+      return (this.Model && this.Model.data) ? this.Model.data() : this.id();
     },
     
     render : function( $parent ) {
