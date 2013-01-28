@@ -8,7 +8,7 @@ define(['jquery', 'nbd/View'], function($, View) {
         this.Model = model;
       }
 
-      this.id = model.id || function() {
+      this.id = (model && model.id) || function() {
         return model;
       };
     },
