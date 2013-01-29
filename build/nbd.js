@@ -665,7 +665,7 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
 
     if (typeof prev !== "object" || typeof cur !== "object" ||
         prev === null || cur === null) {
-      throw new TypeError('Arguments must be ojects');
+      throw new TypeError('Arguments must be objects');
     }
 
     // Make a copy of prev for its keys
@@ -710,17 +710,16 @@ define('nbd/trait/pubsub',[],function() {
   
 
   // Regular expression used to split event strings
-  var eventSplitter = /\s+/;
+  var eventSplitter = /\s+/,
+  
+  uId = function uid(prefix) {
+    uid.i = uid.i || 0;
+    return (prefix || '') + (++uid.i);
+  };
 
   // A module that can be mixed in to *any object* in order to provide it with
   // custom events. You may bind with `on` or remove with `off` callback functions
   // to an event; `trigger`-ing an event fires all callbacks in succession.
-  //
-  // var object = {};
-  // _.extend(object, Backbone.Events);
-  // object.on('expand', function(){ alert('expanded'); });
-  // object.trigger('expand');
-  //
   return {
 
     // Bind one or more space separated events, `events`, to a `callback`
@@ -821,6 +820,33 @@ define('nbd/trait/pubsub',[],function() {
       }
 
       return this;
+    },
+
+    // An inversion-of-control version of `on`. Tell *this* object to listen to
+    // an event in another object ... keeping track of what it's listening to.
+    listenTo: function(object, events, callback) {
+      var listeners = this._listeners || (this._listeners = {});
+      var id = object._listenerId || (object._listenerId = uId('l'));
+      listeners[id] = object;
+      object.on(events, callback || this, this);
+      return this;
+    },
+
+    // Tell this object to stop listening to either specific events ... or
+    // to every object it's currently listening to.
+    stopListening: function(object, events, callback) {
+      var listeners = this._listeners;
+      if (!listeners) return;
+      if (object) {
+        object.off(events, callback, this);
+        if (!events && !callback) delete listeners[object._listenerId];
+      } else {
+        for (var id in listeners) {
+          listeners[id].off(null, null, this);
+        }
+        this._listeners = {};
+      }
+      return this;
     }
 
   };
@@ -836,8 +862,8 @@ define('nbd/Model',['nbd/Class',
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    diff.call(this, novel, old, this.trigger);
-    this._dirty = false;
+    diff.call(this, novel || this._data, old, this.trigger);
+    this._dirty = 0;
   },
 
   constructor = Class.extend({
@@ -856,13 +882,20 @@ define('nbd/Model',['nbd/Class',
         return id;
       };
 
-      Object.defineProperty(this, '_dirty', { writable: true });
-      Object.defineProperty(this, '_data', {
-        enumerable: false,
-        configurable: true,
-        value: data || {},
-        writable: true
-      });
+      try {
+        Object.defineProperty(this, '_dirty', { value: 0, writable: true });
+        Object.defineProperty(this, '_data', {
+          enumerable: false,
+          configurable: true,
+          value: data || {},
+          writable: true
+        });
+      }
+      catch (noDefineProperty) {
+        // Can't use ES5 Object.defineProperty, fallback
+        this._dirty = 0;
+        this._data = data;
+      }
 
     },
 
@@ -871,8 +904,9 @@ define('nbd/Model',['nbd/Class',
     },
 
     data : function() {
-      this._dirty = true;
-      async(dirtyCheck.bind(this, extend({}, this._data), this._data));
+      if (!(this._dirty++)) {
+        async(dirtyCheck.bind(this, extend({}, this._data)));
+      }
       return this._data;
     },
 
@@ -952,26 +986,24 @@ define('jquery',[],function() {
   return global.jQuery;
 });
 
-define('nbd/View/Entity',['jquery', 'nbd/View', 'nbd/Model'], function($, View, Model) {
+define('nbd/View/Entity',['jquery', 'nbd/View'], function($, View) {
   
 
   var constructor = View.extend({
 
     init : function( model ) {
-    
-      if ( model instanceof Model ) {
+      if (typeof model === 'object') {
         this.Model = model;
-        this.id = this.Model.id;
       }
-      else {
-        this.id = function() { return model; };
-      }
-    
+
+      this.id = (model && model.id) || function() {
+        return model;
+      };
     },
     
     // all data needed to template the view
     templateData : function() {
-      return this.Model ? this.Model.data() : this.id();
+      return (this.Model && this.Model.data) ? this.Model.data() : this.id();
     },
     
     render : function( $parent ) {
@@ -1046,61 +1078,53 @@ define('nbd/View/Element',['jquery', 'nbd/View'], function($, View) {
 
 });
 
-define('nbd/Controller',['jquery', 'nbd/Class', 'nbd/View'],  function($, Class, View) {
+define('nbd/util/construct',[],function() {
+  
+
+  var toStr = Object.prototype.toString;
+
+  return function construct() {
+    // Type check this is a function
+    if ( !(toStr.call(this).indexOf('Function')+1) ) {
+      throw new TypeError('construct called on incompatible Object');
+    }
+
+    var inst = Object.create(this.prototype),
+    ret = this.apply(inst, arguments);
+    // Follow new behavior when constructor returns a value
+    return Object(ret) === ret ? ret : inst;
+  };
+});
+
+define('nbd/Controller',['nbd/Class',
+       'nbd/View',
+       'nbd/util/construct'
+],  function(Class, View, construct) {
   
 
   var constructor = Class.extend({
-    // Stubs
-    init : function() {},
-    destroy : function() {}
-  },{
+    View  : null,
+    destroy : function() {},
 
-    addTemplate : function( id, html ) {
-      return $('<script id="' + id + '" type="text/x-jquery-tmpl">' + html + '</script>').appendTo( document.body );
-    }, // addTemplate
+    _initView : function( ViewClass ) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      (this.View = construct.apply(ViewClass, args))
+      .Controller = this;
+    },
 
+    switchView : function() {
+      var Existing = this.View;
+      this._initView.apply(this, arguments);
 
-    // Loads a template into the page, given either the template id and URL or a view
-    // Controller.loadTemplate( View, [callback(templateId)] );
-    loadTemplate : function( view, callback ) {
+      if ( !Existing ) { return; }
 
-      var wait = $.Deferred(),
-          TEMPLATE_ID, TEMPLATE_URL;
-
-      if ( view.inherits && view.inherits(View) ) {
-        callback     = (typeof callback === "function" && callback !== view) ? callback : null;
-        TEMPLATE_ID  = view.TEMPLATE_ID;
-        TEMPLATE_URL = view.TEMPLATE_URL;
+      if (Existing.$view) {
+        this.View.$view = Existing.$view;
+        this.View.render();
       }
 
-      if ( $('#'+TEMPLATE_ID).length ) {
-        return $.Deferred().resolve();
-      }
-      
-      if ( !TEMPLATE_ID || !TEMPLATE_URL ) {
-        $.error("No template found");
-        return false;
-      }
-
-      $.ajax({
-        url : TEMPLATE_URL,
-        cache : true
-      }).then( function( data ) {
-        var sargs = arguments;
-        if ( !data.html ) {
-          return false;
-        }
-
-        $(function(){
-          constructor.addTemplate( TEMPLATE_ID, data.html );
-          if ( $.isFunction(callback) ) { callback( TEMPLATE_ID ); }
-          wait.resolve.apply( wait, sargs );
-        });
-      }, wait.reject, wait.notify);
-
-      return wait.promise();
-
-    } // loadTemplate
+      Existing.destroy();
+    }
 
   });
 
@@ -1108,72 +1132,44 @@ define('nbd/Controller',['jquery', 'nbd/Class', 'nbd/View'],  function($, Class,
 
 });
 
-define('nbd/Controller/Entity',['jquery', 'nbd/Controller'], function( $, Controller ) {
+define('nbd/Controller/Entity',['nbd/util/construct',
+       'nbd/Controller', 
+       'nbd/View/Entity', 
+       'nbd/Model'
+], function(construct, Controller, View, Model) {
   
 
   var constructor = Controller.extend({
-
-    View  : null,
     Model : null,
 
-    init : function( id, data ) {
-    
-      this.Model = new this.constructor.MODEL_CLASS( id, data );
-      this._initView( this.Model );
+    init : function() {
+      this.Model = construct.apply(this.constructor.MODEL_CLASS, arguments);
+      this._initView(this.constructor.VIEW_CLASS, this.Model);
+    },
 
-    }, // init
-
-    // renders this entity
     render : function( $parent, ViewClass ) {
-
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
       this.requestView( ViewClass );
       this.View.render( $parent );
-
-    }, // render
+    },
 
     destroy : function() {
       this.View.destroy();
+      this.Model.destroy();
       this.Model = this.View = null;
-    }, // destroy
+    },
 
-    _initView : function( Model ) {
-      this.View = new this.constructor.VIEW_CLASS( Model );
-      this.View.Controller = this;
-    }, // makeView
-
-    requestView : function( Class ) {
-
-      if ( this.View instanceof Class || !this.Model ) {
-        return;
-      }
-
-      this.switchView( Class );
-
-    }, // requestView
-
-    switchView : function( Class ) {
-
-      var Existing = this.View;
-      this.View = new Class( this.Model );
-      this.View.Controller = this;
-
-      if ( Existing && Existing.$view !== null ) {
-        this.View.$view = Existing.$view;
-        this.View.render();
-      }
-
-      Existing.destroy();
-    
-    } // switchView
-
+    requestView : function( ViewClass ) {
+      if ( this.View instanceof ViewClass ) { return; }
+      this.switchView(ViewClass, this.Model);
+    }
   },{
     // Corresponding Entity View class
-    VIEW_CLASS : null,
+    VIEW_CLASS : View,
 
     // Corresponding Entity Model class
-    MODEL_CLASS : null
+    MODEL_CLASS : Model
   }); // Entity Controller
 
   return constructor;
@@ -1229,6 +1225,107 @@ define('nbd/trait/jquery.tmpl',['jquery'], function($) {
 
 });
 
+/*
+ * Extraction of the deparam method from Ben Alman's jQuery BBQ
+ * @see http://benalman.com/projects/jquery-bbq-plugin/
+ */
+define('nbd/util/deparam',[],function() {
+  
+
+  return function (params, coerce) {
+    var obj = {},
+        coerce_types = { 'true': true, 'false': false, 'null': null };
+      
+    // Iterate over all name=value pairs.
+    params.replace(/\+/g, ' ').split('&').forEach(function (v) {
+      var param = v.split('='),
+          key = decodeURIComponent(param[0]),
+          val,
+          cur = obj,
+          i = 0,
+            
+          // If key is more complex than 'foo', like 'a[]' or 'a[b][c]', split it
+          // into its component parts.
+          keys = key.split(']['),
+          keys_last = keys.length - 1;
+        
+      // If the first keys part contains [ and the last ends with ], then []
+      // are correctly balanced.
+      if (/\[/.test(keys[0]) && /\]$/.test(keys[keys_last])) {
+        // Remove the trailing ] from the last keys part.
+        keys[keys_last] = keys[keys_last].replace(/\]$/, '');
+          
+        // Split first keys part into two parts on the [ and add them back onto
+        // the beginning of the keys array.
+        keys = keys.shift().split('[').concat(keys);
+          
+        keys_last = keys.length - 1;
+      } else {
+        // Basic 'foo' style key.
+        keys_last = 0;
+      }
+        
+      // Are we dealing with a name=value pair, or just a name?
+      if (param.length === 2) {
+        val = decodeURIComponent(param[1]);
+          
+        // Coerce values.
+        if (coerce) {
+          val = val && !isNaN(val)              ? +val              // number
+              : val === 'undefined'             ? undefined         // undefined
+              : coerce_types[val] !== undefined ? coerce_types[val] // true, false, null
+              : val;                                                // string
+        }
+          
+        if ( keys_last ) {
+          // Complex key, build deep object structure based on a few rules:
+          // * The 'cur' pointer starts at the object top-level.
+          // * [] = array push (n is set to array length), [n] = array if n is 
+          //   numeric, otherwise object.
+          // * If at the last keys part, set the value.
+          // * For each keys part, if the current level is undefined create an
+          //   object or array based on the type of the next keys part.
+          // * Move the 'cur' pointer to the next level.
+          // * Rinse & repeat.
+          for (i; i <= keys_last; i++) {
+            key = keys[i] === '' ? cur.length : keys[i];
+            cur = cur[key] = i < keys_last
+              ? cur[key] || (keys[i+1] && isNaN(keys[i+1]) ? {} : [])
+              : val;
+          }
+            
+        } else {
+          // Simple key, even simpler rules, since only scalars and shallow
+          // arrays are allowed.
+            
+          if (Array.isArray(obj[key])) {
+            // val is already an array, so push on the next value.
+            obj[key].push( val );
+              
+          } else if (obj[key] !== undefined) {
+            // val isn't an array, but since a second value has been specified,
+            // convert val into an array.
+            obj[key] = [obj[key], val];
+              
+          } else {
+            // val is a scalar.
+            obj[key] = val;
+          }
+        }
+          
+      } else if (key) {
+        // No value was defined, so set something meaningful.
+        obj[key] = coerce
+          ? undefined
+          : '';
+      }
+    });
+      
+    return obj;
+  };
+
+});
+
 /**
  * Responsive media query callbacks
  * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
@@ -1236,16 +1333,22 @@ define('nbd/trait/jquery.tmpl',['jquery'], function($) {
 define('nbd/util/media',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   
 
-  var mqChange, mediaCheck,
+  var queries = {},
+  mqChange,
   matchMedia = window.matchMedia || window.msMatchMedia;
 
   function bindMedia( breakpoint, query ) {
     var match = window.matchMedia( query );
+    queries[breakpoint] = match;
     match.addListener( mqChange.bind(match, breakpoint) );
     if (match.matches) { mqChange.call(match, breakpoint); }
   }
 
-  mediaCheck = function media( options, query ) {
+  function isActive(breakpoint) {
+    return queries[breakpoint] && queries[breakpoint].matches;
+  }
+
+  function media( options, query ) {
     var breakpoint;
 
     // No matchMedia support
@@ -1269,16 +1372,25 @@ define('nbd/util/media',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend
     }
     return media;
 
-  };
+  }
 
-  extend(mediaCheck, pubsub);
+  extend(media, pubsub);
 
   mqChange = function(breakpoint) {
-    mediaCheck.trigger(breakpoint + this.matches ? ':enter' : ':exit');
-    mediaCheck.trigger(breakpoint);
+    media.trigger(breakpoint + (this.matches ? ':enter' : ':exit'));
+    media.trigger(breakpoint, this.matches);
   };
 
-  return mediaCheck;
+  media.is = isActive;
+  media.getState = function(breakpoint) {
+    if ( breakpoint ) {
+      return isActive(breakpoint);
+    }
+
+    return Object.keys(queries).filter(isActive);
+  };
+
+  return media;
 
 });
 
@@ -1373,12 +1485,14 @@ define('build/all',['nbd/Class',
        'nbd/trait/pubsub',
        'nbd/trait/jquery.tmpl',
        'nbd/util/async',
+       'nbd/util/construct',
+       'nbd/util/deparam',
        'nbd/util/diff',
        'nbd/util/extend',
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/protochain'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, diff, extend, media, pipe, protochain) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, construct, deparam, diff, extend, media, pipe, protochain) {
   
 
   var exports = {
@@ -1393,6 +1507,8 @@ define('build/all',['nbd/Class',
     },
     util : {
       async : async,
+      construct : construct,
+      deparam : deparam,
       diff : diff,
       extend : extend,
       media : media,
