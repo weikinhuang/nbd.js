@@ -38,7 +38,7 @@ define(['nbd/util/extend'], function(extend) {
 
     if (typeof prev !== "object" || typeof cur !== "object" ||
         prev === null || cur === null) {
-      throw new TypeError('Arguments must be objects');
+      throw new TypeError('Arguments must be ojects');
     }
 
     // Make a copy of prev for its keys
@@ -65,7 +65,7 @@ define(['nbd/util/extend'], function(extend) {
 
     // Any remaining keys are only in the prev
     for (key in prev) {
-      if (prev.hasOwnProperty(key)) {
+      if (prev.hasOwnProperty(key) && prev[key] !== undefined) {
         differences[key] = [cur[key]];
         if (callback) {
           callback.apply(this, [key, undefined, prev[key]]);
