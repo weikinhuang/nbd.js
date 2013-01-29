@@ -65,7 +65,7 @@ define(['nbd/util/extend'], function(extend) {
 
     // Any remaining keys are only in the prev
     for (key in prev) {
-      if (prev.hasOwnProperty(key) && cur[key] !== undefined) {
+      if (prev.hasOwnProperty(key) && prev[key] !== undefined) {
         differences[key] = [cur[key]];
         if (callback) {
           callback.apply(this, [key, undefined, prev[key]]);
