@@ -19,18 +19,20 @@ define(['real/util/protochain'], function(protochain) {
     });
 
     it('appends to the prototype chain when __proto__ is available', function() {
-      var instance = new Subclass(),
-      pCheck;
+      var instance = new Subclass(), pCheck;
+
       expect(instance).not.toEqual(jasmine.any(Usurper));
 
-      pCheck = expect(function() {
-        protochain(Subclass, Usurper);
-      });
-      ('__proto__' in Subclass.prototype ? pCheck.not : pCheck ).toThrow();
+      if ( '__proto__' in Subclass.prototype ) {
+        expect(function() { protochain(Subclass, Usurper); }).not.toThrow();
+        expect(instance).toEqual(jasmine.any(Usurper));
+      }
+      else {
+        expect(function() { protochain(Subclass, Usurper); }).toThrow();
+      }
 
       expect(instance.constructor).toBe(Subclass);
       expect(instance).toEqual(jasmine.any(Superclass));
-      expect(instance).toEqual(jasmine.any(Usurper));
     });
 
     it('replaces the prototype chain when forced', function() {
