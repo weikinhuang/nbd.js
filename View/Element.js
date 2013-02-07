@@ -16,9 +16,7 @@ define(['jquery', 'nbd/View'], function($, View) {
         this.$view = $('<div/>').appendTo(this.$parent);
       }
 
-      this._super(data);
-
-      return this.$view;
+      return this._super(data);
     }
 
   });
