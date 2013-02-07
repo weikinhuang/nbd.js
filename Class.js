@@ -14,7 +14,6 @@ define(function() {
   "use strict";
 
   var Klass, inherits, mixin,
-  initializing = false, 
   fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
 
   // Addon: mixin allows adding any object's properties into the class
@@ -62,9 +61,7 @@ define(function() {
    
     // Instantiate a base class (but only create the instance,
     // don't run the init constructor)
-    initializing = true;
-    prototype = new this();
-    initializing = false;
+    prototype = Object.create(_super);
 
     function protochain(name, fn, initfn) {
       return function() {
@@ -117,7 +114,7 @@ define(function() {
     // The dummy class constructor
     function Class() {
       // All construction is actually done in the init method
-      if ( !initializing && typeof this.init === "function" ) {
+      if ( typeof this.init === "function" ) {
         this.init.apply(this, arguments);
       }
     }
