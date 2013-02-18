@@ -89,7 +89,7 @@
   };
 
   proto.reportSuiteResults = function(suite) {
-    if (!suite.parentSuite) { return; }
+    if (suite.parentSuite) { return; }
     var results = suite.results(),
         failed = results.totalCount - results.passedCount,
         color = (failed > 0)? "red" : "green";
