@@ -10,7 +10,7 @@ define(['real/trait/jquery.tmpl', 'jquery', 'nbd/View'], function(jqtmpl, $, nVi
     instance = new View();
   });
 
-  describe('View.prototype.templateScript', function() {
+  describe('trait/jquery.tmpl', function() {
     it('finds the class template from an instance', function() {
       var instance = new View();
 
