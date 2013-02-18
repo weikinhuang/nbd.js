@@ -41,21 +41,12 @@ define(function() {
     // Find the top non-native prototype
     while ((up=Object.getPrototypeOf(it)) !== Object.prototype) { it = up; }
 
-    try {
+    if (forced !== true) {
       // Try to modify the chain seamlessly if possible
       if (it.__proto__) {
         it.__proto__ = Class.prototype;
         return;
       }
-    }
-    catch(noProto) {
-      // rethrow the error by default
-      if (forced !== true) { 
-        throw noProto;
-      }
-    }
-
-    if (forced !== true) { 
       throw new Error("Cannot modify prototype chain"); 
     }
 

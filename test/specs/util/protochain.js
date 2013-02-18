@@ -39,9 +39,6 @@ define(['real/util/protochain'], function(protochain) {
       Object.preventExtensions(Superclass.prototype);
 
       var instance = new Subclass();
-      expect(function() {
-        protochain(Subclass, Usurper);
-      }).toThrow();
 
       // Extension is prevented, replace the entire prototype chain
       protochain(Subclass, Usurper, true);

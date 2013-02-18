@@ -1,5 +1,6 @@
-![nbd.js](http://i.imgur.com/qstw3.png)
+![nbd.js](http://i.imgur.com/qstw3.png) [![Build Status](https://travis-ci.org/Aintaer/nbd.js.png?branch=master)](https://travis-ci.org/Aintaer/nbd.js)
 ---
+
 **No Big Deal, Just Saying**
 
 **nbd.js** is not Yet Another MVC Framework in that it does not seek to be the
