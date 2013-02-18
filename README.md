@@ -1,7 +1,7 @@
-![nbd.js](http://i.imgur.com/qstw3.png) [![Build Status](http://travis-ci.org/Aintaer/nbd.js.png?branch=master)](http://travis-ci.org/Aintaer/nbd.js)
+![nbd.js](http://i.imgur.com/qstw3.png)
 ---
 
-**No Big Deal, Just Saying** 
+**No Big Deal, Just Saying** [![Build Status](https://travis-ci.org/Aintaer/nbd.js.png?branch=master)](https://travis-ci.org/Aintaer/nbd.js)
 
 **nbd.js** is not Yet Another MVC Framework in that it does not seek to be the
 end-all of client-side MVC/MVVM/MVP/MVW/etc needs. You can use it as a
