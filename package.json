@@ -1,5 +1,5 @@
 {
-    "name": "nbd.js",
+    "name": "nbd",
     "version": "0.1.0",
     "description": "Modular MVC and tools library",
     "keywords": ["mvc", "utils", "mobile", "responsive"],
