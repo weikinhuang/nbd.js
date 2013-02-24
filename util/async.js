@@ -1,17 +1,19 @@
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /**
  * Utility function to break out of the current JavaScript callstack
  * Uses window.postMessage if available, falls back to window.setTimeout
  * @see https://developer.mozilla.org/en-US/docs/DOM/window.setTimeout#Minimum_delay_and_timeout_nesting
  * @module util/async
  */
+/*global postMessage, addEventListener */
 define(function() {
   'use strict';
 
   var timeouts = [], 
   messageName = "async-message",
   hasPostMessage = (
-    typeof window.postMessage === "function" &&
-    typeof window.addEventListener === "function"
+    typeof postMessage === "function" &&
+    typeof addEventListener === "function"
   ),
   async;
 
@@ -22,7 +24,7 @@ define(function() {
    */
   function setZeroTimeout(fn) {
     timeouts.push(fn);
-    window.postMessage(messageName, "*");
+    postMessage(messageName, "*");
   }
 
   function handleMessage(event) {
@@ -36,11 +38,11 @@ define(function() {
   }
 
   if ( hasPostMessage ) {
-    window.addEventListener("message", handleMessage, true);
+    addEventListener("message", handleMessage, true);
   }
 
   /** @alias module:util/async */
-  async = (hasPostMessage ? setZeroTimeout : function(fn) {window.setTimeout(fn,0);});
+  async = (hasPostMessage ? setZeroTimeout : function(fn) {setTimeout(fn,0);});
 
   return async;
 });

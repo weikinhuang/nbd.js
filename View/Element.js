@@ -1,4 +1,5 @@
-define(['jquery', 'nbd/View'], function($, View) {
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
+define(['nbd/View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
@@ -10,13 +11,22 @@ define(['jquery', 'nbd/View'], function($, View) {
     },
 
     render : function( data ) {
-      var exists = this.$view && this.$view.length;
+      var $existing = this.$view;
 
-      if (!exists) {
-        this.$view = $('<div/>').appendTo(this.$parent);
+      this.$view = this.template(data || this.templateData());
+
+      if ( $existing && $existing.length ) {
+        $existing.replaceWith( this.$view );
+      }
+      else {
+        this.$view.appendTo( this.$parent );
       }
 
-      return this._super(data);
+      if(this.rendered) {
+        this.rendered(this.$view);
+      }
+
+      return this.$view;
     }
 
   });

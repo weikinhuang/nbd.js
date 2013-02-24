@@ -1,4 +1,5 @@
-/*global global */
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
+
 define(['nbd/Class',
        'nbd/Model',
        'nbd/View',
@@ -8,7 +9,6 @@ define(['nbd/Class',
        'nbd/Controller/Entity',
        'nbd/event',
        'nbd/trait/pubsub',
-       'nbd/trait/jquery.tmpl',
        'nbd/util/async',
        'nbd/util/construct',
        'nbd/util/deparam',
@@ -17,7 +17,7 @@ define(['nbd/Class',
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/protochain'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, construct, deparam, diff, extend, media, pipe, protochain) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
   'use strict';
 
   var exports = {
@@ -27,8 +27,7 @@ define(['nbd/Class',
     Controller : Controller,
     event : event,
     trait : {
-      pubsub : pubsub,
-      'jquery.tmpl' : jqtmpl
+      pubsub : pubsub
     },
     util : {
       async : async,
@@ -46,6 +45,5 @@ define(['nbd/Class',
   exports.View.Entity = EntityView;
   exports.Controller.Entity = Entity;
 
-  global.nbd = exports;
   return exports;
 });

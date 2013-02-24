@@ -1,16 +1,21 @@
 {
-	"name": "nbd.js",
+    "name": "nbd",
     "version": "0.1.0",
     "description": "Modular MVC and tools library",
     "keywords": ["mvc", "utils", "mobile", "responsive"],
-	"author": "Alex Lee <aintaer@aintaer.com>",
-	"license": "MIT",
+    "author": "Alex Lee <aintaer@aintaer.com>",
+    "license": "MIT",
     "repository": {
       "type": "git",
       "url": "git://github.com/behance/nbd.js.git"
     },
+    "main": "build/all",
+    "dependencies": {
+      "amdefine": ">=0.0.2"
+    },
     "devDependencies": {
-      "requirejs": "2.1.x"
+      "requirejs": "2.1.x",
+      "almond": ""
     },
     "scripts": {
       "test" : "phantomjs test/jasmine.coffee test/SpecRunner.html"
