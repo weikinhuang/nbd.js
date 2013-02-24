@@ -1,6 +1,6 @@
-(function(global) {
+
 /**
- * almond 0.2.3 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+ * almond 0.2.5 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -358,9 +358,15 @@ var requirejs, require, define;
         if (forceSync) {
             main(undef, deps, callback, relName);
         } else {
+            //Using a non-zero value because of concern for what old browsers
+            //do, and latest browsers "upgrade" to 4 if lower value is used:
+            //http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html#dom-windowtimers-settimeout:
+            //If want a value immediately, use require('id') instead -- something
+            //that works in almond on the global level, but not guaranteed and
+            //unlikely to work in other AMD implementations.
             setTimeout(function () {
                 main(undef, deps, callback, relName);
-            }, 15);
+            }, 4);
         }
 
         return req;
@@ -372,6 +378,9 @@ var requirejs, require, define;
      */
     req.config = function (cfg) {
         config = cfg;
+        if (config.deps) {
+            req(config.deps, config.callback);
+        }
         return req;
     };
 
@@ -396,7 +405,8 @@ var requirejs, require, define;
     };
 }());
 
-define("vendor/almond/almond", function(){});
+define("node_modules/almond/almond", function(){});
+
 
 /**
  * Behanced Class
@@ -414,7 +424,6 @@ define('nbd/Class',[],function() {
   
 
   var Klass, inherits, mixin,
-  initializing = false, 
   fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
 
   // Addon: mixin allows adding any object's properties into the class
@@ -462,9 +471,7 @@ define('nbd/Class',[],function() {
    
     // Instantiate a base class (but only create the instance,
     // don't run the init constructor)
-    initializing = true;
-    prototype = new this();
-    initializing = false;
+    prototype = Object.create(_super);
 
     function protochain(name, fn, initfn) {
       return function() {
@@ -517,7 +524,7 @@ define('nbd/Class',[],function() {
     // The dummy class constructor
     function Class() {
       // All construction is actually done in the init method
-      if ( !initializing && typeof this.init === "function" ) {
+      if ( typeof this.init === "function" ) {
         this.init.apply(this, arguments);
       }
     }
@@ -563,20 +570,22 @@ define('nbd/Class',[],function() {
   return Klass;
 });
 
+
 /**
  * Utility function to break out of the current JavaScript callstack
  * Uses window.postMessage if available, falls back to window.setTimeout
  * @see https://developer.mozilla.org/en-US/docs/DOM/window.setTimeout#Minimum_delay_and_timeout_nesting
  * @module util/async
  */
+/*global postMessage, addEventListener */
 define('nbd/util/async',[],function() {
   
 
   var timeouts = [], 
   messageName = "async-message",
   hasPostMessage = (
-    typeof window.postMessage === "function" &&
-    typeof window.addEventListener === "function"
+    typeof postMessage === "function" &&
+    typeof addEventListener === "function"
   ),
   async;
 
@@ -587,7 +596,7 @@ define('nbd/util/async',[],function() {
    */
   function setZeroTimeout(fn) {
     timeouts.push(fn);
-    window.postMessage(messageName, "*");
+    postMessage(messageName, "*");
   }
 
   function handleMessage(event) {
@@ -601,14 +610,15 @@ define('nbd/util/async',[],function() {
   }
 
   if ( hasPostMessage ) {
-    window.addEventListener("message", handleMessage, true);
+    addEventListener("message", handleMessage, true);
   }
 
   /** @alias module:util/async */
-  async = (hasPostMessage ? setZeroTimeout : function(fn) {window.setTimeout(fn,0);});
+  async = (hasPostMessage ? setZeroTimeout : function(fn) {setTimeout(fn,0);});
 
   return async;
 });
+
 
 define('nbd/util/extend',[],function() {
   
@@ -624,6 +634,7 @@ define('nbd/util/extend',[],function() {
     return obj;
   };
 });
+
 
 define('nbd/util/diff',['nbd/util/extend'], function(extend) {
   
@@ -692,7 +703,7 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
 
     // Any remaining keys are only in the prev
     for (key in prev) {
-      if (prev.hasOwnProperty(key)) {
+      if (prev.hasOwnProperty(key) && prev[key] !== undefined) {
         differences[key] = [cur[key]];
         if (callback) {
           callback.apply(this, [key, undefined, prev[key]]);
@@ -703,6 +714,7 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
     return differences;
   };
 });
+
 
 // Backbone.Events
 // ---------------
@@ -852,6 +864,7 @@ define('nbd/trait/pubsub',[],function() {
   };
 });
 
+
 define('nbd/Model',['nbd/Class',
        'nbd/util/async',
        'nbd/util/extend',
@@ -942,6 +955,7 @@ define('nbd/Model',['nbd/Class',
 
 });
 
+
 define('nbd/View',['nbd/Class'], function(Class) {
   
 
@@ -981,12 +995,8 @@ define('nbd/View',['nbd/Class'], function(Class) {
 
 });
 
-/*jslint sloppy:true */
-define('jquery',[],function() {
-  return global.jQuery;
-});
 
-define('nbd/View/Entity',['jquery', 'nbd/View'], function($, View) {
+define('nbd/View/Entity',['nbd/View'], function(View) {
   
 
   var constructor = View.extend({
@@ -1023,7 +1033,7 @@ define('nbd/View/Entity',['jquery', 'nbd/View'], function($, View) {
       }
 
       if (typeof $existing === "string") {
-        this.$view = $(this.$view);
+        this.$view = require('jquery')(this.$view);
         fresh = !!$parent;
         if ( !fresh ) { return; }
       }
@@ -1049,7 +1059,8 @@ define('nbd/View/Entity',['jquery', 'nbd/View'], function($, View) {
 
 });
 
-define('nbd/View/Element',['jquery', 'nbd/View'], function($, View) {
+
+define('nbd/View/Element',['nbd/View'], function(View) {
   
 
   var constructor = View.extend({
@@ -1061,13 +1072,20 @@ define('nbd/View/Element',['jquery', 'nbd/View'], function($, View) {
     },
 
     render : function( data ) {
-      var exists = this.$view && this.$view.length;
+      var $existing = this.$view;
 
-      if (!exists) {
-        this.$view = $('<div/>').appendTo(this.$parent);
+      this.$view = this.template(data || this.templateData());
+
+      if ( $existing && $existing.length ) {
+        $existing.replaceWith( this.$view );
+      }
+      else {
+        this.$view.appendTo( this.$parent );
       }
 
-      this._super(data);
+      if(this.rendered) {
+        this.rendered(this.$view);
+      }
 
       return this.$view;
     }
@@ -1077,6 +1095,7 @@ define('nbd/View/Element',['jquery', 'nbd/View'], function($, View) {
   return constructor;
 
 });
+
 
 define('nbd/util/construct',[],function() {
   
@@ -1095,6 +1114,7 @@ define('nbd/util/construct',[],function() {
     return Object(ret) === ret ? ret : inst;
   };
 });
+
 
 define('nbd/Controller',['nbd/Class',
        'nbd/View',
@@ -1131,6 +1151,7 @@ define('nbd/Controller',['nbd/Class',
   return constructor;
 
 });
+
 
 define('nbd/Controller/Entity',['nbd/util/construct',
        'nbd/Controller', 
@@ -1176,6 +1197,7 @@ define('nbd/Controller/Entity',['nbd/util/construct',
 
 });
 
+
 define('nbd/event',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   
 
@@ -1189,41 +1211,6 @@ define('nbd/event',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pub
   return exports;
 });
 
-define('nbd/trait/jquery.tmpl',['jquery'], function($) {
-  
-
-  return {
-
-    template : function() {
-      var script = this.templateScript();
-      return script.tmpl.apply(script, arguments);
-    },
-
-    templateScript : function( strict ) {
-
-      strict = ( typeof strict !== 'undefined' ) ? strict : true;
-
-      if ( !this.constructor.$TEMPLATE || !this.constructor.$TEMPLATE.length ) {
-        this.constructor.$TEMPLATE = $( '#' + this.constructor.TEMPLATE_ID );
-      }
-
-      if ( !this.constructor.$TEMPLATE.length ) {
-
-        if ( strict === true ) {
-          $.error( 'Missing template: ' + this.constructor.TEMPLATE_ID );
-        }
-        else {
-          return false;
-        }
-
-      } // if !$TEMPLATE or !$TEMPLATE length
-
-      return this.constructor.$TEMPLATE;
-
-    }
-  };
-
-});
 
 /*
  * Extraction of the deparam method from Ben Alman's jQuery BBQ
@@ -1326,19 +1313,23 @@ define('nbd/util/deparam',[],function() {
 
 });
 
+
 /**
  * Responsive media query callbacks
  * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
  */
+/*global matchMedia, msMatchMedia */
 define('nbd/util/media',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   
 
   var queries = {},
   mqChange,
-  matchMedia = window.matchMedia || window.msMatchMedia;
+  mMedia = typeof matchMedia !== 'undefined' ? matchMedia :
+           typeof msMatchMedia !== 'undefined' ? msMatchMedia :
+           null;
 
   function bindMedia( breakpoint, query ) {
-    var match = window.matchMedia( query );
+    var match = mMedia( query );
     queries[breakpoint] = match;
     match.addListener( mqChange.bind(match, breakpoint) );
     if (match.matches) { mqChange.call(match, breakpoint); }
@@ -1352,7 +1343,7 @@ define('nbd/util/media',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend
     var breakpoint;
 
     // No matchMedia support
-    if ( !matchMedia ) {
+    if ( !mMedia ) {
       throw new Error('Media queries not supported.');
     }
 
@@ -1394,6 +1385,7 @@ define('nbd/util/media',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend
 
 });
 
+
 define('nbd/util/pipe',[],function() {
   
   return function chain() {
@@ -1407,6 +1399,7 @@ define('nbd/util/pipe',[],function() {
     };
   };
 });
+
 
 /** 
  * Prototype chain append utility
@@ -1451,21 +1444,12 @@ define('nbd/util/protochain',[],function() {
     // Find the top non-native prototype
     while ((up=Object.getPrototypeOf(it)) !== Object.prototype) { it = up; }
 
-    try {
+    if (forced !== true) {
       // Try to modify the chain seamlessly if possible
       if (it.__proto__) {
         it.__proto__ = Class.prototype;
         return;
       }
-    }
-    catch(noProto) {
-      // rethrow the error by default
-      if (forced !== true) { 
-        throw noProto;
-      }
-    }
-
-    if (forced !== true) { 
       throw new Error("Cannot modify prototype chain"); 
     }
 
@@ -1473,7 +1457,8 @@ define('nbd/util/protochain',[],function() {
   }
 });
 
-/*global global */
+
+
 define('build/all',['nbd/Class',
        'nbd/Model',
        'nbd/View',
@@ -1483,7 +1468,6 @@ define('build/all',['nbd/Class',
        'nbd/Controller/Entity',
        'nbd/event',
        'nbd/trait/pubsub',
-       'nbd/trait/jquery.tmpl',
        'nbd/util/async',
        'nbd/util/construct',
        'nbd/util/deparam',
@@ -1492,7 +1476,7 @@ define('build/all',['nbd/Class',
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/protochain'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, jqtmpl, async, construct, deparam, diff, extend, media, pipe, protochain) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
   
 
   var exports = {
@@ -1502,8 +1486,7 @@ define('build/all',['nbd/Class',
     Controller : Controller,
     event : event,
     trait : {
-      pubsub : pubsub,
-      'jquery.tmpl' : jqtmpl
+      pubsub : pubsub
     },
     util : {
       async : async,
@@ -1521,7 +1504,6 @@ define('build/all',['nbd/Class',
   exports.View.Entity = EntityView;
   exports.Controller.Entity = Entity;
 
-  global.nbd = exports;
   return exports;
 });
-}(this));
+this.nbd = require('build/all');

@@ -1,3 +1,4 @@
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /** 
  * Prototype chain append utility
  * Inspired by Mozilla's Object.appendChain()

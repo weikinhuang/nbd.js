@@ -1,4 +1,5 @@
-define(['jquery', 'nbd/View'], function($, View) {
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
+define(['nbd/View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
@@ -35,7 +36,7 @@ define(['jquery', 'nbd/View'], function($, View) {
       }
 
       if (typeof $existing === "string") {
-        this.$view = $(this.$view);
+        this.$view = require('jquery')(this.$view);
         fresh = !!$parent;
         if ( !fresh ) { return; }
       }

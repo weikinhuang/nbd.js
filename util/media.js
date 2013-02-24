@@ -1,16 +1,20 @@
+if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /**
  * Responsive media query callbacks
  * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
  */
+/*global matchMedia, msMatchMedia */
 define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
   'use strict';
 
   var queries = {},
   mqChange,
-  matchMedia = window.matchMedia || window.msMatchMedia;
+  mMedia = typeof matchMedia !== 'undefined' ? matchMedia :
+           typeof msMatchMedia !== 'undefined' ? msMatchMedia :
+           null;
 
   function bindMedia( breakpoint, query ) {
-    var match = window.matchMedia( query );
+    var match = mMedia( query );
     queries[breakpoint] = match;
     match.addListener( mqChange.bind(match, breakpoint) );
     if (match.matches) { mqChange.call(match, breakpoint); }
@@ -24,7 +28,7 @@ define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
     var breakpoint;
 
     // No matchMedia support
-    if ( !matchMedia ) {
+    if ( !mMedia ) {
       throw new Error('Media queries not supported.');
     }
 
