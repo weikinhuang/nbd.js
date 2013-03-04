@@ -1,5 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/Class'], function(Class) {
+define(['nbd/Class', 'nbd/trait/pubsub'], function(Class, pubsub) {
   "use strict";
 
   var constructor = Class.extend({
@@ -9,12 +9,17 @@ define(['nbd/Class'], function(Class) {
     render: function(data) {
       var $existing = this.$view;
 
+      this.trigger('prerender');
+
       this.$view = this.template(data || this.templateData());
 
       if ( $existing && $existing.length ) {
         $existing.replaceWith( this.$view );
       }
 
+      this.trigger('postrender', this.$view);
+
+      // Prefer the postrender event over this method
       if(this.rendered) {
         this.rendered(this.$view);
       }
@@ -32,7 +37,8 @@ define(['nbd/Class'], function(Class) {
       this.$view = null;
     }
 
-  });
+  })
+  .mixin(pubsub);
 
   return constructor;
 

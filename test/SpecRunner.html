@@ -9,9 +9,9 @@
 <script type="text/javascript" src="lib/jasmine-jquery.js"></script>
 <script type="text/javascript" src="lib/mock-ajax.js"></script>
 <script type="text/javascript" src="lib/console-runner.js"></script>
-<script type="text/javascript" src="../vendor/es5-shim.js"></script>
+<script type="text/javascript" src="lib/es5-shim.js"></script>
 <script type="text/javascript" src="../node_modules/requirejs/require.js"></script>
-<script type="text/javascript" src="../vendor/jquery.js"></script>
+<script type="text/javascript" src="lib/jquery.js"></script>
 
 <script type="text/javascript">
 require.config({
@@ -26,7 +26,6 @@ var reporters = [jasmine.HtmlReporter, jasmine.ConsoleReporter];
 </head>
 <body>
 <script type="text/javascript">
-var global = this;
 require(['real/build/all'], function() {
   reporters.forEach(function(reporter) {
     jasmine.getEnv().addReporter(new reporter);
