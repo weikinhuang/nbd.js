@@ -50,6 +50,32 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
         instance.render();
         expect( instance.rendered ).toHaveBeenCalled();
       });
+
+      it('fires prerender event', function() {
+        var prerender = jasmine.createSpy('prerender')
+        .andCallFake(function() {
+          expect( instance.template ).not.toHaveBeenCalled();
+        });
+        spyOn( instance, 'template' ).andCallThrough();
+
+        instance.on('prerender', prerender);
+        instance.render();
+
+        expect( prerender ).toHaveBeenCalled();
+      });
+
+      it('fires postrender event', function() {
+        var postrender = jasmine.createSpy('postrender')
+        .andCallFake(function() {
+          expect( instance.template ).toHaveBeenCalled();
+        });
+        spyOn( instance, 'template' ).andCallThrough();
+
+        instance.on('postrender', postrender);
+        instance.render();
+
+        expect( postrender ).toHaveBeenCalledWith( instance.$view );
+      });
     });
 
 

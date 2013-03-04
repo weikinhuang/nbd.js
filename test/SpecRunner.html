@@ -26,7 +26,6 @@ var reporters = [jasmine.HtmlReporter, jasmine.ConsoleReporter];
 </head>
 <body>
 <script type="text/javascript">
-var global = this;
 require(['real/build/all'], function() {
   reporters.forEach(function(reporter) {
     jasmine.getEnv().addReporter(new reporter);
