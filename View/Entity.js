@@ -25,6 +25,8 @@ define(['nbd/View'], function(View) {
       var $existing = this.$view,
           fresh = !!$existing ^ !!$parent;
 
+      this.trigger('prerender');
+
       // When there's either no rendered view XOR there isn't a parent
       if ( fresh ) {
         if (typeof $existing !== "string" ) {
@@ -48,8 +50,12 @@ define(['nbd/View'], function(View) {
         $existing.replaceWith( this.$view );
       }
 
-      if ( fresh && typeof this.rendered === 'function' ) {
-        this.rendered();
+      if ( fresh ) {
+        this.trigger('postrender', this.$view);
+
+        if ( typeof this.rendered === 'function' ) {
+          this.rendered(this.$view);
+        }
       }
 
       return this.$view;
