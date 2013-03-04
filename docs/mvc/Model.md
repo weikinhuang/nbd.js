@@ -6,7 +6,7 @@
 * [.data()](#data-)
 * [.get()](#get-key-)
 * [.set()](#set-key-value-)
-* [.destroy()]()
+* [.destroy()](#destroy-)
 
 The data-wrapping class of **nbd.js**. It is meant to be instanciated with the data object you want to manage. The primary purpose of having the `Model` class manage a data object is to have a consistent interface by which the data is accessed and modified, and to provide change notification.
 
