@@ -35,6 +35,7 @@ define(['nbd/Class', 'nbd/trait/pubsub'], function(Class, pubsub) {
         this.$view.remove();
       }
       this.$view = null;
+      this.off(null, null, this);
     }
 
   })
