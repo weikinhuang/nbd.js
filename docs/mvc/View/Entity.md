@@ -5,7 +5,7 @@
 * [new Entity()](#constructor-model-)
 * [.id()](#id-)
 * [.templateData()](#templatedata-)
-* [.render()](#render-)
+* [.render()](#render-parent-)
 
 Events:
 * __prerender__
