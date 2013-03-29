@@ -1,6 +1,6 @@
 {
     "name": "nbd",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "No Big Deal modular MVC and tools library",
     "keywords": ["mvc", "utils", "mobile", "responsive"],
     "author": "Alex Lee <aintaer@aintaer.com>",

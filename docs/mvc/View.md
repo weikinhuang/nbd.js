@@ -6,6 +6,10 @@
 * [.render()](#render-data-)
 * [.destroy()](#destroy-)
 
+Events:
+* __prerender__
+* __postrender__ : `(this.$view)`
+
 This is the highest-level generic View class, meant for managing a DOM node with the help of a jQuery-compatible library. Obviously, jQuery is the biggest intended audience, but `View` only depends on the API of the object being consistent, so you can use a compatible library like Zepto.
 
 ## `constructor()`
@@ -22,7 +26,7 @@ You may also override the objected handed to `.template()` by calling `.render()
 
 If there was an existing object at `this.$view`, it is replaced with the new `this.$view`.
 
-In addition, there are also two render events fired. **prerender** is fired before the call to `.template()` and **postrender** is fired afterward.
+In addition, there are also two render events fired. **prerender** is fired before the call to `.template()` and **postrender** is fired afterward. In addition to the events, if there is a `.rendered()` function, it will be called with `this.$view`.
 
 **returns** *nothing*
 

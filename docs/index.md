@@ -11,7 +11,7 @@ All MVC modules are Class constructors. I.e. they return functions that are inte
 * [nbd/Class](mvc/Class.md)
 * [nbd/Model](mvc/Model.md)
 * [nbd/View](mvc/View.md)
-  * nbd/View/Entity
+  * [nbd/View/Entity](mvc/View/Entity.md)
   * nbd/View/Element
 * nbd/Controller
   * nbd/Controller/Entity

@@ -6,7 +6,7 @@ define(['nbd/View'], function(View) {
 
     init : function( model ) {
       if (typeof model === 'object') {
-        this.Model = model;
+        this._model = this.Model = model;
       }
 
       this.id = (model && model.id) || function() {
@@ -16,7 +16,7 @@ define(['nbd/View'], function(View) {
     
     // all data needed to template the view
     templateData : function() {
-      return (this.Model && this.Model.data) ? this.Model.data() : this.id();
+      return (this._model && this._model.data) ? this._model.data() : this.id();
     },
     
     render : function( $parent ) {
@@ -25,11 +25,10 @@ define(['nbd/View'], function(View) {
       var $existing = this.$view,
           fresh = !!$existing ^ !!$parent;
 
-      this.trigger('prerender');
-
       // When there's either no rendered view XOR there isn't a parent
       if ( fresh ) {
         if (typeof $existing !== "string" ) {
+          this.trigger('prerender');
           this.$view = this.template( this.templateData() );
         }
       }

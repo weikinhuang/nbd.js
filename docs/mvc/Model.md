@@ -8,6 +8,9 @@
 * [.set()](#set-key-value-)
 * [.destroy()](#destroy-)
 
+Events:
+* *Name of any property of the model* : `(currentValue, previousValue)`
+
 The data-wrapping class of **nbd.js**. It is meant to be instanciated with the data object you want to manage. The primary purpose of having the `Model` class manage a data object is to have a consistent interface by which the data is accessed and modified, and to provide change notification.
 
 When a `Model` instance has its data members changed according to the [`nbd/util/diff`](../util/diff.md) module, it triggers an event with the same name as the key of the member that has changed, with the value as the argument to the event.

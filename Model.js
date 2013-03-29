@@ -47,7 +47,7 @@ define(['nbd/Class',
     },
 
     destroy: function() {
-      this.off(null);
+      this.off();
     },
 
     data : function() {
