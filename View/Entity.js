@@ -25,11 +25,10 @@ define(['nbd/View'], function(View) {
       var $existing = this.$view,
           fresh = !!$existing ^ !!$parent;
 
-      this.trigger('prerender');
-
       // When there's either no rendered view XOR there isn't a parent
       if ( fresh ) {
         if (typeof $existing !== "string" ) {
+          this.trigger('prerender');
           this.$view = this.template( this.templateData() );
         }
       }
