@@ -5,6 +5,11 @@
 * [.is()](#is-breakpoint-)
 * [.getState()](#getstate-breakpoint-)
 
+Events:
+* *Name of any breakpoint* : `(isActive)`
+* *Name of any breakpoint*__:enter__
+* *Name of any breakpoint*__:exit__
+
 `media` is a module that makes working with HTML5 [Media Queries][1] easy. It allows you to create breakpoints from media queries, and will trigger events whenever those breakpoints are hit.
 
 [1]: https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
