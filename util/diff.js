@@ -63,6 +63,7 @@ define(['nbd/util/extend'], function(extend) {
         // if either is not a simple object OR objectCheck fails then mark
         if (!(
           typeof lhs === "object" && typeof rhs === "object" && 
+          lhs && rhs &&
           objectCheck(lhs, rhs)
         )) {
           differences[key] = [lhs, rhs];
