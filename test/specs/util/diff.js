@@ -31,6 +31,17 @@ define(['real/util/diff'], function(diff) {
       expect(r.simple[1]).toBe("foobaz");
     });
 
+    it('minimizes differences', function() {
+      var o, p, r;
+
+      o = {simple: {}};
+      p = {simple: {}};
+      r = diff(o,p);
+
+      expect(r).toEqual(jasmine.any(Object));
+      expect(Object.keys(r).length).toBe(0);
+    });
+
     it('calls a callback for every difference', function() {
       var o, p, r, cb = jasmine.createSpy('diffspy');
 
@@ -65,6 +76,24 @@ define(['real/util/diff'], function(diff) {
       r = diff(o,p);
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
+    });
+
+    it('does not recurse into complex objects', function() {
+      function Nafn() {}
+
+      var r,
+      a = new Nafn(),
+      b = new Nafn(),
+      o = {q: a},
+      p = {q: b};
+
+      a.inner = true;
+      b.inner = true;
+
+      r = diff(o,p);
+      expect(r).toEqual(jasmine.any(Object));
+      expect(Object.keys(r).length).toBe(1);
+      expect(Object.keys(r).indexOf('q')).toBeGreaterThan(-1);
     });
   });
 
