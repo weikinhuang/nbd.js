@@ -31,7 +31,7 @@ define(['real/util/diff'], function(diff) {
       expect(r.simple[1]).toBe("foobaz");
     });
 
-    it('minimizes differences', function() {
+    it('minimizes object differences', function() {
       var o, p, r;
 
       o = {simple: {}};
@@ -79,11 +79,11 @@ define(['real/util/diff'], function(diff) {
     });
 
     it('does not recurse into complex objects', function() {
-      function Nafn() {}
+      function Ctor() {}
 
       var r,
-      a = new Nafn(),
-      b = new Nafn(),
+      a = new Ctor(),
+      b = new Ctor(),
       o = {q: a},
       p = {q: b};
 
@@ -94,6 +94,35 @@ define(['real/util/diff'], function(diff) {
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(1);
       expect(Object.keys(r).indexOf('q')).toBeGreaterThan(-1);
+    });
+
+    it('does not object check null', function() {
+      var o, p, r;
+
+      o = {simple: null};
+      p = {simple: {}};
+      r = diff(o,p);
+
+      expect(r).toEqual(jasmine.any(Object));
+      expect(Object.keys(r).length).toBe(1);
+
+      r = diff(p,o);
+
+      expect(r).toEqual(jasmine.any(Object));
+      expect(Object.keys(r).length).toBe(1);
+
+      o = {simple: null};
+      p = {simple: null};
+      r = diff(o,p);
+
+      expect(r).toEqual(jasmine.any(Object));
+      expect(Object.keys(r).length).toBe(0);
+
+      p = {simple: undefined};
+      r = diff(o,p);
+
+      expect(r).toEqual(jasmine.any(Object));
+      expect(Object.keys(r).length).toBe(1);
     });
   });
 
