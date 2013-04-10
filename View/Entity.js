@@ -13,6 +13,12 @@ define(['nbd/View'], function(View) {
         return model;
       };
     },
+
+    destroy : function() {
+      this._model.off(null, null, this);
+      this._model = this.Model = null;
+      this._super();
+    },
     
     // all data needed to template the view
     templateData : function() {
