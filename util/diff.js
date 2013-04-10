@@ -7,14 +7,21 @@ define(['nbd/util/extend'], function(extend) {
   function objectCheck(cur, prev) {
     var key, equal=true;
 
+    // If complex objects, assume different
+    if (!(Object.getPrototypeOf(cur) === Object.prototype &&
+          Object.getPrototypeOf(prev) === Object.prototype 
+         )) { return false; }
+
     for (key in cur) {
       if (cur[key] !== prev[key]) {
         return false;
       }
 
-      if (cur[key] && cur.hasOwnProperty(key) && typeof cur[key] === "object") {
+      if (cur.hasOwnProperty(key) &&
+          typeof cur[key] === "object" && cur[key] && 
+          Object.getPrototypeOf(cur[key]) === Object.prototype) {
         // Property has been visited, skip
-        if (stack.indexOf(cur[key]) >= 0 ) { continue; }
+        if (~stack.indexOf(cur[key])) { continue; }
 
         try {
           stack.push(cur[key]);
@@ -35,7 +42,7 @@ define(['nbd/util/extend'], function(extend) {
   }
 
   return function diff(cur, prev, callback) {
-    var key, difference, differences = {};
+    var key, lhs, rhs, difference, differences = {};
 
     if (typeof prev !== "object" || typeof cur !== "object" ||
         prev === null || cur === null) {
@@ -43,24 +50,26 @@ define(['nbd/util/extend'], function(extend) {
     }
 
     // Make a copy of prev for its keys
-    prev = extend({},prev);
+    prev = extend({}, prev);
 
     for (key in cur) {
       if (cur.hasOwnProperty(key)) {
-        if (prev[key] !== cur[key] ||
-            (typeof cur[key] === "object" && 
-             cur[key] && 
-             !objectCheck(cur[key], prev[key])
-            )
-           ) 
-        {
-          differences[key] = [cur[key], prev[key]];
+        lhs = cur[key];
+        rhs = prev[key];
+        delete prev[key];
+
+        if (lhs === rhs) { continue; }
+
+        // if either is not a simple object OR objectCheck fails then mark
+        if (!(
+          typeof lhs === "object" && typeof rhs === "object" && 
+          objectCheck(lhs, rhs)
+        )) {
+          differences[key] = [lhs, rhs];
           if (callback) {
-            callback.apply(this, [key, cur[key], prev[key]]);
+            callback.apply(this, [key, lhs, rhs]);
           }
         }
-
-        delete prev[key];
       }
     }
 

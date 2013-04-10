@@ -1,23 +1,28 @@
 {
-    "name": "nbd",
-    "version": "0.1.1",
-    "description": "No Big Deal modular MVC and tools library",
-    "keywords": ["mvc", "utils", "mobile", "responsive"],
-    "author": "Alex Lee <aintaer@aintaer.com>",
-    "license": "MIT",
-    "repository": {
-      "type": "git",
-      "url": "git://github.com/behance/nbd.js.git"
-    },
-    "main": "build/all",
-    "dependencies": {
-      "amdefine": ">=0.0.2"
-    },
-    "devDependencies": {
-      "requirejs": "2.1.x",
-      "almond": ""
-    },
-    "scripts": {
-      "test" : "phantomjs test/jasmine.coffee test/SpecRunner.html"
-    }
+  "name": "nbd",
+  "version": "0.1.2",
+  "description": "No Big Deal modular MVC and tools library",
+  "keywords": [
+    "mvc",
+    "utils",
+    "mobile",
+    "responsive"
+  ],
+  "author": "Alex Lee <aintaer@aintaer.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/behance/nbd.js.git"
+  },
+  "main": "build/all",
+  "dependencies": {
+    "amdefine": ">=0.0.2"
+  },
+  "devDependencies": {
+    "requirejs": "2.1.x",
+    "almond": ""
+  },
+  "scripts": {
+    "test": "phantomjs test/jasmine.coffee test/SpecRunner.html"
+  }
 }
