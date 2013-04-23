@@ -14,9 +14,11 @@ define(['nbd/View'], function(View) {
       };
     },
 
-    destroy : function() {
+    destroy : function(persist) {
       this._model.off(null, null, this);
-      this._model = this.Model = null;
+      if (!persist) {
+        this._model = this.Model = null;
+      }
       this._super();
     },
     
