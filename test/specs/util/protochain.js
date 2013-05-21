@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, beforeEach */
-define(['real/util/protochain'], function(protochain) {
+define(['nbd/util/protochain'], function(protochain) {
   'use strict';
 
   describe('util/protochain', function() {
@@ -52,7 +52,4 @@ define(['real/util/protochain'], function(protochain) {
     });
 
   });
-
-  return protochain;
-
 });

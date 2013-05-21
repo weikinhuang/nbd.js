@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, beforeEach */
-define(['real/Class'], function(Class) {
+define(['nbd/Class'], function(Class) {
   'use strict';
 
   describe('Class', function() {
@@ -146,7 +146,4 @@ define(['real/Class'], function(Class) {
     });
 
   });
-
-  return Class;
-
 });
