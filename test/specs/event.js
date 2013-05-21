@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, beforeEach, afterEach */
-define(['real/event'], function(event) {
+define(['nbd/event'], function(event) {
   'use strict';
 
   describe('event', function() {
@@ -92,6 +92,4 @@ define(['real/event'], function(event) {
     });
 
   });
-
-  return event;
 });

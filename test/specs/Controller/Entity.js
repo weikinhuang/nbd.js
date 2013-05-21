@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, beforeEach */
-define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity', 'nbd/Model'], function($, Entity, Controller, View, Model) {
+define(['jquery', 'nbd/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity', 'nbd/Model'], function($, Entity, Controller, View, Model) {
   'use strict';
 
   describe('Controller/Entity', function() {
@@ -54,6 +54,4 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
     });
 
   });
-
-  return Entity;
 });
