@@ -20,9 +20,10 @@
   },
   "devDependencies": {
     "requirejs": "2.1.x",
-    "almond": ""
+    "almond": "",
+    "karma": "~0.8.5"
   },
   "scripts": {
-    "test": "phantomjs test/jasmine.coffee test/SpecRunner.html"
+    "test": "./node_modules/karma/bin/karma start test/karma.conf.js --single-run"
   }
 }

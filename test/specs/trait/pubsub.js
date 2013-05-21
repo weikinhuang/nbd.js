@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, loadFixtures */
-define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
+define(['nbd/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
   'use strict';
 
   describe('trait/pubsub', function() {
@@ -234,5 +234,4 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
       expect(spyA.callCount).toBe(1);
     });
   });
-  return pubsub;
 });

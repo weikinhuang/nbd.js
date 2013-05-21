@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, loadFixtures */
-define(['real/util/extend'], function(extend) {
+define(['nbd/util/extend'], function(extend) {
   'use strict';
 
   describe('util/extend', function() {
@@ -24,6 +24,4 @@ define(['real/util/extend'], function(extend) {
       expect(result).toBe(a);
     });
   });
-
-  return extend;
 });

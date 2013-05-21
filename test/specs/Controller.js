@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, mostRecentAjaxRequest */
-define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.tmpl'], function(Controller, $, Class, View, jqtmpl) {
+define(['nbd/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.tmpl'], function(Controller, $, Class, View, jqtmpl) {
   'use strict';
 
   describe('Controller', function() {
@@ -56,6 +56,4 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.
     });
 
   });
-
-  return Controller;
 });

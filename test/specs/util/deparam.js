@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, runs, waitsFor */
-define(['real/util/deparam'], function(deparam) {
+define(['nbd/util/deparam'], function(deparam) {
   'use strict';
 
   describe('util/deparam', function() {
@@ -21,7 +21,4 @@ define(['real/util/deparam'], function(deparam) {
     });
 
   });
-
-  return deparam;
-
 });
