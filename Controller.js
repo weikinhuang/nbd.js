@@ -11,22 +11,22 @@ define(['nbd/Class',
 
     _initView : function( ViewClass ) {
       var args = Array.prototype.slice.call(arguments, 1);
-      (this.View = construct.apply(ViewClass, args))
+      (this._view = this.View = construct.apply(ViewClass, args))
       .Controller = this;
     },
 
     switchView : function() {
-      var Existing = this.View;
+      var existing = this._view;
       this._initView.apply(this, arguments);
 
-      if ( !Existing ) { return; }
+      if ( !existing ) { return; }
 
-      if (Existing.$view) {
-        this.View.$view = Existing.$view;
-        this.View.render();
+      if (existing.$view) {
+        this._view.$view = existing.$view;
+        this._view.render();
       }
 
-      Existing.destroy();
+      existing.destroy();
     }
 
   });

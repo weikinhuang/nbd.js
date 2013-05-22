@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, runs, waitsFor */
-define(['nbd/util/async'], function(async) {
+define(['real/util/async'], function(async) {
   'use strict';
 
   describe('util/async', function() {
@@ -24,4 +24,6 @@ define(['nbd/util/async'], function(async) {
       });
     });
   });
+
+  return async;
 });

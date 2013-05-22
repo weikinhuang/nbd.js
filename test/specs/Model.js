@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, runs, waitsFor */
-define(['nbd/Model', 'nbd/Class'], function(Model, Class) {
+define(['real/Model', 'nbd/Class'], function(Model, Class) {
   'use strict';
 
   describe('Model', function() {
@@ -127,4 +127,7 @@ define(['nbd/Model', 'nbd/Class'], function(Model, Class) {
     });
 
   });
+
+  return Model;
+
 });

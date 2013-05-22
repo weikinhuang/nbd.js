@@ -20,6 +20,7 @@ files = [
   'test/lib/jasmine-jquery.js',
 
   {pattern: '*.js', included: false},
+  {pattern: 'build/all.js', included: false},
   {pattern: 'Controller/**/*.js', included: false},
   {pattern: 'View/**/*.js', included: false},
   {pattern: 'trait/**/*.js', included: false},

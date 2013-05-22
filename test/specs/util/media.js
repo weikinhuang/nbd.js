@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn */
-define(['nbd/util/media'], function(media) {
+define(['real/util/media'], function(media) {
   'use strict';
 
   describe('util/media', function() {
@@ -47,4 +47,7 @@ define(['nbd/util/media'], function(media) {
     }
 
   });
+
+  return media;
+
 });

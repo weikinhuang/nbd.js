@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, beforeEach */
-define(['nbd/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
+define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
   'use strict';
 
   describe('View/Element', function() {
@@ -41,4 +41,7 @@ define(['nbd/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
     });
 
   });
+
+  return Element;
+
 });

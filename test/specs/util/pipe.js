@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, runs, waitsFor */
-define(['nbd/util/pipe'], function(pipe) {
+define(['real/util/pipe'], function(pipe) {
   'use strict';
 
   describe('util/pipe', function() {
@@ -39,4 +39,7 @@ define(['nbd/util/pipe'], function(pipe) {
       expect(args.second).toHaveBeenCalledWith(rand2);
     });
   });
+
+  return pipe;
+
 });

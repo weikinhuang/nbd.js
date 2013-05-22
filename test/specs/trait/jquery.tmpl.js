@@ -1,5 +1,5 @@
 /*global jasmine, describe, xdescribe, it, xit, expect, spyOn, beforeEach */
-define(['nbd/trait/jquery.tmpl', 'jquery', 'nbd/View'], function(jqtmpl, $, nView) {
+define(['real/trait/jquery.tmpl', 'jquery', 'nbd/View'], function(jqtmpl, $, nView) {
   'use strict';
 
   var View = nView.extend(),
@@ -25,4 +25,6 @@ define(['nbd/trait/jquery.tmpl', 'jquery', 'nbd/View'], function(jqtmpl, $, nVie
       expect( instance.templateScript().html() ).toEqual('Hello');
     });
   });
+
+  return jqtmpl;
 });
