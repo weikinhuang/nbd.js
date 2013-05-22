@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, runs, waitsFor */
-define(['nbd/util/construct'], function(construct) {
+define(['real/util/construct'], function(construct) {
   'use strict';
 
   describe('util/construct', function() {
@@ -35,4 +35,6 @@ define(['nbd/util/construct'], function(construct) {
       expect(args).toEqual(testArr);
     });
   });
+
+  return construct;
 });

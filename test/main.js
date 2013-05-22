@@ -1,12 +1,10 @@
-var tests = Object.keys(window.__karma__.files).filter(function (file) {
-  return (/test\/specs\/(.+\/)*.*\.js$/).test(file);
-});
-
-requirejs.config({
+require.onError=function(err) {
+  throw new Error([err.requireType, err.requireModules].join(' '));
+};
+require({
   baseUrl: '/base',
   paths: {
-    'nbd' : '.'
-  },
-  deps: tests,
-  callback: window.__karma__.start
-});
+    'real' : '.',
+    'nbd' : 'test/specs'
+  }
+}, ['build/all'], window.__karma__.start);

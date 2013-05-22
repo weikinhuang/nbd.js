@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, runs, waitsFor */
-define(['nbd/util/diff'], function(diff) {
+define(['real/util/diff'], function(diff) {
   'use strict';
 
   describe('util/diff', function() {
@@ -125,4 +125,7 @@ define(['nbd/util/diff'], function(diff) {
       expect(Object.keys(r).length).toBe(1);
     });
   });
+
+  return diff;
+
 });
