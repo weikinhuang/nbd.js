@@ -65,12 +65,13 @@ define(function() {
     prototype = Object.create(_super);
 
     function protochain(name, fn, initfn) {
+      var applySuper = function() {return _super[name].apply(this,arguments);};
       return function() {
         var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
        
         // Add a new ._super() method that is the same method
         // but on the super-class
-        this._super = _super[name];
+        this._super = applySuper;
        
         // Addon: calling up the init chain
         if (initfn) { this._super.apply(this, arguments); }
