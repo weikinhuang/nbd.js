@@ -474,12 +474,13 @@ define('nbd/Class',[],function() {
     prototype = Object.create(_super);
 
     function protochain(name, fn, initfn) {
+      var applySuper = function() {return _super[name].apply(this,arguments);};
       return function() {
         var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
        
         // Add a new ._super() method that is the same method
         // but on the super-class
-        this._super = _super[name];
+        this._super = applySuper;
        
         // Addon: calling up the init chain
         if (initfn) { this._super.apply(this, arguments); }
@@ -644,14 +645,21 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
   function objectCheck(cur, prev) {
     var key, equal=true;
 
+    // If complex objects, assume different
+    if (!(Object.getPrototypeOf(cur) === Object.prototype &&
+          Object.getPrototypeOf(prev) === Object.prototype 
+         )) { return false; }
+
     for (key in cur) {
       if (cur[key] !== prev[key]) {
         return false;
       }
 
-      if (cur[key] && cur.hasOwnProperty(key) && typeof cur[key] === "object") {
+      if (cur.hasOwnProperty(key) &&
+          typeof cur[key] === "object" && cur[key] && 
+          Object.getPrototypeOf(cur[key]) === Object.prototype) {
         // Property has been visited, skip
-        if (stack.indexOf(cur[key]) >= 0 ) { continue; }
+        if (~stack.indexOf(cur[key])) { continue; }
 
         try {
           stack.push(cur[key]);
@@ -672,7 +680,7 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
   }
 
   return function diff(cur, prev, callback) {
-    var key, difference, differences = {};
+    var key, lhs, rhs, difference, differences = {};
 
     if (typeof prev !== "object" || typeof cur !== "object" ||
         prev === null || cur === null) {
@@ -680,24 +688,27 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
     }
 
     // Make a copy of prev for its keys
-    prev = extend({},prev);
+    prev = extend({}, prev);
 
     for (key in cur) {
       if (cur.hasOwnProperty(key)) {
-        if (prev[key] !== cur[key] ||
-            (typeof cur[key] === "object" && 
-             cur[key] && 
-             !objectCheck(cur[key], prev[key])
-            )
-           ) 
-        {
-          differences[key] = [cur[key], prev[key]];
+        lhs = cur[key];
+        rhs = prev[key];
+        delete prev[key];
+
+        if (lhs === rhs) { continue; }
+
+        // if either is not a simple object OR objectCheck fails then mark
+        if (!(
+          typeof lhs === "object" && typeof rhs === "object" && 
+          lhs && rhs &&
+          objectCheck(lhs, rhs)
+        )) {
+          differences[key] = [lhs, rhs];
           if (callback) {
-            callback.apply(this, [key, cur[key], prev[key]]);
+            callback.apply(this, [key, lhs, rhs]);
           }
         }
-
-        delete prev[key];
       }
     }
 
@@ -913,7 +924,7 @@ define('nbd/Model',['nbd/Class',
     },
 
     destroy: function() {
-      this.off(null);
+      this.off();
     },
 
     data : function() {
@@ -956,7 +967,7 @@ define('nbd/Model',['nbd/Class',
 });
 
 
-define('nbd/View',['nbd/Class'], function(Class) {
+define('nbd/View',['nbd/Class', 'nbd/trait/pubsub'], function(Class, pubsub) {
   
 
   var constructor = Class.extend({
@@ -966,12 +977,17 @@ define('nbd/View',['nbd/Class'], function(Class) {
     render: function(data) {
       var $existing = this.$view;
 
+      this.trigger('prerender');
+
       this.$view = this.template(data || this.templateData());
 
       if ( $existing && $existing.length ) {
         $existing.replaceWith( this.$view );
       }
 
+      this.trigger('postrender', this.$view);
+
+      // Prefer the postrender event over this method
       if(this.rendered) {
         this.rendered(this.$view);
       }
@@ -987,9 +1003,11 @@ define('nbd/View',['nbd/Class'], function(Class) {
         this.$view.remove();
       }
       this.$view = null;
+      this.off();
     }
 
-  });
+  })
+  .mixin(pubsub);
 
   return constructor;
 
@@ -1003,17 +1021,25 @@ define('nbd/View/Entity',['nbd/View'], function(View) {
 
     init : function( model ) {
       if (typeof model === 'object') {
-        this.Model = model;
+        this._model = this.Model = model;
       }
 
       this.id = (model && model.id) || function() {
         return model;
       };
     },
+
+    destroy : function(persist) {
+      this._model.off(null, null, this);
+      if (!persist) {
+        this._model = this.Model = null;
+      }
+      this._super();
+    },
     
     // all data needed to template the view
     templateData : function() {
-      return (this.Model && this.Model.data) ? this.Model.data() : this.id();
+      return (this._model && this._model.data) ? this._model.data() : this.id();
     },
     
     render : function( $parent ) {
@@ -1025,6 +1051,7 @@ define('nbd/View/Entity',['nbd/View'], function(View) {
       // When there's either no rendered view XOR there isn't a parent
       if ( fresh ) {
         if (typeof $existing !== "string" ) {
+          this.trigger('prerender');
           this.$view = this.template( this.templateData() );
         }
       }
@@ -1045,8 +1072,12 @@ define('nbd/View/Entity',['nbd/View'], function(View) {
         $existing.replaceWith( this.$view );
       }
 
-      if ( fresh && typeof this.rendered === 'function' ) {
-        this.rendered();
+      if ( fresh ) {
+        this.trigger('postrender', this.$view);
+
+        if ( typeof this.rendered === 'function' ) {
+          this.rendered(this.$view);
+        }
       }
 
       return this.$view;
@@ -1074,6 +1105,8 @@ define('nbd/View/Element',['nbd/View'], function(View) {
     render : function( data ) {
       var $existing = this.$view;
 
+      this.trigger('prerender');
+
       this.$view = this.template(data || this.templateData());
 
       if ( $existing && $existing.length ) {
@@ -1082,6 +1115,8 @@ define('nbd/View/Element',['nbd/View'], function(View) {
       else {
         this.$view.appendTo( this.$parent );
       }
+
+      this.trigger('postrender', this.$view);
 
       if(this.rendered) {
         this.rendered(this.$view);
@@ -1128,22 +1163,22 @@ define('nbd/Controller',['nbd/Class',
 
     _initView : function( ViewClass ) {
       var args = Array.prototype.slice.call(arguments, 1);
-      (this.View = construct.apply(ViewClass, args))
+      (this._view = this.View = construct.apply(ViewClass, args))
       .Controller = this;
     },
 
     switchView : function() {
-      var Existing = this.View;
+      var existing = this._view;
       this._initView.apply(this, arguments);
 
-      if ( !Existing ) { return; }
+      if ( !existing ) { return; }
 
-      if (Existing.$view) {
-        this.View.$view = Existing.$view;
-        this.View.render();
+      if (existing.$view) {
+        this._view.$view = existing.$view;
+        this._view.render();
       }
 
-      Existing.destroy();
+      existing.destroy();
     }
 
   });
