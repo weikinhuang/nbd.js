@@ -21,12 +21,12 @@ define(['nbd/View'], function(View) {
       }
       this._super();
     },
-    
+
     // all data needed to template the view
     templateData : function() {
       return (this._model && this._model.data) ? this._model.data() : this.id();
     },
-    
+
     render : function( $parent ) {
 
       // $existing could be a string
@@ -51,7 +51,7 @@ define(['nbd/View'], function(View) {
       }
 
       if ( $parent ) {
-        $parent.append( this.$view );
+        this.$view.appendTo( $parent );
       }
       else {
         $existing.replaceWith( this.$view );
@@ -68,7 +68,7 @@ define(['nbd/View'], function(View) {
       return this.$view;
 
     } // render
-    
+
   }); // View Entity
 
   return constructor;
