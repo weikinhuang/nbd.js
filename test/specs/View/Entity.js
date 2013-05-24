@@ -47,7 +47,6 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
     });
 
     describe('View.Entity.prototype.render', function() {
-      Entity.TEMPLATE_ID = 'entity-template';
 
       var id, item, $test, model, instance;
 
@@ -89,16 +88,17 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData ).toHaveBeenCalled();
       });
 
-      it('does not render when there\'s no parent and has not already been rendered', function() {
+      it('renders when there\'s no parent and has not already been rendered', function() {
         instance.rendered = $.noop;
         spyOn( instance, 'rendered' );
         spyOn( instance, 'templateData' ).andCallThrough();
 
-        instance.render();
+        var $view = instance.render();
 
         expect( $test ).toBeEmpty();
-        expect( instance.rendered ).not.toHaveBeenCalled();
-        expect( instance.templateData ).not.toHaveBeenCalled();
+        expect( $view ).not.toBeNull();
+        expect( instance.rendered ).toHaveBeenCalled();
+        expect( instance.templateData ).toHaveBeenCalled();
       });
 
       it('does not re-render, only reattach, when it has been rendered and there is a parent', function() {
@@ -115,33 +115,8 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData.callCount ).toBe(1);
       });
 
-      it('always renders when it has been pre-templated', function() {
-        instance.rendered = $.noop;
-        spyOn( instance, 'rendered' );
-        spyOn( instance, 'templateData' ).andCallThrough();
-        instance.$view = '<span>Hello world</span>';
-
-        instance.render($test);
-
-        expect( $test.text() ).toEqual('Hello world');
-        expect( instance.rendered ).toHaveBeenCalled();
-        expect( instance.templateData ).not.toHaveBeenCalled();
-      });
-
-      it('does nothing when it was pre-templated but there\'s no parent', function() {
-        instance.rendered = $.noop;
-        spyOn( instance, 'rendered' );
-        spyOn( instance, 'templateData' ).andCallThrough();
-        instance.$view = '<span>Hello world</span>';
-
-        instance.render();
-
-        expect( $test ).toBeEmpty();
-        expect( instance.rendered ).not.toHaveBeenCalled();
-        expect( instance.templateData ).not.toHaveBeenCalled();
-      });
     });
   });
-  
+
   return Entity;
 });

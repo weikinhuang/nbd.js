@@ -31,29 +31,17 @@ define(['nbd/View'], function(View) {
 
       // $existing could be a string
       var $existing = this.$view,
-          fresh = !!$existing ^ !!$parent;
+          fresh = !($existing && $parent);
 
-      // When there's either no rendered view XOR there isn't a parent
       if ( fresh ) {
-        if (typeof $existing !== "string" ) {
-          this.trigger('prerender');
-          this.$view = this.template( this.templateData() );
-        }
-      }
-      else if ( !$existing ) {
-        return;
-      }
-
-      if (typeof $existing === "string") {
-        this.$view = require('jquery')(this.$view);
-        fresh = !!$parent;
-        if ( !fresh ) { return; }
+        this.trigger('prerender');
+        this.$view = this.template( this.templateData() );
       }
 
       if ( $parent ) {
-        this.$view.appendTo( $parent );
+        if (this.$view) { this.$view.appendTo( $parent ); }
       }
-      else {
+      else if ( $existing ) {
         $existing.replaceWith( this.$view );
       }
 
