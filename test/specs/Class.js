@@ -13,7 +13,6 @@ define(['real/Class'], function(Class) {
 
       it('creates subclasses', function() {
         var Subclass = Class.extend({});
-        expect( Subclass.__super__ ).toBe( Class.prototype );
         expect( Subclass.prototype.constructor ).toBe( Subclass );
         expect( new Subclass() ).toEqual( jasmine.any(Subclass) );
         expect( new Subclass() ).toEqual( jasmine.any(Class) );

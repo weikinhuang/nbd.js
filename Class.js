@@ -6,8 +6,6 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
  * - Static properties inheritance
  * - init() auto-calls super's init()
  * - can prevent auto-calling with stat._
- * - __super__ for Backbone.js compatibility
- * - Uses AMD pattern, with global fallback
  * - mixin() for implementing abstracts
  */
 /*global xyz */
@@ -16,6 +14,13 @@ define(function() {
 
   var Klass, inherits, mixin,
   fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
+
+  function chainFn(parent, child) {
+    return function() {
+      parent.apply(this, arguments);
+      return child.apply(this, arguments);
+    };
+  }
 
   // Addon: mixin allows adding any object's properties into the class
   mixin = function(abstract) {
@@ -89,13 +94,6 @@ define(function() {
       };
     }
 
-    function chainFn(parent, child) {
-      return function() {
-        parent.apply(this, arguments);
-        return child.apply(this, arguments);
-      };
-    }
-
     // Copy the properties over onto the new prototype
     for (name in prop) {
       if ( prop.hasOwnProperty(name) ) {
@@ -144,16 +142,13 @@ define(function() {
     Class.prototype = prototype;
    
     // Enforce the constructor to be what we expect
-    Class.prototype.constructor = Class;
+    Object.defineProperty(Class.prototype, "constructor", {value:Class});
 
-    // And make this class extendable
-    Class.extend = extend;
-
-    // Addon: mixins for classes
-    Class.mixin = mixin;
-
-    // Addon: for backbone compat
-    Class.__super__ = _super;
+    // Class guaranteed methods
+    Object.defineProperties(Class, {
+      mixin : {value:mixin},
+      extend: {value:extend}
+    });
    
     return Class;
   };
