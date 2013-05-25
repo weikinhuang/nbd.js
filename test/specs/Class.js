@@ -75,6 +75,26 @@ define(['real/Class'], function(Class) {
         expect(subproto._super).not.toHaveBeenCalled();
       });
 
+      it('throws when implementation throws', function() {
+        var Super = Class.extend({test: function() {}}),
+        Subclass = Super.extend({test: function() { this._super(); throw 'unfortunate'; }});
+
+        var inst = new Subclass();
+        expect(function() {
+          inst.test();
+        }).toThrow('unfortunate');
+      });
+
+      it('throws when superimplementation throws', function() {
+        var Super = Class.extend({test: function() {throw 'unfortunate';}}),
+        Subclass = Super.extend({test: function() { this._super(); }});
+
+        var inst = new Subclass();
+        expect(function() {
+          inst.test();
+        }).toThrow('unfortunate');
+      });
+
     });
 
     describe('Class.mixin', function() {

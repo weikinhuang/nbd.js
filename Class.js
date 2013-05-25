@@ -76,17 +76,18 @@ define(function() {
         // Add a new ._super() method that is the same method
         // but on the super-class
         this._super = applySuper;
-       
-        // Addon: calling up the init chain
-        if (initfn) { this._super.apply(this, arguments); }
 
         // The method only need to be bound temporarily, so we
         // remove it when we're done executing
         try {
+          // Addon: calling up the init chain
+          if (initfn) { this._super.apply(this, arguments); }
+       
           return fn.apply(this, arguments);
         }
         catch(e) {
-          // Empty catch for IE 8
+          // Rethrow catch for IE 8
+          throw e;
         }
         finally {
           if (hadSuper) {this._super = tmp;}
