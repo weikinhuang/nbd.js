@@ -19,14 +19,13 @@ define(function() {
 
   // Addon: mixin allows adding any object's properties into the class
   mixin = function(abstract) {
-    var prop, descriptor = {};
-    for (prop in abstract) {
-      if (abstract.hasOwnProperty(prop)) {
-        descriptor[prop] = {
-          value:abstract[prop]
-        };
-      }
-    }
+    var descriptor = {};
+    Object.keys(abstract).forEach(function(prop) {
+      descriptor[prop] = {
+        configurable:false,
+        value:abstract[prop]
+      };
+    });
     Object.defineProperties(this.prototype, descriptor);
     return this;
   };

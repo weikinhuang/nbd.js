@@ -114,13 +114,14 @@ define(['real/Class'], function(Class) {
         expect( new Qlass().bigDeal ).toBe('no');
       });
 
-      it('cannot mixin two conflicting objects', function() {
+      it('overwrites conflicting mixins', function() {
         Klass.mixin({ bigDeal: 'no' });
         
         expect(function() {
           Klass.mixin({ bigDeal: 'yes' });
         }).toThrow();
 
+        expect( Klass.prototype.bigDeal ).toBe('no');
         expect( kInstance.bigDeal ).toBe('no');
       });
     });
