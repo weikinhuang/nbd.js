@@ -11,6 +11,10 @@ define(['real/Class'], function(Class) {
 
     describe('Class.extend', function() {
 
+      it('is non-enumerable', function() {
+        expect(Class.extend().propertyIsEnumerable('extend')).toBe(false);
+      });
+
       it('creates subclasses', function() {
         var Subclass = Class.extend({});
         expect( Subclass.prototype.constructor ).toBe( Subclass );
@@ -105,6 +109,11 @@ define(['real/Class'], function(Class) {
         kInstance = new Klass();
       });
 
+      it('is non-enumerable', function() {
+        expect(Klass.propertyIsEnumerable('mixin')).toBe(false);
+      });
+
+
       it('adds object properties into a prototype', function() {
         Klass.mixin({ bigDeal: 'no' });
         expect( Klass.prototype.bigDeal ).toBe('no');
@@ -147,8 +156,18 @@ define(['real/Class'], function(Class) {
 
     describe('Class.inherits', function() {
 
+      var Klass;
+
+      beforeEach(function() {
+        Klass= Class.extend();
+      });
+
+      it('is non-enumerable', function() {
+        expect(Klass.propertyIsEnumerable('inherits')).toBe(false);
+      });
+
       it('can check its ancestor class', function() {
-        var A = Class.extend(), B = A.extend(), C = Class.extend();
+        var A = Class.extend(), B = A.extend(), C = Klass;
         expect( A.inherits(Class) ).toBe(true);
         expect( B.inherits(Class) ).toBe(true);
         expect( C.inherits(Class) ).toBe(true);
@@ -157,7 +176,7 @@ define(['real/Class'], function(Class) {
       });
 
       it('can check whether an object was mixed in', function() {
-        var Klass = Class.extend(), trait = { bigDeal: 'no' };
+        var trait = { bigDeal: 'no' };
         Klass.mixin( trait );
         expect( Klass.inherits(trait) ).toBe(true);
         expect( Klass.inherits({rTrait:null}) ).toBe(false);
