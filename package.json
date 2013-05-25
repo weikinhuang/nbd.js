@@ -19,11 +19,13 @@
     "amdefine": ">=0.0.2"
   },
   "devDependencies": {
-    "requirejs": "2.1.x",
+    "requirejs": "2.x",
     "almond": "",
+    "uglify-js": "2.x",
     "karma": "~0.8.5"
   },
   "scripts": {
+    "build": "./node_modules/requirejs/bin/r.js -o build/build.json && ./node_modules/uglify-js/bin/uglifyjs build/nbd.js -o build/nbd.min.js -m -c",
     "test": "./node_modules/karma/bin/karma start test/karma.conf.js --single-run"
   }
 }
