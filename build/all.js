@@ -8,6 +8,7 @@ define(['nbd/Class',
        'nbd/Controller',
        'nbd/Controller/Entity',
        'nbd/event',
+       'nbd/trait/promise',
        'nbd/trait/pubsub',
        'nbd/util/async',
        'nbd/util/construct',
@@ -17,7 +18,7 @@ define(['nbd/Class',
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/protochain'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
   'use strict';
 
   var exports = {
@@ -27,6 +28,7 @@ define(['nbd/Class',
     Controller : Controller,
     event : event,
     trait : {
+      promise : promise,
       pubsub : pubsub
     },
     util : {
