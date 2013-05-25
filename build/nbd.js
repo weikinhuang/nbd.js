@@ -415,32 +415,131 @@ define("node_modules/almond/almond", function(){});
  * - Static properties inheritance
  * - init() auto-calls super's init()
  * - can prevent auto-calling with stat._
- * - __super__ for Backbone.js compatibility
- * - Uses AMD pattern, with global fallback
  * - mixin() for implementing abstracts
  */
 /*global xyz */
 define('nbd/Class',[],function() {
   
 
-  var Klass, inherits, mixin,
+  var Klass, extend, mixin, inherits,
   fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
 
-  // Addon: mixin allows adding any object's properties into the class
-  mixin = function(abstract) {
-    var prop, descriptor = {};
-    for (prop in abstract) {
-      if (abstract.hasOwnProperty(prop)) {
-        descriptor[prop] = {
-          value:abstract[prop]
-        };
+  function chainFn(parent, child) {
+    return function() {
+      parent.apply(this, arguments);
+      return child.apply(this, arguments);
+    };
+  }
+
+  // Create a new Class that inherits from this class
+  extend = function(prop, stat) {
+    var prototype, name, initfn, _super = this.prototype;
+
+    // Instantiate a base class (but only create the instance,
+    // don't run the init constructor)
+    prototype = Object.create(_super);
+
+    function protochain(name, fn, initfn) {
+      var applySuper = function() {return _super[name].apply(this,arguments);};
+      return function() {
+        var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
+
+        // Add a new ._super() method that is the same method
+        // but on the super-class
+        this._super = applySuper;
+
+        // The method only need to be bound temporarily, so we
+        // remove it when we're done executing
+        try {
+          // Addon: calling up the init chain
+          if (initfn) { this._super.apply(this, arguments); }
+
+          return fn.apply(this, arguments);
+        }
+        catch(e) {
+          // Rethrow catch for IE 8
+          throw e;
+        }
+        finally {
+          if (hadSuper) {this._super = tmp;}
+        }
+      };
+    }
+
+    // Copy the properties over onto the new prototype
+    for (name in prop) {
+      if ( prop.hasOwnProperty(name) ) {
+        // Addon: check for need to call up the chain
+        initfn = name === "init" && !(stat && stat.hasOwnProperty("_") && stat._);
+
+        // Check if we're overwriting an existing function
+        prototype[name] =
+          typeof prop[name] === "function" &&
+          typeof _super[name] === "function" &&
+          (initfn || fnTest.test(prop[name])) ?
+          protochain(name, prop[name], initfn) :
+          prop[name];
       }
     }
+
+    // The dummy class constructor
+    function Class() {
+      // All construction is actually done in the init method
+      if ( typeof this.init === "function" ) {
+        this.init.apply(this, arguments);
+      }
+    }
+
+    // Addon: copy the superclass's stat properties
+    for (name in this) {
+      if (this.hasOwnProperty(name)) {
+        Class[name] = this[name];
+      }
+    }
+
+    // Addon: override the provided stat properties
+    for (name in stat) {
+      if (stat.hasOwnProperty(name)) {
+        initfn = name === "init" &&
+            !(stat && stat.hasOwnProperty("_") && stat._);
+        Class[name] = initfn &&
+          typeof Class[name] === "function" &&
+          typeof stat[name] === "function" ?
+          chainFn(Class[name], stat[name]) :
+          stat[name];
+      }
+    }
+
+    // Populate our constructed prototype object
+    Class.prototype = prototype;
+
+    // Enforce the constructor to be what we expect
+    Object.defineProperty(Class.prototype, "constructor", {value:Class});
+
+    // Class guaranteed methods
+    Object.defineProperties(Class, {
+      extend: {value:extend, enumerable:false},
+      mixin : {value:mixin},
+      inherits: {value:inherits}
+    });
+
+    return Class;
+  };
+
+  // allows adding any object's properties into the class
+  mixin = function(abstract) {
+    var descriptor = {};
+    Object.keys(abstract).forEach(function(prop) {
+      descriptor[prop] = {
+        configurable:false,
+        value:abstract[prop]
+      };
+    });
     Object.defineProperties(this.prototype, descriptor);
     return this;
   };
 
-  // Addon: inherits determines if current class inherits from superclass
+  // determines if current class inherits from superclass
   inherits = function(superclass) {
     var prop, result = false;
     if (typeof superclass === 'function') {
@@ -462,110 +561,8 @@ define('nbd/Class',[],function() {
   };
 
   // The base Class implementation (does nothing)
-  Klass = function(){};
-  Klass.inherits = inherits;
-
-  // Create a new Class that inherits from this class
-  Klass.extend = function extend(prop, stat) {
-    var prototype, name, initfn, _super = this.prototype;
-   
-    // Instantiate a base class (but only create the instance,
-    // don't run the init constructor)
-    prototype = Object.create(_super);
-
-    function protochain(name, fn, initfn) {
-      return function() {
-        var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
-       
-        // Add a new ._super() method that is the same method
-        // but on the super-class
-        this._super = _super[name];
-       
-        // Addon: calling up the init chain
-        if (initfn) { this._super.apply(this, arguments); }
-
-        // The method only need to be bound temporarily, so we
-        // remove it when we're done executing
-        try {
-          return fn.apply(this, arguments);
-        }
-        catch(e) {
-          // Empty catch for IE 8
-        }
-        finally {
-          if (hadSuper) {this._super = tmp;}
-        }
-      };
-    }
-
-    function chainFn(parent, child) {
-      return function() {
-        parent.apply(this, arguments);
-        return child.apply(this, arguments);
-      };
-    }
-
-    // Copy the properties over onto the new prototype
-    for (name in prop) {
-      if ( prop.hasOwnProperty(name) ) {
-        // Addon: check for need to call up the chain
-        initfn = name === "init" && !(stat && stat.hasOwnProperty("_") && stat._);
-
-        // Check if we're overwriting an existing function
-        prototype[name] = 
-          typeof prop[name] === "function" &&
-          typeof _super[name] === "function" && 
-          (initfn || fnTest.test(prop[name])) ?
-          protochain(name, prop[name], initfn) :
-          prop[name];
-      }
-    }
-   
-    // The dummy class constructor
-    function Class() {
-      // All construction is actually done in the init method
-      if ( typeof this.init === "function" ) {
-        this.init.apply(this, arguments);
-      }
-    }
-
-    // Addon: copy the superclass's stat properties
-    for (name in this) {
-      if (this.hasOwnProperty(name)) {
-        Class[name] = this[name];
-      }
-    }
-
-    // Addon: override the provided stat properties
-    for (name in stat) {
-      if (stat.hasOwnProperty(name)) {
-        initfn = name === "init" && 
-            !(stat && stat.hasOwnProperty("_") && stat._);
-        Class[name] = initfn &&
-          typeof Class[name] === "function" &&
-          typeof stat[name] === "function" ?
-          chainFn(Class[name], stat[name]) :
-          stat[name];
-      }
-    }
-   
-    // Populate our constructed prototype object
-    Class.prototype = prototype;
-   
-    // Enforce the constructor to be what we expect
-    Class.prototype.constructor = Class;
-
-    // And make this class extendable
-    Class.extend = extend;
-
-    // Addon: mixins for classes
-    Class.mixin = mixin;
-
-    // Addon: for backbone compat
-    Class.__super__ = _super;
-   
-    return Class;
-  };
+  Klass = function() {};
+  Klass.extend = extend;
 
   return Klass;
 });
@@ -644,14 +641,21 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
   function objectCheck(cur, prev) {
     var key, equal=true;
 
+    // If complex objects, assume different
+    if (!(Object.getPrototypeOf(cur) === Object.prototype &&
+          Object.getPrototypeOf(prev) === Object.prototype 
+         )) { return false; }
+
     for (key in cur) {
       if (cur[key] !== prev[key]) {
         return false;
       }
 
-      if (cur[key] && cur.hasOwnProperty(key) && typeof cur[key] === "object") {
+      if (cur.hasOwnProperty(key) &&
+          typeof cur[key] === "object" && cur[key] && 
+          Object.getPrototypeOf(cur[key]) === Object.prototype) {
         // Property has been visited, skip
-        if (stack.indexOf(cur[key]) >= 0 ) { continue; }
+        if (~stack.indexOf(cur[key])) { continue; }
 
         try {
           stack.push(cur[key]);
@@ -672,7 +676,7 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
   }
 
   return function diff(cur, prev, callback) {
-    var key, difference, differences = {};
+    var key, lhs, rhs, difference, differences = {};
 
     if (typeof prev !== "object" || typeof cur !== "object" ||
         prev === null || cur === null) {
@@ -680,24 +684,27 @@ define('nbd/util/diff',['nbd/util/extend'], function(extend) {
     }
 
     // Make a copy of prev for its keys
-    prev = extend({},prev);
+    prev = extend({}, prev);
 
     for (key in cur) {
       if (cur.hasOwnProperty(key)) {
-        if (prev[key] !== cur[key] ||
-            (typeof cur[key] === "object" && 
-             cur[key] && 
-             !objectCheck(cur[key], prev[key])
-            )
-           ) 
-        {
-          differences[key] = [cur[key], prev[key]];
+        lhs = cur[key];
+        rhs = prev[key];
+        delete prev[key];
+
+        if (lhs === rhs) { continue; }
+
+        // if either is not a simple object OR objectCheck fails then mark
+        if (!(
+          typeof lhs === "object" && typeof rhs === "object" && 
+          lhs && rhs &&
+          objectCheck(lhs, rhs)
+        )) {
+          differences[key] = [lhs, rhs];
           if (callback) {
-            callback.apply(this, [key, cur[key], prev[key]]);
+            callback.apply(this, [key, lhs, rhs]);
           }
         }
-
-        delete prev[key];
       }
     }
 
@@ -913,7 +920,7 @@ define('nbd/Model',['nbd/Class',
     },
 
     destroy: function() {
-      this.off(null);
+      this.off();
     },
 
     data : function() {
@@ -956,7 +963,7 @@ define('nbd/Model',['nbd/Class',
 });
 
 
-define('nbd/View',['nbd/Class'], function(Class) {
+define('nbd/View',['nbd/Class', 'nbd/trait/pubsub'], function(Class, pubsub) {
   
 
   var constructor = Class.extend({
@@ -966,12 +973,17 @@ define('nbd/View',['nbd/Class'], function(Class) {
     render: function(data) {
       var $existing = this.$view;
 
+      this.trigger('prerender');
+
       this.$view = this.template(data || this.templateData());
 
       if ( $existing && $existing.length ) {
         $existing.replaceWith( this.$view );
       }
 
+      this.trigger('postrender', this.$view);
+
+      // Prefer the postrender event over this method
       if(this.rendered) {
         this.rendered(this.$view);
       }
@@ -987,9 +999,11 @@ define('nbd/View',['nbd/Class'], function(Class) {
         this.$view.remove();
       }
       this.$view = null;
+      this.off();
     }
 
-  });
+  })
+  .mixin(pubsub);
 
   return constructor;
 
@@ -1003,56 +1017,57 @@ define('nbd/View/Entity',['nbd/View'], function(View) {
 
     init : function( model ) {
       if (typeof model === 'object') {
-        this.Model = model;
+        this._model = this.Model = model;
       }
 
       this.id = (model && model.id) || function() {
         return model;
       };
     },
-    
+
+    destroy : function(persist) {
+      this._model.off(null, null, this);
+      if (!persist) {
+        this._model = this.Model = null;
+      }
+      this._super();
+    },
+
     // all data needed to template the view
     templateData : function() {
-      return (this.Model && this.Model.data) ? this.Model.data() : this.id();
+      return (this._model && this._model.data) ? this._model.data() : this.id();
     },
-    
+
     render : function( $parent ) {
 
       // $existing could be a string
       var $existing = this.$view,
-          fresh = !!$existing ^ !!$parent;
+          fresh = !($existing && $parent);
 
-      // When there's either no rendered view XOR there isn't a parent
       if ( fresh ) {
-        if (typeof $existing !== "string" ) {
-          this.$view = this.template( this.templateData() );
-        }
-      }
-      else if ( !$existing ) {
-        return;
-      }
-
-      if (typeof $existing === "string") {
-        this.$view = require('jquery')(this.$view);
-        fresh = !!$parent;
-        if ( !fresh ) { return; }
+        this.trigger('prerender');
+        this.$view = this.template( this.templateData() );
       }
 
       if ( $parent ) {
-        $parent.append( this.$view );
+        if (this.$view) { this.$view.appendTo( $parent ); }
       }
-      else {
+      else if ( $existing ) {
         $existing.replaceWith( this.$view );
       }
 
-      if ( fresh && typeof this.rendered === 'function' ) {
-        this.rendered();
+      if ( fresh ) {
+        this.trigger('postrender', this.$view);
+
+        if ( typeof this.rendered === 'function' ) {
+          this.rendered(this.$view);
+        }
       }
 
       return this.$view;
 
     } // render
-    
+
   }); // View Entity
 
   return constructor;
@@ -1074,6 +1089,8 @@ define('nbd/View/Element',['nbd/View'], function(View) {
     render : function( data ) {
       var $existing = this.$view;
 
+      this.trigger('prerender');
+
       this.$view = this.template(data || this.templateData());
 
       if ( $existing && $existing.length ) {
@@ -1082,6 +1099,8 @@ define('nbd/View/Element',['nbd/View'], function(View) {
       else {
         this.$view.appendTo( this.$parent );
       }
+
+      this.trigger('postrender', this.$view);
 
       if(this.rendered) {
         this.rendered(this.$view);
@@ -1128,22 +1147,22 @@ define('nbd/Controller',['nbd/Class',
 
     _initView : function( ViewClass ) {
       var args = Array.prototype.slice.call(arguments, 1);
-      (this.View = construct.apply(ViewClass, args))
+      (this._view = this.View = construct.apply(ViewClass, args))
       .Controller = this;
     },
 
     switchView : function() {
-      var Existing = this.View;
+      var existing = this._view;
       this._initView.apply(this, arguments);
 
-      if ( !Existing ) { return; }
+      if ( !existing ) { return; }
 
-      if (Existing.$view) {
-        this.View.$view = Existing.$view;
-        this.View.render();
+      if (existing.$view) {
+        this._view.$view = existing.$view;
+        this._view.render();
       }
 
-      Existing.destroy();
+      existing.destroy();
     }
 
   });

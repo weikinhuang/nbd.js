@@ -11,9 +11,12 @@ define(['real/Class'], function(Class) {
 
     describe('Class.extend', function() {
 
+      it('is non-enumerable', function() {
+        expect(Class.extend().propertyIsEnumerable('extend')).toBe(false);
+      });
+
       it('creates subclasses', function() {
         var Subclass = Class.extend({});
-        expect( Subclass.__super__ ).toBe( Class.prototype );
         expect( Subclass.prototype.constructor ).toBe( Subclass );
         expect( new Subclass() ).toEqual( jasmine.any(Subclass) );
         expect( new Subclass() ).toEqual( jasmine.any(Class) );
@@ -76,6 +79,26 @@ define(['real/Class'], function(Class) {
         expect(subproto._super).not.toHaveBeenCalled();
       });
 
+      it('throws when implementation throws', function() {
+        var Super = Class.extend({test: function() {}}),
+        Subclass = Super.extend({test: function() { this._super(); throw 'unfortunate'; }});
+
+        var inst = new Subclass();
+        expect(function() {
+          inst.test();
+        }).toThrow('unfortunate');
+      });
+
+      it('throws when superimplementation throws', function() {
+        var Super = Class.extend({test: function() {throw 'unfortunate';}}),
+        Subclass = Super.extend({test: function() { this._super(); }});
+
+        var inst = new Subclass();
+        expect(function() {
+          inst.test();
+        }).toThrow('unfortunate');
+      });
+
     });
 
     describe('Class.mixin', function() {
@@ -85,6 +108,11 @@ define(['real/Class'], function(Class) {
         Klass = Class.extend();
         kInstance = new Klass();
       });
+
+      it('is non-enumerable', function() {
+        expect(Klass.propertyIsEnumerable('mixin')).toBe(false);
+      });
+
 
       it('adds object properties into a prototype', function() {
         Klass.mixin({ bigDeal: 'no' });
@@ -114,21 +142,32 @@ define(['real/Class'], function(Class) {
         expect( new Qlass().bigDeal ).toBe('no');
       });
 
-      it('cannot mixin two conflicting objects', function() {
+      it('overwrites conflicting mixins', function() {
         Klass.mixin({ bigDeal: 'no' });
         
         expect(function() {
           Klass.mixin({ bigDeal: 'yes' });
         }).toThrow();
 
+        expect( Klass.prototype.bigDeal ).toBe('no');
         expect( kInstance.bigDeal ).toBe('no');
       });
     });
 
     describe('Class.inherits', function() {
 
+      var Klass;
+
+      beforeEach(function() {
+        Klass= Class.extend();
+      });
+
+      it('is non-enumerable', function() {
+        expect(Klass.propertyIsEnumerable('inherits')).toBe(false);
+      });
+
       it('can check its ancestor class', function() {
-        var A = Class.extend(), B = A.extend(), C = Class.extend();
+        var A = Class.extend(), B = A.extend(), C = Klass;
         expect( A.inherits(Class) ).toBe(true);
         expect( B.inherits(Class) ).toBe(true);
         expect( C.inherits(Class) ).toBe(true);
@@ -137,7 +176,7 @@ define(['real/Class'], function(Class) {
       });
 
       it('can check whether an object was mixed in', function() {
-        var Klass = Class.extend(), trait = { bigDeal: 'no' };
+        var trait = { bigDeal: 'no' };
         Klass.mixin( trait );
         expect( Klass.inherits(trait) ).toBe(true);
         expect( Klass.inherits({rTrait:null}) ).toBe(false);

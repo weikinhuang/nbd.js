@@ -19,8 +19,8 @@ files = [
   'test/lib/jquery.js',
   'test/lib/jasmine-jquery.js',
 
-  {pattern: '*.js', included: false},
   {pattern: 'build/all.js', included: false},
+  {pattern: '*.js', included: false},
   {pattern: 'Controller/**/*.js', included: false},
   {pattern: 'View/**/*.js', included: false},
   {pattern: 'trait/**/*.js', included: false},
@@ -36,10 +36,24 @@ exclude = [
   
 ];
 
+// preprocessor inclusions
+preprocessors = {
+  '*.js': 'coverage',
+  'View/**/*.js': 'coverage',
+  'Controller/**/*.js': 'coverage',
+  'trait/**/*.js': 'coverage',
+  'util/**/*.js': 'coverage',
+};
 
 // test results reporter to use
 // possible values: 'dots', 'progress', 'junit'
-reporters = ['progress'];
+reporters = ['dots', 'coverage'];
+
+
+coverageReporter = {
+  type : 'text-summary',
+  dir : 'test/coverage/'
+};
 
 
 // web server port
