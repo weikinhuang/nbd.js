@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn */
-define(['real/trait/promise', 'nbd/Class'], function(promise, Class) {
+define(['real/trait/promise', 'nbd/Class', 'jquery'], function(promise, Class, $) {
   'use strict';
   // Only ever test nbd related functionality here
   // Actual Promise/A+ testing done in test/lib/promise-adapter
@@ -129,6 +129,39 @@ define(['real/trait/promise', 'nbd/Class'], function(promise, Class) {
         });
       });
 
+    });
+
+    describe('.promise()', function() {
+      var promise;
+
+      beforeEach(function() {
+        promise = inst.promise();
+      });
+
+      it('returns a jQuery Deferrable-compatible object', function() {
+        expect( promise.done ).toEqual(jasmine.any(Function));
+        expect( promise.fail ).toEqual(jasmine.any(Function));
+        expect( promise.progress ).toEqual(jasmine.any(Function));
+        expect( promise.promise ).toEqual(jasmine.any(Function));
+      });
+
+      it('infinitely returns its own .promise()', function() {
+        expect( promise.promise() ).toBe(promise);
+      });
+
+      it('mixes in with jQuery Deferrables', function() {
+        var onDone = jasmine.createSpy('jQuery onDone');
+
+        $.when( promise, undefined ).done(onDone);
+
+        runs(function() { 
+          inst.resolve('promise land');
+        });
+        waits(15);
+        runs(function() {
+          expect(onDone).toHaveBeenCalledWith('promise land', undefined);
+        });
+      });
     });
 
   });

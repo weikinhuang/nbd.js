@@ -135,6 +135,28 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
     return { then : this.then };
   };
 
+  Promise.prototype.promise = function() {
+    var then = this.then,
+    retSelf = function() {return api;},
+    api = {
+      done : function() {
+        var fns = Array.prototype.concat.apply([], arguments);
+        fns.forEach(function(fn) { then(fn); });
+        return api;
+      },
+      fail : function() {
+        var fns = Array.prototype.concat.apply([], arguments);
+        fns.forEach(function(fn) { then(undefined, fn); });
+        return api;
+      },
+      then : then,
+      progress : retSelf,
+      promise : retSelf
+    };
+
+    return api;
+  };
+
   var promiseMe = function() {
     // Ensure there is a promise instance
     if (!this._promise) {
@@ -143,26 +165,31 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
   };
 
   extend(Promise, {
-    then : function(onFulfilled, onRejected) {
+    then: function(onFulfilled, onRejected) {
       promiseMe.call(this);
       return this._promise.then(onFulfilled, onRejected);
     },
 
-    resolve : function(value) {
+    resolve: function(value) {
       promiseMe.call(this);
       this._promise.resolve(value);
       return this;
     },
 
-    reject : function(value) {
+    reject: function(value) {
       promiseMe.call(this);
       this._promise.reject(value);
       return this;
     },
 
-    thenable : function() {
+    thenable: function() {
       promiseMe.call(this);
       return this._promise.thenable();
+    },
+
+    promise: function() {
+      promiseMe.call(this);
+      return this._promise.promise();
     }
   });
 
