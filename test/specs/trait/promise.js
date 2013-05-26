@@ -32,9 +32,6 @@ define(['real/trait/promise', 'nbd/Class'], function(promise, Class) {
         var promise = inst.then();
 
         expect(promise.then).toEqual(jasmine.any(Function));
-        expect(promise.resolve).toEqual(jasmine.any(Function));
-        expect(promise.reject).toEqual(jasmine.any(Function));
-        expect(promise.promise).toEqual(jasmine.any(Function));
       });
 
     });
@@ -103,11 +100,11 @@ define(['real/trait/promise', 'nbd/Class'], function(promise, Class) {
 
     });
 
-    describe('.promise()', function() {
+    describe('.thenable()', function() {
       var promise;
 
       beforeEach(function() {
-        promise = inst.promise();
+        promise = inst.thenable();
       });
 
       it('returns a promise', function() {

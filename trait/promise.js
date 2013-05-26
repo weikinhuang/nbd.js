@@ -131,7 +131,7 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
     this.then = then;
   }
 
-  Promise.prototype.promise = function() {
+  Promise.prototype.thenable = function() {
     return { then : this.then };
   };
 
@@ -160,9 +160,9 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
       return this;
     },
 
-    promise : function() {
+    thenable : function() {
       promiseMe.call(this);
-      return this._promise.promise();
+      return this._promise.thenable();
     }
   });
 
