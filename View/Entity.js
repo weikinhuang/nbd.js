@@ -39,7 +39,8 @@ define(['nbd/View'], function(View) {
       }
 
       if ( $parent ) {
-        if (this.$view) { this.$view.appendTo( $parent ); }
+        if ( $existing ) { $existing.remove(); }
+        if ( this.$view ) { this.$view.appendTo( $parent ); }
       }
       else if ( $existing ) {
         $existing.replaceWith( this.$view );
