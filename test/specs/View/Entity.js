@@ -80,12 +80,19 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
         instance.render($test);
 
+        expect(instance.$view).toBeDefined();
+        var shun = jasmine.createSpy();
+        instance.$view.on('click', shun);
+
         model.set('item', item);
         instance.render();
 
         expect( $test.text() ).toEqual(id+' : '+item);
         expect( instance.rendered ).toHaveBeenCalled();
         expect( instance.templateData ).toHaveBeenCalled();
+
+        instance.$view.trigger('click');
+        expect( shun ).not.toHaveBeenCalled();
       });
 
       it('renders when there\'s no parent and has not already been rendered', function() {
@@ -106,6 +113,9 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         spyOn( instance, 'templateData' ).andCallThrough();
         instance.render($test);
 
+        var shun = jasmine.createSpy();
+        instance.$view.on('click', shun);
+
         spyOn( instance, 'rendered' );
         model.set('item', null);
         instance.render($test);
@@ -113,6 +123,9 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( $test.text() ).toEqual(id+' : '+item);
         expect( instance.rendered ).not.toHaveBeenCalled();
         expect( instance.templateData.callCount ).toBe(1);
+
+        instance.$view.trigger('click');
+        expect( shun ).not.toHaveBeenCalled();
       });
 
     });

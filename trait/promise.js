@@ -12,11 +12,11 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
     function call(fns) {
       if (fns.length) {
         async(function() {
-          for (var i=0; i<fns.length; ++i) {
-            fns[i](value);
-          }
+          for (var i=0; i<fns.length; ++i) { fns[i](value); }
         });
       }
+      // Reset callbacks
+      onResolve = onReject = [];
     }
 
     function fulfill(x) {
@@ -24,7 +24,6 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
       state = 1;
       value = x;
       call(onResolve);
-      onResolve = [];
     }
 
     function reject(reason) {
@@ -32,7 +31,6 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
       state = -1;
       value = reason;
       call(onReject);
-      onReject = [];
     }
 
     function resolve(x) {
@@ -95,20 +93,15 @@ define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
 
       // Promise pending
       if (!state) {
-        if (typeof onFulfilled === 'function') {
-          onResolve.push(wrap(onFulfilled));
-        }
-        else {
-          onResolve.push(next.resolve);
-        }
+        onResolve.push(typeof onFulfilled === 'function' ?
+                       wrap(onFulfilled) :
+                       next.resolve);
 
-        if (typeof onRejected === 'function') {
-          onReject.push(wrap(onRejected));
-        }
-        else {
-          onReject.push(next.reject);
-        }
+        onReject.push(typeof onRejected === 'function' ?
+                      wrap(onRejected) :
+                      next.reject);
       }
+      // Promise fulfilled/rejected
       else {
         var toCall = state > 0 ? onFulfilled : onRejected;
         if (typeof toCall === 'function') {
