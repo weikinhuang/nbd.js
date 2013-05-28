@@ -1,5 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
+define(['../util/async', '../util/extend'], function(async, extend) {
   'use strict';
 
   function Promise() {

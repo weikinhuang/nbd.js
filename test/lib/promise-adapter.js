@@ -1,7 +1,7 @@
 // Promise A+ test adapter
 // For use with promises-aplus-tests
 
-var Promise = require('nbd/trait/promise');
+var Promise = require('../../trait/promise');
 
 module.exports = {
   pending : function() {

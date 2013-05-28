@@ -1,9 +1,9 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/Class',
-       'nbd/util/async',
-       'nbd/util/extend',
-       'nbd/util/diff',
-       'nbd/trait/pubsub'
+define(['./Class',
+       './util/async',
+       './util/extend',
+       './util/diff',
+       './trait/pubsub'
 ], function(Class, async, extend, diff, pubsub) {
   "use strict";
 

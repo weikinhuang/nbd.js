@@ -1,6 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 
-define(['nbd/Class',
+define([
+       'nbd/Class',
        'nbd/Model',
        'nbd/View',
        'nbd/View/Entity',

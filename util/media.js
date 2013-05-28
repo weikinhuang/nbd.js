@@ -4,7 +4,7 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
  * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
  */
 /*global matchMedia, msMatchMedia */
-define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
+define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
   'use strict';
 
   var queries = {},

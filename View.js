@@ -1,5 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/Class', 'nbd/trait/pubsub'], function(Class, pubsub) {
+define(['./Class', './trait/pubsub'], function(Class, pubsub) {
   "use strict";
 
   var constructor = Class.extend({

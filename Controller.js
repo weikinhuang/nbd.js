@@ -1,7 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/Class',
-       'nbd/View',
-       'nbd/util/construct'
+define(['./Class',
+       './View',
+       './util/construct'
 ],  function(Class, View, construct) {
   "use strict";
 
