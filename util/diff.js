@@ -1,5 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/util/extend'], function(extend) {
+define(['./extend'], function(extend) {
   'use strict';
 
   var stack = [];

@@ -1,5 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
+define(['./util/extend', './trait/pubsub'], function(extend, pubsub) {
   'use strict';
 
   var exports = extend({}, pubsub);

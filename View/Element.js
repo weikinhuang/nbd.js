@@ -1,5 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['nbd/View'], function(View) {
+define(['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({

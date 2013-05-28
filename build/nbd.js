@@ -633,7 +633,7 @@ define('nbd/util/extend',[],function() {
 });
 
 
-define('nbd/util/diff',['nbd/util/extend'], function(extend) {
+define('nbd/util/diff',['./extend'], function(extend) {
   
 
   var stack = [];
@@ -872,11 +872,11 @@ define('nbd/trait/pubsub',[],function() {
 });
 
 
-define('nbd/Model',['nbd/Class',
-       'nbd/util/async',
-       'nbd/util/extend',
-       'nbd/util/diff',
-       'nbd/trait/pubsub'
+define('nbd/Model',['./Class',
+       './util/async',
+       './util/extend',
+       './util/diff',
+       './trait/pubsub'
 ], function(Class, async, extend, diff, pubsub) {
   
 
@@ -963,7 +963,7 @@ define('nbd/Model',['nbd/Class',
 });
 
 
-define('nbd/View',['nbd/Class', 'nbd/trait/pubsub'], function(Class, pubsub) {
+define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
   
 
   var constructor = Class.extend({
@@ -1010,7 +1010,7 @@ define('nbd/View',['nbd/Class', 'nbd/trait/pubsub'], function(Class, pubsub) {
 });
 
 
-define('nbd/View/Entity',['nbd/View'], function(View) {
+define('nbd/View/Entity',['../View'], function(View) {
   
 
   var constructor = View.extend({
@@ -1050,7 +1050,8 @@ define('nbd/View/Entity',['nbd/View'], function(View) {
       }
 
       if ( $parent ) {
-        if (this.$view) { this.$view.appendTo( $parent ); }
+        if ( $existing ) { $existing.remove(); }
+        if ( this.$view ) { this.$view.appendTo( $parent ); }
       }
       else if ( $existing ) {
         $existing.replaceWith( this.$view );
@@ -1075,7 +1076,7 @@ define('nbd/View/Entity',['nbd/View'], function(View) {
 });
 
 
-define('nbd/View/Element',['nbd/View'], function(View) {
+define('nbd/View/Element',['../View'], function(View) {
   
 
   var constructor = View.extend({
@@ -1135,9 +1136,9 @@ define('nbd/util/construct',[],function() {
 });
 
 
-define('nbd/Controller',['nbd/Class',
-       'nbd/View',
-       'nbd/util/construct'
+define('nbd/Controller',['./Class',
+       './View',
+       './util/construct'
 ],  function(Class, View, construct) {
   
 
@@ -1172,10 +1173,10 @@ define('nbd/Controller',['nbd/Class',
 });
 
 
-define('nbd/Controller/Entity',['nbd/util/construct',
-       'nbd/Controller', 
-       'nbd/View/Entity', 
-       'nbd/Model'
+define('nbd/Controller/Entity',['../util/construct',
+       '../Controller', 
+       '../View/Entity', 
+       '../Model'
 ], function(construct, Controller, View, Model) {
   
 
@@ -1217,7 +1218,7 @@ define('nbd/Controller/Entity',['nbd/util/construct',
 });
 
 
-define('nbd/event',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
+define('nbd/event',['./util/extend', './trait/pubsub'], function(extend, pubsub) {
   
 
   var exports = extend({}, pubsub);
@@ -1231,7 +1232,7 @@ define('nbd/event',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pub
 });
 
 
-define('nbd/trait/promise',['nbd/util/async', 'nbd/util/extend'], function(async, extend) {
+define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, extend) {
   
 
   function Promise() {
@@ -1244,11 +1245,11 @@ define('nbd/trait/promise',['nbd/util/async', 'nbd/util/extend'], function(async
     function call(fns) {
       if (fns.length) {
         async(function() {
-          for (var i=0; i<fns.length; ++i) {
-            fns[i](value);
-          }
+          for (var i=0; i<fns.length; ++i) { fns[i](value); }
         });
       }
+      // Reset callbacks
+      onResolve = onReject = [];
     }
 
     function fulfill(x) {
@@ -1256,7 +1257,6 @@ define('nbd/trait/promise',['nbd/util/async', 'nbd/util/extend'], function(async
       state = 1;
       value = x;
       call(onResolve);
-      onResolve = [];
     }
 
     function reject(reason) {
@@ -1264,7 +1264,6 @@ define('nbd/trait/promise',['nbd/util/async', 'nbd/util/extend'], function(async
       state = -1;
       value = reason;
       call(onReject);
-      onReject = [];
     }
 
     function resolve(x) {
@@ -1327,20 +1326,15 @@ define('nbd/trait/promise',['nbd/util/async', 'nbd/util/extend'], function(async
 
       // Promise pending
       if (!state) {
-        if (typeof onFulfilled === 'function') {
-          onResolve.push(wrap(onFulfilled));
-        }
-        else {
-          onResolve.push(next.resolve);
-        }
+        onResolve.push(typeof onFulfilled === 'function' ?
+                       wrap(onFulfilled) :
+                       next.resolve);
 
-        if (typeof onRejected === 'function') {
-          onReject.push(wrap(onRejected));
-        }
-        else {
-          onReject.push(next.reject);
-        }
+        onReject.push(typeof onRejected === 'function' ?
+                      wrap(onRejected) :
+                      next.reject);
       }
+      // Promise fulfilled/rejected
       else {
         var toCall = state > 0 ? onFulfilled : onRejected;
         if (typeof toCall === 'function') {
@@ -1537,7 +1531,7 @@ define('nbd/util/deparam',[],function() {
  * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
  */
 /*global matchMedia, msMatchMedia */
-define('nbd/util/media',['nbd/util/extend', 'nbd/trait/pubsub'], function(extend, pubsub) {
+define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub) {
   
 
   var queries = {},
@@ -1677,7 +1671,8 @@ define('nbd/util/protochain',[],function() {
 
 
 
-define('build/all',['nbd/Class',
+define('build/all',[
+       'nbd/Class',
        'nbd/Model',
        'nbd/View',
        'nbd/View/Entity',
