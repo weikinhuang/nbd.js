@@ -32,36 +32,6 @@ define(['real/Class'], function(Class) {
         expect( Subclass.xyz ).toEqual(rand);
       });
 
-      it('calls up the init chain by default', function() {
-        var superproto = {init:function(){}},
-        subproto = {init:function(){}},
-        Superclass, Subclass;
-
-        spyOn( superproto, 'init' );
-        spyOn( subproto, 'init' );
-        Superclass = Class.extend(superproto);
-        Subclass = Superclass.extend(subproto);
-
-        expect( new Subclass() ).toEqual(jasmine.any(Class));
-        expect( superproto.init ).toHaveBeenCalled();
-        expect( subproto.init ).toHaveBeenCalled();
-      });
-
-      it('is able to not call up the init chain', function() {
-        var superproto = {init:function(){}},
-        subproto = {init:function(){}},
-        Superclass, Subclass;
-
-        spyOn( superproto, 'init' );
-        spyOn( subproto, 'init' );
-        Superclass = Class.extend(superproto);
-        Subclass = Superclass.extend(subproto, {_:true});
-
-        expect( new Subclass() ).toEqual(jasmine.any(Class));
-        expect( superproto.init ).not.toHaveBeenCalled();
-        expect( subproto.init ).toHaveBeenCalled();
-      });
-
       it('can call its super implementation', function(){
         var superproto = {impl:function(){}},
         subproto = {impl:function(){this._super('z');}, _super:function(){}},
@@ -77,6 +47,21 @@ define(['real/Class'], function(Class) {
 
         expect(superproto.impl).toHaveBeenCalledWith('z');
         expect(subproto._super).not.toHaveBeenCalled();
+      });
+
+      it('doesn\'t call up the init chain by default', function() {
+        var superproto = {init:function(){}},
+        subproto = {init:function(){}},
+        Superclass, Subclass;
+
+        spyOn( superproto, 'init' );
+        spyOn( subproto, 'init' );
+        Superclass = Class.extend(superproto);
+        Subclass = Superclass.extend(subproto);
+
+        expect( new Subclass() ).toEqual(jasmine.any(Class));
+        expect( superproto.init ).not.toHaveBeenCalled();
+        expect( subproto.init ).toHaveBeenCalled();
       });
 
       it('throws when implementation throws', function() {
@@ -144,7 +129,7 @@ define(['real/Class'], function(Class) {
 
       it('overwrites conflicting mixins', function() {
         Klass.mixin({ bigDeal: 'no' });
-        
+
         expect(function() {
           Klass.mixin({ bigDeal: 'yes' });
         }).toThrow();

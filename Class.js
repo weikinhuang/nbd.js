@@ -30,7 +30,7 @@ define(function() {
     // don't run the init constructor)
     prototype = Object.create(_super);
 
-    function protochain(name, fn, initfn) {
+    function protochain(name, fn) {
       var applySuper = function() {return _super[name].apply(this,arguments);};
       return function() {
         var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
@@ -42,9 +42,6 @@ define(function() {
         // The method only need to be bound temporarily, so we
         // remove it when we're done executing
         try {
-          // Addon: calling up the init chain
-          if (initfn) { this._super.apply(this, arguments); }
-
           return fn.apply(this, arguments);
         }
         catch(e) {
@@ -60,15 +57,12 @@ define(function() {
     // Copy the properties over onto the new prototype
     for (name in prop) {
       if ( prop.hasOwnProperty(name) ) {
-        // Addon: check for need to call up the chain
-        initfn = name === "init" && !(stat && stat.hasOwnProperty("_") && stat._);
-
         // Check if we're overwriting an existing function
         prototype[name] =
           typeof prop[name] === "function" &&
           typeof _super[name] === "function" &&
-          (initfn || fnTest.test(prop[name])) ?
-          protochain(name, prop[name], initfn) :
+          fnTest.test(prop[name]) ?
+          protochain(name, prop[name]) :
           prop[name];
       }
     }
@@ -91,13 +85,7 @@ define(function() {
     // Addon: override the provided stat properties
     for (name in stat) {
       if (stat.hasOwnProperty(name)) {
-        initfn = name === "init" &&
-            !(stat && stat.hasOwnProperty("_") && stat._);
-        Class[name] = initfn &&
-          typeof Class[name] === "function" &&
-          typeof stat[name] === "function" ?
-          chainFn(Class[name], stat[name]) :
-          stat[name];
+        Class[name] = stat[name];
       }
     }
 
