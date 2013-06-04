@@ -1,109 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-/**
- * Behanced Class
- * Built from Simple JS Inheritance by John Resig
- * Addons:
- * - Static properties inheritance
- * - init() auto-calls super's init()
- * - can prevent auto-calling with stat._
- * - mixin() for implementing abstracts
- */
-/*global xyz */
 define(function() {
   "use strict";
 
-  var Klass, extend, mixin, inherits,
+  // The base Class implementation (does nothing)
+  var Klass = function() {},
+  extend, mixin, inherits,
   fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
-
-  function chainFn(parent, child) {
-    return function() {
-      parent.apply(this, arguments);
-      return child.apply(this, arguments);
-    };
-  }
-
-  // Create a new Class that inherits from this class
-  extend = function(prop, stat) {
-    var prototype, name, initfn, _super = this.prototype;
-
-    // Instantiate a base class (but only create the instance,
-    // don't run the init constructor)
-    prototype = Object.create(_super);
-
-    function protochain(name, fn) {
-      var applySuper = function() {return _super[name].apply(this,arguments);};
-      return function() {
-        var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
-
-        // Add a new ._super() method that is the same method
-        // but on the super-class
-        this._super = applySuper;
-
-        // The method only need to be bound temporarily, so we
-        // remove it when we're done executing
-        try {
-          return fn.apply(this, arguments);
-        }
-        catch(e) {
-          // Rethrow catch for IE 8
-          throw e;
-        }
-        finally {
-          if (hadSuper) {this._super = tmp;}
-        }
-      };
-    }
-
-    // Copy the properties over onto the new prototype
-    for (name in prop) {
-      if ( prop.hasOwnProperty(name) ) {
-        // Check if we're overwriting an existing function
-        prototype[name] =
-          typeof prop[name] === "function" &&
-          typeof _super[name] === "function" &&
-          fnTest.test(prop[name]) ?
-          protochain(name, prop[name]) :
-          prop[name];
-      }
-    }
-
-    // The dummy class constructor
-    function Class() {
-      // All construction is actually done in the init method
-      if ( typeof this.init === "function" ) {
-        this.init.apply(this, arguments);
-      }
-    }
-
-    // Addon: copy the superclass's stat properties
-    for (name in this) {
-      if (this.hasOwnProperty(name)) {
-        Class[name] = this[name];
-      }
-    }
-
-    // Addon: override the provided stat properties
-    for (name in stat) {
-      if (stat.hasOwnProperty(name)) {
-        Class[name] = stat[name];
-      }
-    }
-
-    // Populate our constructed prototype object
-    Class.prototype = prototype;
-
-    // Enforce the constructor to be what we expect
-    Object.defineProperty(Class.prototype, "constructor", {value:Class});
-
-    // Class guaranteed methods
-    Object.defineProperties(Class, {
-      extend: {value:extend, enumerable:false},
-      mixin : {value:mixin},
-      inherits: {value:inherits}
-    });
-
-    return Class;
-  };
 
   // allows adding any object's properties into the class
   mixin = function(abstract) {
@@ -139,8 +41,83 @@ define(function() {
     return result;
   };
 
-  // The base Class implementation (does nothing)
-  Klass = function() {};
+  // Create a new Class that inherits from this class
+  extend = function(prop, stat) {
+    var _super = this.prototype,
+    copy = function(name) { Class[name] = this[name]; },
+
+    // Instantiate a base class (but only create the instance,
+    // don't run the init constructor)
+    prototype = Object.create(_super);
+    prop = prop || {};
+    stat = stat || {};
+
+    function protochain(name, fn) {
+      var applySuper = function() {return _super[name].apply(this,arguments);};
+      return function() {
+        var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
+
+        // Add a new ._super() method that is the same method
+        // but on the super-class
+        this._super = applySuper;
+
+        // The method only need to be bound temporarily, so we
+        // remove it when we're done executing
+        try {
+          return fn.apply(this, arguments);
+        }
+        catch(e) {
+          // Rethrow catch for IE 8
+          throw e;
+        }
+        finally {
+          if (hadSuper) {this._super = tmp;}
+        }
+      };
+    }
+
+    // The dummy class constructor
+    function Class() {
+      // All construction is actually done in the init method
+      if ( typeof this.init === "function" ) {
+        this.init.apply(this, arguments);
+      }
+    }
+
+    // Copy the properties over onto the new prototype
+    Object.keys(prop).forEach(function(name) {
+      var p = prop[name];
+      // Check if we're overwriting an existing function
+      prototype[name] = 
+        typeof p === "function" &&
+        typeof _super[name] === "function" &&
+        fnTest.test(p) ?
+        protochain(name, p) :
+        p;
+    });
+
+    // Copy the superclass's static properties
+    Object.keys(this).forEach(copy, this);
+
+    // Override the provided static properties
+    Object.keys(stat).forEach(copy, stat);
+
+    // Populate our constructed prototype object
+    Class.prototype = prototype;
+
+    // Enforce the constructor to be what we expect
+    Object.defineProperty(Class.prototype, "constructor", {value:Class});
+
+    // Class guaranteed methods
+    Object.defineProperties(Class, {
+      extend: {value:extend, enumerable:false},
+      mixin : {value:mixin},
+      inherits: {value:inherits}
+    });
+
+    return Class;
+  };
+
   Klass.extend = extend;
 
   return Klass;
