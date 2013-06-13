@@ -21,7 +21,7 @@ define(['./Class',
         id = +id;
       }
 
-      if ( data === undefined ) {
+      if ( data === undefined && typeof id === "object" ) {
         data = id;
       }
 
