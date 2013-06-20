@@ -35,7 +35,7 @@ define(['../util/construct',
 
     // Corresponding Entity Model class
     MODEL_CLASS : Model
-  }); // Entity Controller
+  });
 
   return constructor;
 
