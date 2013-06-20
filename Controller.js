@@ -6,7 +6,6 @@ define(['./Class',
   "use strict";
 
   var constructor = Class.extend({
-    View  : null,
     destroy : function() {},
 
     _initView : function( ViewClass ) {

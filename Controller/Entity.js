@@ -7,29 +7,27 @@ define(['../util/construct',
   'use strict';
 
   var constructor = Controller.extend({
-    Model : null,
-
     init : function() {
-      this.Model = construct.apply(this.constructor.MODEL_CLASS, arguments);
-      this._initView(this.constructor.VIEW_CLASS, this.Model);
+      this._model = this.Model = construct.apply(this.constructor.MODEL_CLASS, arguments);
+      this._initView(this.constructor.VIEW_CLASS, this._model);
     },
 
     render : function( $parent, ViewClass ) {
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
       this.requestView( ViewClass );
-      this.View.render( $parent );
+      this._view.render( $parent );
     },
 
     destroy : function() {
-      this.View.destroy();
-      this.Model.destroy();
-      this.Model = this.View = null;
+      this._view.destroy();
+      this._model.destroy();
+      this._model = this._view = null;
     },
 
     requestView : function( ViewClass ) {
-      if ( this.View instanceof ViewClass ) { return; }
-      this.switchView(ViewClass, this.Model);
+      if ( this._view instanceof ViewClass ) { return; }
+      this.switchView(ViewClass, this._model);
     }
   },{
     // Corresponding Entity View class
