@@ -42,7 +42,7 @@ define(['./extend'], function(extend) {
   }
 
   return function diff(cur, prev, callback) {
-    var key, lhs, rhs, difference, differences = {};
+    var key, lhs, rhs, differences = {};
 
     if (typeof prev !== "object" || typeof cur !== "object" ||
         prev === null || cur === null) {
