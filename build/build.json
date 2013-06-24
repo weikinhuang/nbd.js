@@ -5,6 +5,7 @@
     "nbd":"."
   },
   "name": "build/all",
+  "useStrict": true,
   "include": ["node_modules/almond/almond"],
   "wrap": {
     "start": "(function(root) {",
