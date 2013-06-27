@@ -17,7 +17,7 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
 
     describe('.templateData()', function() {
       it('returns an object', function() {
-        expect( instance.templateData() ).toEqual(jasmine.any(Object)); 
+        expect( instance.templateData() ).toEqual(jasmine.any(Object));
       });
     });
 
@@ -40,6 +40,20 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
 
         expect( instance.templateData ).not.toHaveBeenCalled();
         expect( instance.template ).toHaveBeenCalledWith(data);
+      });
+
+      it('replaces view if existing', function() {
+        var replace = jasmine.createSpy('replaceWith');
+        spyOn( instance, 'template' ).andCallFake(function() {
+          return { length:1, replaceWith : replace, "1":null };
+        });
+
+        instance.render();
+        expect(replace).not.toHaveBeenCalled();
+        expect(instance.template).toHaveBeenCalled();
+
+        instance.render();
+        expect(replace).toHaveBeenCalled();
       });
 
       it('calls rendered() if any', function() {
