@@ -113,7 +113,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         spyOn( instance, 'templateData' ).andCallThrough();
         instance.render($test);
 
-        var shun = jasmine.createSpy();
+        var shun = jasmine.createSpy('binding');
         instance.$view.on('click', shun);
 
         spyOn( instance, 'rendered' );
@@ -125,7 +125,8 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect( instance.templateData.callCount ).toBe(1);
 
         instance.$view.trigger('click');
-        expect( shun ).not.toHaveBeenCalled();
+        expect( shun ).toHaveBeenCalled();
+        expect( shun.callCount ).toBe(1);
       });
 
     });
