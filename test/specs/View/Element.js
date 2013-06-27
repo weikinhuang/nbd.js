@@ -18,13 +18,13 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
       expect( Element.inherits(View) ).toBe(true);
     });
 
-    describe('View.Element.prototype.init', function() {
+    describe('.init()', function() {
       it('sets its parent element', function() {
         expect( instance.$parent[0] ).toBe($parent[0]);
       });
     });
 
-    describe('View.Element.prototype.render', function() {
+    describe('.render()', function() {
       it('renders a template into the parent element', function() {
         instance.render({ item: "world"});
         expect( $parent.text() ).toEqual('Hello world');

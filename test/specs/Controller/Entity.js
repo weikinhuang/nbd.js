@@ -18,7 +18,7 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
       instance = new Entity(0,{});
     });
 
-    describe('Entity.prototype.init', function() {
+    describe('.init()', function() {
 
       it('creates the Model', function() {
         expect( instance.Model ).toEqual(jasmine.any(Model));
@@ -33,7 +33,7 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
 
     });
 
-    describe('Entity.prototype.render', function() {
+    describe('.render()', function() {
 
       it('calls View render', function() {
         var $parent = $();

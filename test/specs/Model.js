@@ -9,7 +9,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
       expect(Model.inherits( Class )).toBe(true);
     });
 
-    describe('Model.prototype.init', function() {
+    describe('.init()', function() {
 
       it('initializes with data', function() {
         var rand = Math.random(), 
@@ -31,7 +31,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
     });
 
-    describe('Model.prototype.get', function() {
+    describe('.get()', function() {
 
       it('returns a value', function() {
         var rand = Math.random(), instance = new Model( 1, {xyz:rand});
@@ -50,7 +50,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
     });
 
-    describe('Model.prototype.set', function() {
+    describe('.set()', function() {
       var rand = Math.random(), instance = new Model( 1, {xyz:null, foo:'bar'});
 
       it('accepts an object map', function() {
@@ -90,7 +90,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
       });
     });
 
-    describe('Model.prototype.data', function() {
+    describe('.data()', function() {
       var data = { foo: 'bar' },
       instance = new Model(0, data);
 
