@@ -12,7 +12,9 @@ define(function() {
     var descriptor = {};
     Object.keys(abstract).forEach(function(prop) {
       descriptor[prop] = {
-        configurable:false,
+        configurable:true,
+        writable:true,
+        enumerable:false,
         value:abstract[prop]
       };
     });

@@ -98,7 +98,6 @@ define(['real/Class'], function(Class) {
         expect(Klass.propertyIsEnumerable('mixin')).toBe(false);
       });
 
-
       it('adds object properties into a prototype', function() {
         Klass.mixin({ bigDeal: 'no' });
         expect( Klass.prototype.bigDeal ).toBe('no');
@@ -132,10 +131,10 @@ define(['real/Class'], function(Class) {
 
         expect(function() {
           Klass.mixin({ bigDeal: 'yes' });
-        }).toThrow();
+        }).not.toThrow();
 
-        expect( Klass.prototype.bigDeal ).toBe('no');
-        expect( kInstance.bigDeal ).toBe('no');
+        expect( Klass.prototype.bigDeal ).toBe('yes');
+        expect( kInstance.bigDeal ).toBe('yes');
       });
     });
 
