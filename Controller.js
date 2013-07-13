@@ -1,8 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['./Class',
-       './View',
        './util/construct'
-],  function(Class, View, construct) {
+],  function(Class, construct) {
   "use strict";
 
   var constructor = Class.extend({
