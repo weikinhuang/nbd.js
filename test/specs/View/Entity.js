@@ -10,7 +10,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
       expect( Entity.inherits(View) ).toBe(true);
     });
 
-    describe('View.Entity.prototype.init', function() {
+    describe('.init()', function() {
 
       it('accepts a Model', function() {
         var id = Date.now(),
@@ -33,7 +33,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
     });
 
-    describe('View.Entity.prototype.templateData', function() {
+    describe('.templateData()', function() {
 
       it('returns an object with the Model', function() {
         var model = new Model( 0, {} ),
@@ -46,7 +46,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
     });
 
-    describe('View.Entity.prototype.render', function() {
+    describe('.render()', function() {
 
       var id, item, $test, model, instance;
 

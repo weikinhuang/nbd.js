@@ -15,13 +15,13 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
       expect( View.inherits( Class ) ).toBe(true);
     });
 
-    describe('View.prototype.templateData', function() {
+    describe('.templateData()', function() {
       it('returns an object', function() {
-        expect( instance.templateData() ).toEqual(jasmine.any(Object)); 
+        expect( instance.templateData() ).toEqual(jasmine.any(Object));
       });
     });
 
-    describe('View.prototype.render', function() {
+    describe('.render()', function() {
       it('uses templateData when given no data', function() {
         spyOn( instance, 'templateData' );
 
@@ -40,6 +40,20 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
 
         expect( instance.templateData ).not.toHaveBeenCalled();
         expect( instance.template ).toHaveBeenCalledWith(data);
+      });
+
+      it('replaces view if existing', function() {
+        var replace = jasmine.createSpy('replaceWith');
+        spyOn( instance, 'template' ).andCallFake(function() {
+          return { length:1, replaceWith : replace, "1":null };
+        });
+
+        instance.render();
+        expect(replace).not.toHaveBeenCalled();
+        expect(instance.template).toHaveBeenCalled();
+
+        instance.render();
+        expect(replace).toHaveBeenCalled();
       });
 
       it('calls rendered() if any', function() {
@@ -79,7 +93,7 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
     });
 
 
-    describe('View.prototype.destroy', function() {
+    describe('.destroy()', function() {
       it('destroys itself', function() {
         var instance = new View();
 

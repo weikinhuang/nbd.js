@@ -1,4 +1,4 @@
-# `require('nbd/Class')`
+# nbd/Class
 * [.extend()](#extend-prototype-static--linear-inheritance)
 * [.mixin()](#mixin-trait--horizontal-inheritance)
 * [.inherits()](#inherits-ancestor-)

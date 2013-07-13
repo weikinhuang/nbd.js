@@ -1,4 +1,4 @@
-# `require('nbd/util/async')`
+# nbd/util/async
 * [()](#-callback-)
 
 The `async` module is a utility function module. Like all othe utility function modules, it is itself a function that can be called. 

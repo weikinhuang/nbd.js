@@ -13,7 +13,7 @@ define(['../View'], function(View) {
     render : function( data ) {
       var $existing = this.$view;
 
-      this.trigger('prerender');
+      this.trigger('prerender', $existing);
 
       this.$view = this.template(data || this.templateData());
 

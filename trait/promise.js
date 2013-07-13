@@ -54,8 +54,7 @@ define(['../util/async', '../util/extend'], function(async, extend) {
             try {
               x.then(function resolvePromise(y) {
                 if (mutex) { return; }
-                if (x === y) { fulfill(x); }
-                else { resolve(y); }
+                (y === x ? fulfill : resolve)(y);
                 mutex = true;
               }, function rejectPromise(r) {
                 if (mutex) { return; }

@@ -1,4 +1,4 @@
-# `require('nbd/View/Entity')`
+# nbd/View/Entity
   *extends* [nbd/View](../View.md)
   *mixesin* [nbd/trait/pubsub](../../trait/pubsub.md)
 

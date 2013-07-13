@@ -28,6 +28,15 @@ define(['real/util/media'], function(media) {
         expect(spy).toHaveBeenCalled();
       });
 
+      it('takes an object map of breakpoints to queries', function() {
+        expect(function() {
+          media({
+            'foo': '(min-width: 1px)',
+            'bar': '(max-width: 0px)'
+          });
+        }).not.toThrow();
+      });
+
       it('does not fire non-matching breakpoints', function() {
         var spy = jasmine.createSpy('zeropixel');
         media.on('zeropx', spy);
@@ -36,7 +45,26 @@ define(['real/util/media'], function(media) {
         expect(spy).not.toHaveBeenCalled();
       });
 
+      describe('is()', function() {
+
+        it('reports breakpoint states', function() {
+          expect( media.is('onepx') ).toBe(true);
+          expect( media.is('zeropx') ).toBe(false);
+        });
+
+      });
+
       describe('getState()', function() {
+
+        it('reports all currently active breakpoints', function() {
+          var states = media.getState();
+          expect(states).toEqual(jasmine.any(Array));
+          expect(states.length).toBe(2);
+          expect(states.indexOf('onepx')).not.toBe(-1);
+          expect(states.indexOf('foo')).not.toBe(-1);
+          expect(states.indexOf('zeropx')).toBe(-1);
+          expect(states.indexOf('bar')).toBe(-1);
+        });
 
         it('reports breakpoint states', function() {
           expect( media.getState('onepx') ).toBe(true);

@@ -9,7 +9,7 @@ define(['./Class', './trait/pubsub'], function(Class, pubsub) {
     render: function(data) {
       var $existing = this.$view;
 
-      this.trigger('prerender');
+      this.trigger('prerender', $existing);
 
       this.$view = this.template(data || this.templateData());
 
@@ -29,7 +29,7 @@ define(['./Class', './trait/pubsub'], function(Class, pubsub) {
 
     template: function() {},
     templateData: function() { return {}; },
-    
+
     destroy: function() {
       if ( this.$view && this.$view.remove ) {
         this.$view.remove();

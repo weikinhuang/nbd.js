@@ -20,7 +20,7 @@ define(['real/event'], function(event) {
       expect(event.fire).toBe(event.trigger);
     });
 
-    describe('event.trigger', function() {
+    describe('.trigger()', function() {
       var first, middle, last;
 
       beforeEach(function() {
@@ -53,7 +53,7 @@ define(['real/event'], function(event) {
 
     });
 
-    describe('event.unbind', function() {
+    describe('.unbind()', function() {
       var first, last;
 
       beforeEach(function() {

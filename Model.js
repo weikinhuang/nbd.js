@@ -9,7 +9,16 @@ define(['./Class',
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    diff.call(this, novel || this._data, old, this.trigger);
+    if (this._dirty !== true) {
+      for (var k in this._dirty) {
+        this.trigger(k, this._data[k], this._dirty[k]);
+      }
+    }
+    else if (old) {
+      diff.call(this, novel || this._data, old, this.trigger);
+    }
+    else { return; }
+ 
     this._dirty = 0;
   },
 
@@ -21,8 +30,9 @@ define(['./Class',
         id = +id;
       }
 
-      if ( data === undefined && typeof id === "object" ) {
+      if ( data === undefined && typeof id === 'object' ) {
         data = id;
+        id = undefined;
       }
 
       this.id = function() {
@@ -48,11 +58,13 @@ define(['./Class',
 
     destroy: function() {
       this.off();
+      this._data = null;
     },
 
     data : function() {
-      if (!(this._dirty++)) {
-        async(dirtyCheck.bind(this, extend({}, this._data)));
+      if (this._dirty !== true) {
+        async(dirtyCheck.bind(this, extend({}, this._data, this._dirty)));
+        this._dirty = true;
       }
       return this._data;
     },
@@ -62,9 +74,17 @@ define(['./Class',
     },
 
     set: function(values, value) {
-      var key, data = this.data();
+      var key, data = this._data;
+
+      if (!this._dirty) { async(dirtyCheck.bind(this)); }
 
       if ( typeof values === "string" ) {
+        if (this._dirty !== true) {
+          this._dirty = this._dirty || {};
+          if (!(key in this._dirty)) {
+            this._dirty[values] = data[values];
+          }
+        }
         data[values] = value;
         return this;
       }
@@ -72,6 +92,12 @@ define(['./Class',
       if ( typeof values === "object" ) {
         for ( key in values ) {
           if ( values.hasOwnProperty( key ) ) {
+            if (this._dirty !== true) {
+              this._dirty = this._dirty || {};
+              if (!(key in this._dirty)) {
+                this._dirty[key] = data[key];
+              }
+            }
             data[key] = values[key];
           }
         }

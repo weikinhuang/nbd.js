@@ -1,18 +1,16 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['./Class',
-       './View',
        './util/construct'
-],  function(Class, View, construct) {
+],  function(Class, construct) {
   "use strict";
 
   var constructor = Class.extend({
-    View  : null,
     destroy : function() {},
 
     _initView : function( ViewClass ) {
       var args = Array.prototype.slice.call(arguments, 1);
-      (this._view = this.View = construct.apply(ViewClass, args))
-      .Controller = this;
+      this._view = this.View = construct.apply(ViewClass, args);
+      this._view._controller = this._view.Controller = this;
     },
 
     switchView : function() {

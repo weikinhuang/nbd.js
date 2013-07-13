@@ -1,4 +1,4 @@
-# `require('nbd/util/diff')`
+# nbd/util/diff
 * [()](#-a-b-callback-)
 
 `diff` is a utility function that finds the differences between two objects and reports the differences as an object of arrays.

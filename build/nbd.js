@@ -408,123 +408,13 @@ var requirejs, require, define;
 define("node_modules/almond/almond", function(){});
 
 
-/**
- * Behanced Class
- * Built from Simple JS Inheritance by John Resig
- * Addons:
- * - Static properties inheritance
- * - init() auto-calls super's init()
- * - can prevent auto-calling with stat._
- * - mixin() for implementing abstracts
- */
-/*global xyz */
 define('nbd/Class',[],function() {
-  
+  "use strict";
 
-  var Klass, extend, mixin, inherits,
+  // The base Class implementation (does nothing)
+  var Klass = function() {},
+  extend, mixin, inherits,
   fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
-
-  function chainFn(parent, child) {
-    return function() {
-      parent.apply(this, arguments);
-      return child.apply(this, arguments);
-    };
-  }
-
-  // Create a new Class that inherits from this class
-  extend = function(prop, stat) {
-    var prototype, name, initfn, _super = this.prototype;
-
-    // Instantiate a base class (but only create the instance,
-    // don't run the init constructor)
-    prototype = Object.create(_super);
-
-    function protochain(name, fn, initfn) {
-      var applySuper = function() {return _super[name].apply(this,arguments);};
-      return function() {
-        var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
-
-        // Add a new ._super() method that is the same method
-        // but on the super-class
-        this._super = applySuper;
-
-        // The method only need to be bound temporarily, so we
-        // remove it when we're done executing
-        try {
-          // Addon: calling up the init chain
-          if (initfn) { this._super.apply(this, arguments); }
-
-          return fn.apply(this, arguments);
-        }
-        catch(e) {
-          // Rethrow catch for IE 8
-          throw e;
-        }
-        finally {
-          if (hadSuper) {this._super = tmp;}
-        }
-      };
-    }
-
-    // Copy the properties over onto the new prototype
-    for (name in prop) {
-      if ( prop.hasOwnProperty(name) ) {
-        // Addon: check for need to call up the chain
-        initfn = name === "init" && !(stat && stat.hasOwnProperty("_") && stat._);
-
-        // Check if we're overwriting an existing function
-        prototype[name] =
-          typeof prop[name] === "function" &&
-          typeof _super[name] === "function" &&
-          (initfn || fnTest.test(prop[name])) ?
-          protochain(name, prop[name], initfn) :
-          prop[name];
-      }
-    }
-
-    // The dummy class constructor
-    function Class() {
-      // All construction is actually done in the init method
-      if ( typeof this.init === "function" ) {
-        this.init.apply(this, arguments);
-      }
-    }
-
-    // Addon: copy the superclass's stat properties
-    for (name in this) {
-      if (this.hasOwnProperty(name)) {
-        Class[name] = this[name];
-      }
-    }
-
-    // Addon: override the provided stat properties
-    for (name in stat) {
-      if (stat.hasOwnProperty(name)) {
-        initfn = name === "init" &&
-            !(stat && stat.hasOwnProperty("_") && stat._);
-        Class[name] = initfn &&
-          typeof Class[name] === "function" &&
-          typeof stat[name] === "function" ?
-          chainFn(Class[name], stat[name]) :
-          stat[name];
-      }
-    }
-
-    // Populate our constructed prototype object
-    Class.prototype = prototype;
-
-    // Enforce the constructor to be what we expect
-    Object.defineProperty(Class.prototype, "constructor", {value:Class});
-
-    // Class guaranteed methods
-    Object.defineProperties(Class, {
-      extend: {value:extend, enumerable:false},
-      mixin : {value:mixin},
-      inherits: {value:inherits}
-    });
-
-    return Class;
-  };
 
   // allows adding any object's properties into the class
   mixin = function(abstract) {
@@ -560,8 +450,83 @@ define('nbd/Class',[],function() {
     return result;
   };
 
-  // The base Class implementation (does nothing)
-  Klass = function() {};
+  // Create a new Class that inherits from this class
+  extend = function(prop, stat) {
+    var _super = this.prototype,
+    copy = function(name) { Class[name] = this[name]; },
+
+    // Instantiate a base class (but only create the instance,
+    // don't run the init constructor)
+    prototype = Object.create(_super);
+    prop = prop || {};
+    stat = stat || {};
+
+    function protochain(name, fn) {
+      var applySuper = function() {return _super[name].apply(this,arguments);};
+      return function() {
+        var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
+
+        // Add a new ._super() method that is the same method
+        // but on the super-class
+        this._super = applySuper;
+
+        // The method only need to be bound temporarily, so we
+        // remove it when we're done executing
+        try {
+          return fn.apply(this, arguments);
+        }
+        catch(e) {
+          // Rethrow catch for IE 8
+          throw e;
+        }
+        finally {
+          if (hadSuper) {this._super = tmp;}
+        }
+      };
+    }
+
+    // The dummy class constructor
+    function Class() {
+      // All construction is actually done in the init method
+      if ( typeof this.init === "function" ) {
+        this.init.apply(this, arguments);
+      }
+    }
+
+    // Copy the properties over onto the new prototype
+    Object.keys(prop).forEach(function(name) {
+      var p = prop[name];
+      // Check if we're overwriting an existing function
+      prototype[name] = 
+        typeof p === "function" &&
+        typeof _super[name] === "function" &&
+        fnTest.test(p) ?
+        protochain(name, p) :
+        p;
+    });
+
+    // Copy the superclass's static properties
+    Object.keys(this).forEach(copy, this);
+
+    // Override the provided static properties
+    Object.keys(stat).forEach(copy, stat);
+
+    // Populate our constructed prototype object
+    Class.prototype = prototype;
+
+    // Enforce the constructor to be what we expect
+    Object.defineProperty(Class.prototype, "constructor", {value:Class});
+
+    // Class guaranteed methods
+    Object.defineProperties(Class, {
+      extend: {value:extend, enumerable:false},
+      mixin : {value:mixin},
+      inherits: {value:inherits}
+    });
+
+    return Class;
+  };
+
   Klass.extend = extend;
 
   return Klass;
@@ -576,7 +541,7 @@ define('nbd/Class',[],function() {
  */
 /*global postMessage, addEventListener */
 define('nbd/util/async',[],function() {
-  
+  'use strict';
 
   var timeouts = [], 
   messageName = "async-message",
@@ -618,7 +583,7 @@ define('nbd/util/async',[],function() {
 
 
 define('nbd/util/extend',[],function() {
-  
+  'use strict';
 
   return function(obj) {
     var i, prop, source;
@@ -634,7 +599,7 @@ define('nbd/util/extend',[],function() {
 
 
 define('nbd/util/diff',['./extend'], function(extend) {
-  
+  'use strict';
 
   var stack = [];
 
@@ -676,7 +641,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
   }
 
   return function diff(cur, prev, callback) {
-    var key, lhs, rhs, difference, differences = {};
+    var key, lhs, rhs, differences = {};
 
     if (typeof prev !== "object" || typeof cur !== "object" ||
         prev === null || cur === null) {
@@ -726,7 +691,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
 // Backbone.Events
 // ---------------
 define('nbd/trait/pubsub',[],function() {
-  
+  'use strict';
 
   // Regular expression used to split event strings
   var eventSplitter = /\s+/,
@@ -878,7 +843,7 @@ define('nbd/Model',['./Class',
        './util/diff',
        './trait/pubsub'
 ], function(Class, async, extend, diff, pubsub) {
-  
+  "use strict";
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
@@ -964,7 +929,7 @@ define('nbd/Model',['./Class',
 
 
 define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
-  
+  "use strict";
 
   var constructor = Class.extend({
 
@@ -973,7 +938,7 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
     render: function(data) {
       var $existing = this.$view;
 
-      this.trigger('prerender');
+      this.trigger('prerender', $existing);
 
       this.$view = this.template(data || this.templateData());
 
@@ -993,7 +958,7 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
 
     template: function() {},
     templateData: function() { return {}; },
-    
+
     destroy: function() {
       if ( this.$view && this.$view.remove ) {
         this.$view.remove();
@@ -1011,7 +976,7 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
 
 
 define('nbd/View/Entity',['../View'], function(View) {
-  
+  "use strict";
 
   var constructor = View.extend({
 
@@ -1045,7 +1010,7 @@ define('nbd/View/Entity',['../View'], function(View) {
           fresh = !($existing && $parent);
 
       if ( fresh ) {
-        this.trigger('prerender');
+        this.trigger('prerender', $existing);
         this.$view = this.template( this.templateData() );
       }
 
@@ -1077,7 +1042,7 @@ define('nbd/View/Entity',['../View'], function(View) {
 
 
 define('nbd/View/Element',['../View'], function(View) {
-  
+  "use strict";
 
   var constructor = View.extend({
 
@@ -1090,7 +1055,7 @@ define('nbd/View/Element',['../View'], function(View) {
     render : function( data ) {
       var $existing = this.$view;
 
-      this.trigger('prerender');
+      this.trigger('prerender', $existing);
 
       this.$view = this.template(data || this.templateData());
 
@@ -1118,7 +1083,7 @@ define('nbd/View/Element',['../View'], function(View) {
 
 
 define('nbd/util/construct',[],function() {
-  
+  'use strict';
 
   var toStr = Object.prototype.toString;
 
@@ -1140,16 +1105,15 @@ define('nbd/Controller',['./Class',
        './View',
        './util/construct'
 ],  function(Class, View, construct) {
-  
+  "use strict";
 
   var constructor = Class.extend({
-    View  : null,
     destroy : function() {},
 
     _initView : function( ViewClass ) {
       var args = Array.prototype.slice.call(arguments, 1);
-      (this._view = this.View = construct.apply(ViewClass, args))
-      .Controller = this;
+      this._view = this.View = construct.apply(ViewClass, args);
+      this._view._controller = this._view.Controller = this;
     },
 
     switchView : function() {
@@ -1178,32 +1142,30 @@ define('nbd/Controller/Entity',['../util/construct',
        '../View/Entity', 
        '../Model'
 ], function(construct, Controller, View, Model) {
-  
+  'use strict';
 
   var constructor = Controller.extend({
-    Model : null,
-
     init : function() {
-      this.Model = construct.apply(this.constructor.MODEL_CLASS, arguments);
-      this._initView(this.constructor.VIEW_CLASS, this.Model);
+      this._model = this.Model = construct.apply(this.constructor.MODEL_CLASS, arguments);
+      this._initView(this.constructor.VIEW_CLASS, this._model);
     },
 
     render : function( $parent, ViewClass ) {
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
       this.requestView( ViewClass );
-      this.View.render( $parent );
+      this._view.render( $parent );
     },
 
     destroy : function() {
-      this.View.destroy();
-      this.Model.destroy();
-      this.Model = this.View = null;
+      this._view.destroy();
+      this._model.destroy();
+      this._model = this._view = null;
     },
 
     requestView : function( ViewClass ) {
-      if ( this.View instanceof ViewClass ) { return; }
-      this.switchView(ViewClass, this.Model);
+      if ( this._view instanceof ViewClass ) { return; }
+      this.switchView(ViewClass, this._model);
     }
   },{
     // Corresponding Entity View class
@@ -1211,7 +1173,7 @@ define('nbd/Controller/Entity',['../util/construct',
 
     // Corresponding Entity Model class
     MODEL_CLASS : Model
-  }); // Entity Controller
+  });
 
   return constructor;
 
@@ -1219,7 +1181,7 @@ define('nbd/Controller/Entity',['../util/construct',
 
 
 define('nbd/event',['./util/extend', './trait/pubsub'], function(extend, pubsub) {
-  
+  'use strict';
 
   var exports = extend({}, pubsub);
 
@@ -1233,7 +1195,7 @@ define('nbd/event',['./util/extend', './trait/pubsub'], function(extend, pubsub)
 
 
 define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, extend) {
-  
+  'use strict';
 
   function Promise() {
     var self = this,
@@ -1429,7 +1391,7 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
  * @see http://benalman.com/projects/jquery-bbq-plugin/
  */
 define('nbd/util/deparam',[],function() {
-  
+  'use strict';
 
   return function (params, coerce) {
     var obj = {},
@@ -1532,7 +1494,7 @@ define('nbd/util/deparam',[],function() {
  */
 /*global matchMedia, msMatchMedia */
 define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub) {
-  
+  'use strict';
 
   var queries = {},
   mqChange,
@@ -1599,7 +1561,7 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
 
 
 define('nbd/util/pipe',[],function() {
-  
+  'use strict';
   return function chain() {
     var chainArgs = arguments;
     return function() {
@@ -1619,7 +1581,7 @@ define('nbd/util/pipe',[],function() {
  * @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/GetPrototypeOf#Notes 
  */
 define('nbd/util/protochain',[],function() {
-  
+  'use strict';
 
   function swapProto(lProto, oProto) {
     var inst, p;
@@ -1691,7 +1653,7 @@ define('build/all',[
        'nbd/util/pipe',
        'nbd/util/protochain'
 ], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
-  
+  'use strict';
 
   var exports = {
     Class : Class,

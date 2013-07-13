@@ -1,4 +1,4 @@
-# `require('nbd/trait/promise')`
+# nbd/trait/promise
 * [.then()](#then-onfulfilled-onrejected-)
 * [.resolve()](#resolve-x-)
 * [.reject()](#reject-reason-)
@@ -13,6 +13,9 @@ generic JavaScript callback more context.
 **nbd.js** implements [Promise/A+][1] specifications with the `promise` trait.
 Therefore, any `Class` that `.mixin()`s the trait can be used with any other
 Promise/A+ implementation.
+
+The trait itself is also a promise class. This means it can be instanciated
+with `new` to produce a promise.
 
 [1]: http://promises-aplus.github.io/promises-spec/
 

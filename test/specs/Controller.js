@@ -3,55 +3,66 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.
   'use strict';
 
   describe('Controller', function() {
+    var inst;
+
+    beforeEach(function() {
+      inst = new Controller();
+    });
 
     it('is a class constructor', function() {
       expect( Controller ).toEqual(jasmine.any(Function));
       expect( Controller.inherits(Class) ).toBe(true);
+      expect( inst ).toEqual(jasmine.any(Controller));
     });
 
-    xdescribe('Controller.addTemplate', function() {
-      var tmpl = Controller.addTemplate( 'test-template', "Hello world" );
+    describe('.destroy()', function() {
 
-      it('adds the test-template', function() {
-        expect( tmpl.html() ).toEqual('Hello world');
-      });
-
-      it('adds template with the given id', function() {
-        expect( $('#test-template')[0] ).toBe( tmpl[0] );
-      });
-
-    });
-
-    xdescribe('Controller.loadTemplate', function() {
-      var tmpl = 'load-test-template',
-      spies = { template:function(){} },
-      now = Date.now(),
-      templateResponse = {
-        status : 200,
-        responseText : JSON.stringify({ html : now })
-      },
-      promise;
-      View = View.extend({},{ TEMPLATE_ID : tmpl }).mixin(jqtmpl);
-
-      it('can load templates', function() {
+      it('is a function', function() {
+        expect( inst.destroy ).toEqual(jasmine.any(Function));
         expect(function() {
-          Controller.loadTemplate( View );
-        }).toThrow("No template found");
+          inst.destroy();
+        }).not.toThrow();
+      });
 
-        jasmine.Ajax.useMock();
-        spyOn( spies, 'template' );
-        View.TEMPLATE_URL = "xxx";
+    });
 
-        promise = Controller.loadTemplate( View, spies.template )
-        .done(function() {
-          expect( spies.template ).toHaveBeenCalledWith(tmpl);
-          expect( View.prototype.templateScript(false) ).not.toBe(false);
-          expect( +View.prototype.templateScript(false).html() ).toEqual(now);
-        });
+    describe('._initView()', function() {
+      var Klass = function() {};
 
-        expect( promise.promise ).toBeDefined();
+      beforeEach(function() {
+        inst._initView(Klass);
+      });
 
-        mostRecentAjaxRequest().response( templateResponse );
+      it('creates ._view', function() {
+        expect(inst._view).toEqual(jasmine.any(Klass));
+      });
+
+      it('attaches the controller to the ._view', function() {
+        expect(inst._view._controller).toBe(inst);
+      });
+    });
+
+    describe('.switchView()', function() {
+      var Klass = function() {};
+
+      it('creates ._view if nonexistant', function() {
+        inst.switchView(Klass);
+        expect(inst._view).toEqual(jasmine.any(Klass));
+      });
+
+      it('replaces ._view if existing', function() {
+        Klass.prototype.$view = 'Klass $view';
+        Klass.prototype.destroy = jasmine.createSpy('view destroy');
+        inst.switchView(Klass);
+
+        var View = function() {};
+        View.prototype.render = jasmine.createSpy('view render');
+        inst.switchView(View);
+
+        expect(inst._view).toEqual(jasmine.any(View));
+        expect(inst._view.render).toHaveBeenCalled();
+        expect(inst._view.$view).toBe(Klass.prototype.$view);
+        expect(Klass.prototype.destroy).toHaveBeenCalled();
       });
     });
 

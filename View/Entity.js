@@ -34,7 +34,7 @@ define(['../View'], function(View) {
           fresh = !($existing && $parent);
 
       if ( fresh ) {
-        this.trigger('prerender');
+        this.trigger('prerender', $existing);
         this.$view = this.template( this.templateData() );
       }
 
