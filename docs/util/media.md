@@ -1,4 +1,4 @@
-# `require('nbd/util/media')`
+# nbd/util/media
   *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
 
 * [()](#-breakpoint-query-)

@@ -1,4 +1,4 @@
-# `require('nbd/util/construct')`
+# nbd/util/construct
 
 The `construct` utility is a bit different from all other utility functions. Although it returns a function, the function is not meant to be invoked directly. Rather, it is meant to be `.apply()`ed with another function as the context, such that it will construct an instance of the context function, with the arguments supplied to `.apply()`.
 

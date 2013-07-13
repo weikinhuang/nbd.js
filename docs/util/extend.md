@@ -1,4 +1,4 @@
-# `require('nbd/util/extend')`
+# nbd/util/extend
 * [()](#-target-sources-)
 
 The `extend` module is a utility function that merges source objects into the target object.

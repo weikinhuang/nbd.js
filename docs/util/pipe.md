@@ -1,4 +1,4 @@
-# `require('nbd/util/pipe')`
+# nbd/util/pipe
 * [()](#-filters-)
 
 `pipe` is a utility function that allows the chaining together of multiple functions, much in the manner of the pipelines in a shell.

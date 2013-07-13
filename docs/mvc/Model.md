@@ -1,4 +1,4 @@
-# `require('nbd/Model')`
+# nbd/Model
   *extends* [nbd/Class](Class.md)
   *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
 

@@ -1,4 +1,4 @@
-# `require('nbd/trait/pubsub')`
+# nbd/trait/pubsub
 * [.on()](#on-event-callback-context-)
 * [.off()](#off-event-callback-context-)
 * [.trigger()](#trigger-event-args-)
