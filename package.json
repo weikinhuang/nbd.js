@@ -21,12 +21,15 @@
   "devDependencies": {
     "requirejs": "2.x",
     "almond": "",
-    "uglify-js": "2.x",
     "karma": "~0.8.5",
-    "promises-aplus-tests": ""
+    "promises-aplus-tests": "",
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-clean": "~0.4.1"
   },
   "scripts": {
-    "build": "r.js -o build/build.json && uglifyjs build/nbd.js -o build/nbd.min.js -m -c",
     "test": "karma start test/karma.conf.js --single-run && promises-aplus-tests test/lib/promise-adapter.js"
   }
 }
