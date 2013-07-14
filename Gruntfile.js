@@ -4,6 +4,19 @@ module.exports = function(grunt) {
     clean: {
       build: ['dist']
     },
+    jshint: {
+      options: {
+        boss: true
+      },
+      test: [
+        '*.js',
+        'Model/**/*.js',
+        'View/**/*.js',
+        'Controller/**/*.js',
+        'trait/**/*.js',
+        'util/**/*.js'
+      ],
+    },
     requirejs: {
       build: {
         options: grunt.file.readJSON('build/build.json')
@@ -23,6 +36,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.registerTask('default', ['clean', 'requirejs', 'uglify']);
+  grunt.registerTask('default', ['clean', 'jshint', 'requirejs', 'uglify']);
 };

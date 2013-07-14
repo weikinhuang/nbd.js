@@ -1116,7 +1116,7 @@ define('nbd/util/construct',[],function() {
 
   return function construct() {
     // Type check this is a function
-    if ( !(toStr.call(this).indexOf('Function')+1) ) {
+    if ( !~toStr.call(this).indexOf('Function') ) {
       throw new TypeError('construct called on incompatible Object');
     }
 
@@ -1475,9 +1475,9 @@ define('nbd/util/deparam',[],function() {
           // * Rinse & repeat.
           for (i; i <= keys_last; i++) {
             key = keys[i] === '' ? cur.length : keys[i];
-            cur = cur[key] = i < keys_last
-              ? cur[key] || (keys[i+1] && isNaN(keys[i+1]) ? {} : [])
-              : val;
+            cur = cur[key] = i < keys_last ?
+              cur[key] || (keys[i+1] && isNaN(keys[i+1]) ? {} : []) :
+              val;
           }
             
         } else {
@@ -1501,9 +1501,7 @@ define('nbd/util/deparam',[],function() {
           
       } else if (key) {
         // No value was defined, so set something meaningful.
-        obj[key] = coerce
-          ? undefined
-          : '';
+        obj[key] = coerce ? undefined : '';
       }
     });
       
@@ -1638,22 +1636,22 @@ define('nbd/util/protochain',[],function() {
       throw new TypeError("Second argument must be a constructor");
     }
     
-    var it = Klass.prototype, up;
+    var it = Klass.prototype, up, p = '__proto__';
 
     // Find the top non-native prototype
     while ((up=Object.getPrototypeOf(it)) !== Object.prototype) { it = up; }
 
     if (forced !== true) {
       // Try to modify the chain seamlessly if possible
-      if (it.__proto__) {
-        it.__proto__ = Class.prototype;
+      if (it[p]) {
+        it[p] = Class.prototype;
         return;
       }
       throw new Error("Cannot modify prototype chain"); 
     }
 
     swapProto(Klass.prototype, Class.prototype);
-  }
+  };
 });
 
 
