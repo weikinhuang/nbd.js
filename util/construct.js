@@ -6,7 +6,7 @@ define(function() {
 
   return function construct() {
     // Type check this is a function
-    if ( !(toStr.call(this).indexOf('Function')+1) ) {
+    if ( !~toStr.call(this).indexOf('Function') ) {
       throw new TypeError('construct called on incompatible Object');
     }
 

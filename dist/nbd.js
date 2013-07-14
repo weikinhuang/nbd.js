@@ -421,7 +421,9 @@ define('nbd/Class',[],function() {
     var descriptor = {};
     Object.keys(abstract).forEach(function(prop) {
       descriptor[prop] = {
-        configurable:false,
+        configurable:true,
+        writable:true,
+        enumerable:false,
         value:abstract[prop]
       };
     });
@@ -847,7 +849,16 @@ define('nbd/Model',['./Class',
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    diff.call(this, novel || this._data, old, this.trigger);
+    if (this._dirty !== true) {
+      for (var k in this._dirty) {
+        this.trigger(k, this._data[k], this._dirty[k]);
+      }
+    }
+    else if (old) {
+      diff.call(this, novel || this._data, old, this.trigger);
+    }
+    else { return; }
+ 
     this._dirty = 0;
   },
 
@@ -859,8 +870,9 @@ define('nbd/Model',['./Class',
         id = +id;
       }
 
-      if ( data === undefined ) {
+      if ( data === undefined && typeof id === 'object' ) {
         data = id;
+        id = undefined;
       }
 
       this.id = function() {
@@ -886,11 +898,13 @@ define('nbd/Model',['./Class',
 
     destroy: function() {
       this.off();
+      this._data = null;
     },
 
     data : function() {
-      if (!(this._dirty++)) {
-        async(dirtyCheck.bind(this, extend({}, this._data)));
+      if (this._dirty !== true) {
+        async(dirtyCheck.bind(this, extend({}, this._data, this._dirty)));
+        this._dirty = true;
       }
       return this._data;
     },
@@ -900,9 +914,17 @@ define('nbd/Model',['./Class',
     },
 
     set: function(values, value) {
-      var key, data = this.data();
+      var key, data = this._data;
+
+      if (!this._dirty) { async(dirtyCheck.bind(this)); }
 
       if ( typeof values === "string" ) {
+        if (this._dirty !== true) {
+          this._dirty = this._dirty || {};
+          if (!(key in this._dirty)) {
+            this._dirty[values] = data[values];
+          }
+        }
         data[values] = value;
         return this;
       }
@@ -910,6 +932,12 @@ define('nbd/Model',['./Class',
       if ( typeof values === "object" ) {
         for ( key in values ) {
           if ( values.hasOwnProperty( key ) ) {
+            if (this._dirty !== true) {
+              this._dirty = this._dirty || {};
+              if (!(key in this._dirty)) {
+                this._dirty[key] = data[key];
+              }
+            }
             data[key] = values[key];
           }
         }
@@ -1015,11 +1043,10 @@ define('nbd/View/Entity',['../View'], function(View) {
       }
 
       if ( $parent ) {
-        if ( $existing ) { $existing.remove(); }
         if ( this.$view ) { this.$view.appendTo( $parent ); }
       }
-      else if ( $existing ) {
-        $existing.replaceWith( this.$view );
+      else {
+        if ( $existing ) { $existing.replaceWith( this.$view ); }
       }
 
       if ( fresh ) {
@@ -1089,7 +1116,7 @@ define('nbd/util/construct',[],function() {
 
   return function construct() {
     // Type check this is a function
-    if ( !(toStr.call(this).indexOf('Function')+1) ) {
+    if ( !~toStr.call(this).indexOf('Function') ) {
       throw new TypeError('construct called on incompatible Object');
     }
 
@@ -1102,9 +1129,8 @@ define('nbd/util/construct',[],function() {
 
 
 define('nbd/Controller',['./Class',
-       './View',
        './util/construct'
-],  function(Class, View, construct) {
+],  function(Class, construct) {
   "use strict";
 
   var constructor = Class.extend({
@@ -1249,8 +1275,7 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
             try {
               x.then(function resolvePromise(y) {
                 if (mutex) { return; }
-                if (x === y) { fulfill(x); }
-                else { resolve(y); }
+                (y === x ? fulfill : resolve)(y);
                 mutex = true;
               }, function rejectPromise(r) {
                 if (mutex) { return; }
@@ -1450,9 +1475,9 @@ define('nbd/util/deparam',[],function() {
           // * Rinse & repeat.
           for (i; i <= keys_last; i++) {
             key = keys[i] === '' ? cur.length : keys[i];
-            cur = cur[key] = i < keys_last
-              ? cur[key] || (keys[i+1] && isNaN(keys[i+1]) ? {} : [])
-              : val;
+            cur = cur[key] = i < keys_last ?
+              cur[key] || (keys[i+1] && isNaN(keys[i+1]) ? {} : []) :
+              val;
           }
             
         } else {
@@ -1476,9 +1501,7 @@ define('nbd/util/deparam',[],function() {
           
       } else if (key) {
         // No value was defined, so set something meaningful.
-        obj[key] = coerce
-          ? undefined
-          : '';
+        obj[key] = coerce ? undefined : '';
       }
     });
       
@@ -1613,22 +1636,22 @@ define('nbd/util/protochain',[],function() {
       throw new TypeError("Second argument must be a constructor");
     }
     
-    var it = Klass.prototype, up;
+    var it = Klass.prototype, up, p = '__proto__';
 
     // Find the top non-native prototype
     while ((up=Object.getPrototypeOf(it)) !== Object.prototype) { it = up; }
 
     if (forced !== true) {
       // Try to modify the chain seamlessly if possible
-      if (it.__proto__) {
-        it.__proto__ = Class.prototype;
+      if (it[p]) {
+        it[p] = Class.prototype;
         return;
       }
       throw new Error("Cannot modify prototype chain"); 
     }
 
     swapProto(Klass.prototype, Class.prototype);
-  }
+  };
 });
 
 

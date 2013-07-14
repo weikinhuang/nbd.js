@@ -37,20 +37,20 @@ define(function() {
       throw new TypeError("Second argument must be a constructor");
     }
     
-    var it = Klass.prototype, up;
+    var it = Klass.prototype, up, p = '__proto__';
 
     // Find the top non-native prototype
     while ((up=Object.getPrototypeOf(it)) !== Object.prototype) { it = up; }
 
     if (forced !== true) {
       // Try to modify the chain seamlessly if possible
-      if (it.__proto__) {
-        it.__proto__ = Class.prototype;
+      if (it[p]) {
+        it[p] = Class.prototype;
         return;
       }
       throw new Error("Cannot modify prototype chain"); 
     }
 
     swapProto(Klass.prototype, Class.prototype);
-  }
+  };
 });

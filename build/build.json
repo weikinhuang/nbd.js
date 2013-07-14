@@ -1,5 +1,5 @@
 {
-  "baseUrl": "..",
+  "baseUrl": ".",
   "optimize": "none",
   "paths": {
     "nbd":"."
@@ -11,5 +11,5 @@
     "start": "(function(root) {",
     "end": "root.nbd = require('build/all'); })(this);"
   },
-  "out": "nbd.js"
+  "out": "dist/nbd.js"
 }
