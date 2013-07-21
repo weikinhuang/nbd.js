@@ -1598,63 +1598,6 @@ define('nbd/util/pipe',[],function() {
 });
 
 
-/** 
- * Prototype chain append utility
- * Inspired by Mozilla's Object.appendChain()
- * @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/GetPrototypeOf#Notes 
- */
-define('nbd/util/protochain',[],function() {
-  'use strict';
-
-  function swapProto(lProto, oProto) {
-    var inst, p;
-
-    if ((p=Object.getPrototypeOf(lProto)) !== Object.prototype) {
-      swapProto(p, oProto); //?
-      oProto = p.constructor.prototype;
-    }
-
-    inst = Object.create(oProto);
-    for (p in lProto) {
-      if (lProto.hasOwnProperty(p)) {
-        inst[p] = lProto[p];
-      }
-    }
-    inst.constructor = lProto.constructor;
-    lProto.constructor.prototype = inst;
-
-  }
-
-  return function(Klass, Class, forced) {
-    if (arguments.length < 2) {
-      throw new TypeError("Not enough arguments");
-    }
-    if (typeof Klass !== "function") {
-      throw new TypeError("First argument must be a constructor");
-    }
-    if (typeof Class !== "function") {
-      throw new TypeError("Second argument must be a constructor");
-    }
-    
-    var it = Klass.prototype, up, p = '__proto__';
-
-    // Find the top non-native prototype
-    while ((up=Object.getPrototypeOf(it)) !== Object.prototype) { it = up; }
-
-    if (forced !== true) {
-      // Try to modify the chain seamlessly if possible
-      if (it[p]) {
-        it[p] = Class.prototype;
-        return;
-      }
-      throw new Error("Cannot modify prototype chain"); 
-    }
-
-    swapProto(Klass.prototype, Class.prototype);
-  };
-});
-
-
 
 define('build/all',[
        'nbd/Class',
@@ -1673,9 +1616,8 @@ define('build/all',[
        'nbd/util/diff',
        'nbd/util/extend',
        'nbd/util/media',
-       'nbd/util/pipe',
-       'nbd/util/protochain'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
+       'nbd/util/pipe'
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe) {
   'use strict';
 
   var exports = {
@@ -1695,8 +1637,7 @@ define('build/all',[
       diff : diff,
       extend : extend,
       media : media,
-      pipe : pipe,
-      protochain : protochain
+      pipe : pipe
     }
   };
 

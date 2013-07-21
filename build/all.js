@@ -17,9 +17,8 @@ define([
        'nbd/util/diff',
        'nbd/util/extend',
        'nbd/util/media',
-       'nbd/util/pipe',
-       'nbd/util/protochain'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
+       'nbd/util/pipe'
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe) {
   'use strict';
 
   var exports = {
@@ -39,8 +38,7 @@ define([
       diff : diff,
       extend : extend,
       media : media,
-      pipe : pipe,
-      protochain : protochain
+      pipe : pipe
     }
   };
 
