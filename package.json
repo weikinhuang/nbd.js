@@ -21,13 +21,16 @@
   "devDependencies": {
     "requirejs": "2.x",
     "almond": "",
-    "karma": "~0.8.5",
+    "karma": "~0.10",
     "promises-aplus-tests": "",
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-contrib-requirejs": "~0.4.1",
     "grunt-contrib-uglify": "~0.2.2",
-    "grunt-contrib-clean": "~0.4.1"
+    "grunt-contrib-clean": "~0.4.1",
+    "karma-jasmine": "~0.1.0",
+    "karma-requirejs": "~0.1.0",
+    "karma-coverage": "~0.1.0"
   },
   "scripts": {
     "test": "karma start test/karma.conf.js --single-run && promises-aplus-tests test/lib/promise-adapter.js"
