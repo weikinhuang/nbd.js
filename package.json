@@ -30,7 +30,8 @@
     "grunt-contrib-clean": "~0.4.1",
     "karma-jasmine": "~0.1.0",
     "karma-requirejs": "~0.1.0",
-    "karma-coverage": "~0.1.0"
+    "karma-coverage": "~0.1.0",
+    "grunt-karma": "~0.6.1"
   },
   "scripts": {
     "test": "karma start test/karma.conf.js --single-run && promises-aplus-tests test/lib/promise-adapter.js"
