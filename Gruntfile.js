@@ -34,11 +34,17 @@ module.exports = function(grunt) {
     },
     karma: {
       options: {
-        singleRun: true,
+        configFile: 'test/karma.conf.js',
+        singleRun: true
+      },
+      persistent: {
+        singleRun: false
+      },
+      single: {
         browsers: ['PhantomJS']
       },
-      once: {
-        configFile: 'test/karma.conf.js'
+      multi: {
+        browsers: ['PhantomJS', 'Firefox'/*, 'Chrome'*/]
       }
     },
     promises: {
@@ -59,6 +65,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-karma');
 
-  grunt.registerTask('default', ['clean:build', 'jshint', 'requirejs:build', 'uglify:build']);
-  grunt.registerTask('test', ['jshint', 'karma:once', 'promises']);
+  grunt.registerTask('build', ['clean:build', 'jshint', 'requirejs:build', 'uglify:build']);
+  grunt.registerTask('test', ['karma:persistent']);
+  grunt.registerTask('travis', ['jshint', 'karma:multi', 'promises']);
+  grunt.registerTask('default', ['jshint', 'build']);
 };

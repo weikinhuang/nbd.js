@@ -9,6 +9,7 @@ module.exports = function(config) {
       'karma-jasmine',
       'karma-requirejs',
       'karma-phantomjs-launcher',
+      'karma-firefox-launcher',
       'karma-coverage'
     ],
 
