@@ -33,15 +33,24 @@ module.exports = function(grunt) {
       }
     },
     karma: {
-      unit: {
-        configFile: 'test/karma.conf.js'
-      },
-      once: {
-        configFile: 'test/karma.conf.js',
+      options: {
         singleRun: true,
         browsers: ['PhantomJS']
+      },
+      once: {
+        configFile: 'test/karma.conf.js'
       }
+    },
+    promises: {
+      adapter: './test/lib/promise-adapter'
     }
+  });
+
+  grunt.registerTask('promises', 'Promises A+ Tests', function() {
+    var adapterFile = grunt.config(['promises', 'adapter']),
+    adapter = require(adapterFile),
+    aplus = require('promises-aplus-tests');
+    aplus(adapter, {}, this.async());
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -49,5 +58,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-karma');
-  grunt.registerTask('default', ['clean', 'jshint', 'requirejs', 'uglify']);
+
+  grunt.registerTask('default', ['clean:build', 'jshint', 'requirejs:build', 'uglify:build']);
+  grunt.registerTask('test', ['jshint', 'karma:once', 'promises']);
 };
