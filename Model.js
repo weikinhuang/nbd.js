@@ -18,7 +18,7 @@ define(['./Class',
       diff.call(this, novel || this._data, old, this.trigger);
     }
     else { return; }
- 
+
     this._dirty = 0;
   },
 
@@ -63,7 +63,8 @@ define(['./Class',
 
     data : function() {
       if (this._dirty !== true) {
-        async(dirtyCheck.bind(this, extend({}, this._data, this._dirty)));
+        async(dirtyCheck.bind(this, extend({}, this._data,
+                                           this._dirty || undefined)));
         this._dirty = true;
       }
       return this._data;
