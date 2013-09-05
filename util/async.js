@@ -80,7 +80,7 @@ define(function() {
   }
 
   function canUseMessageChannel() {
-    return !!MessageChannel;
+    return !!global.MessageChannel;
   }
 
   function canUsePostMessage() {
