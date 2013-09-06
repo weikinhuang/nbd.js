@@ -19,7 +19,7 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
       var o = {}, f = function() {}, n = null, u;
       when(o, f, n, u).then(sentinel);
 
-      waits();
+      waits(10);
       runs(function() {
         expect(sentinel).toHaveBeenCalledWith([o,f,n,u]);
       });
@@ -30,7 +30,7 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
 
       promise.resolve('original');
 
-      waits();
+      waits(10);
       runs(function() {
         expect(sentinel).toHaveBeenCalledWith(['original']);
       });
@@ -41,19 +41,19 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
 
       when('a', last, promise).then(sentinel);
 
-      waits();
+      waits(10);
       runs(function() {
         expect(sentinel).not.toHaveBeenCalled();
         promise.resolve('original');
       });
 
-      waits();
+      waits(10);
       runs(function() {
         expect(sentinel).not.toHaveBeenCalled();
         last.resolve('netflix');
       });
 
-      waits();
+      waits(10);
       runs(function() {
         expect(sentinel).toHaveBeenCalledWith(['a', 'netflix', 'original']);
       });
@@ -66,14 +66,14 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
 
       promise.reject('nok');
 
-      waits();
+      waits(10);
       runs(function() {
         expect(fail).toHaveBeenCalledWith('nok');
         expect(sentinel).not.toHaveBeenCalled();
         last.resolve('ok');
       });
 
-      waits();
+      waits(10);
       runs(function() {
         expect(sentinel).not.toHaveBeenCalled();
       });
