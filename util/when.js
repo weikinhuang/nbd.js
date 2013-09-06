@@ -16,8 +16,7 @@ define(['../trait/promise'], function(Promise) {
     for (i = 0; i < arguments.length; ++i) {
       if (arguments[i] instanceof Promise) {
         x = arguments[i];
-      }
-      else {
+      } else {
         x = new Promise();
         x.resolve(arguments[i]);
       }
@@ -25,7 +24,11 @@ define(['../trait/promise'], function(Promise) {
       chain = chain ? chain.then(ret.bind(x)) : x;
     }
 
-    chain.then(p.resolve.bind(null, results));
+    if (arguments.length) {
+      chain.then(p.resolve.bind(null, results), p.reject);
+    } else {
+      p.resolve(results);
+    }
 
     return p;
   };

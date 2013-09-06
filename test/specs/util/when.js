@@ -18,7 +18,8 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
     it('resolves immediate values', function() {
       var o = {}, f = function() {}, n = null, u;
       when(o, f, n, u).then(sentinel);
-      waits(15);
+
+      waits();
       runs(function() {
         expect(sentinel).toHaveBeenCalledWith([o,f,n,u]);
       });
@@ -28,8 +29,8 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
       when(promise).then(sentinel);
 
       promise.resolve('original');
-      waits(15);
 
+      waits();
       runs(function() {
         expect(sentinel).toHaveBeenCalledWith(['original']);
       });
@@ -40,21 +41,50 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
 
       when('a', last, promise).then(sentinel);
 
-      waits(15);
+      waits();
       runs(function() {
         expect(sentinel).not.toHaveBeenCalled();
         promise.resolve('original');
       });
 
-      waits(15);
+      waits();
       runs(function() {
         expect(sentinel).not.toHaveBeenCalled();
         last.resolve('netflix');
       });
 
-      waits(15);
+      waits();
       runs(function() {
         expect(sentinel).toHaveBeenCalledWith(['a', 'netflix', 'original']);
+      });
+    });
+
+    it('rejects when any promise rejects', function() {
+      var last = new Promise(),
+      fail = jasmine.createSpy('then failback');
+      when(promise, last).then(sentinel, fail);
+
+      promise.reject('nok');
+
+      waits();
+      runs(function() {
+        expect(fail).toHaveBeenCalledWith('nok');
+        expect(sentinel).not.toHaveBeenCalled();
+        last.resolve('ok');
+      });
+
+      waits();
+      runs(function() {
+        expect(sentinel).not.toHaveBeenCalled();
+      });
+    });
+
+    it('resolves empty calls immediately', function() {
+      when().then(sentinel);
+
+      waits(10);
+      runs(function() {
+        expect(sentinel).toHaveBeenCalledWith([]);
       });
     });
 
