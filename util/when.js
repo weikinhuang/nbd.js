@@ -2,6 +2,8 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['../trait/promise'], function(Promise) {
   'use strict';
 
+  var ret = function() { return this; };
+
   return function when() {
     var x, i, chain,
     p = new Promise(),
@@ -20,12 +22,10 @@ define(['../trait/promise'], function(Promise) {
         x.resolve(arguments[i]);
       }
       x.then(collect.bind(null, i));
-      chain = chain ? chain.then(x) : x;
+      chain = chain ? chain.then(ret.bind(x)) : x;
     }
 
-    chain.then(function() {
-      p.resolve(results.length > 1 ? results : results[0]);
-    });
+    chain.then(p.resolve.bind(null, results));
 
     return p;
   };

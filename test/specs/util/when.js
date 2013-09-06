@@ -2,7 +2,7 @@
 define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
   'use strict';
 
-  ddescribe('util/when', function() {
+  describe('util/when', function() {
 
     var promise, sentinel;
 
@@ -15,6 +15,15 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
       expect(when).toEqual(jasmine.any(Function));
     });
 
+    it('resolves immediate values', function() {
+      var o = {}, f = function() {}, n = null, u;
+      when(o, f, n, u).then(sentinel);
+      waits(15);
+      runs(function() {
+        expect(sentinel).toHaveBeenCalledWith([o,f,n,u]);
+      });
+    });
+
     it('resolves when promise resolves', function() {
       when(promise).then(sentinel);
 
@@ -22,24 +31,30 @@ define(['real/util/when', 'nbd/trait/promise'], function(when, Promise) {
       waits(15);
 
       runs(function() {
-        expect(sentinel).toHaveBeenCalledWith('original');
+        expect(sentinel).toHaveBeenCalledWith(['original']);
       });
     });
 
     it('resolves when last promise resolves', function() {
-      when('a', promise).then(sentinel);
+      var last = new Promise();
+
+      when('a', last, promise).then(sentinel);
 
       waits(15);
-
       runs(function() {
         expect(sentinel).not.toHaveBeenCalled();
         promise.resolve('original');
       });
 
       waits(15);
-
       runs(function() {
-        expect(sentinel).toHaveBeenCalledWith(['a', 'original']);
+        expect(sentinel).not.toHaveBeenCalled();
+        last.resolve('netflix');
+      });
+
+      waits(15);
+      runs(function() {
+        expect(sentinel).toHaveBeenCalledWith(['a', 'netflix', 'original']);
       });
     });
 
