@@ -73,7 +73,7 @@ define(['../util/async', '../util/extend'], function(async, extend) {
 
       fulfill(x);
     }
-    
+
     function then(onFulfilled, onRejected) {
       var next = new Promise();
 
@@ -114,7 +114,7 @@ define(['../util/async', '../util/extend'], function(async, extend) {
 
       return next;
     }
-    
+
     Object.defineProperties(this, {
       reject : {value: reject},
       resolve: {value: resolve}
