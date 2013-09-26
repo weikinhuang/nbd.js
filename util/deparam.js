@@ -51,7 +51,7 @@ define(function() {
               : val;                                                // string
         }
           
-        if ( keys_last ) {
+        if (keys_last) {
           // Complex key, build deep object structure based on a few rules:
           // * The 'cur' pointer starts at the object top-level.
           // * [] = array push (n is set to array length), [n] = array if n is 
@@ -74,7 +74,7 @@ define(function() {
             
           if (Array.isArray(obj[key])) {
             // val is already an array, so push on the next value.
-            obj[key].push( val );
+            obj[key].push(val);
               
           } else if (obj[key] !== undefined) {
             // val isn't an array, but since a second value has been specified,

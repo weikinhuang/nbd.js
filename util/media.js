@@ -13,10 +13,10 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
            typeof msMatchMedia !== 'undefined' ? msMatchMedia :
            null;
 
-  function bindMedia( breakpoint, query ) {
-    var match = mMedia( query );
+  function bindMedia(breakpoint, query) {
+    var match = mMedia(query);
     queries[breakpoint] = match;
-    match.addListener( mqChange.bind(match, breakpoint) );
+    match.addListener(mqChange.bind(match, breakpoint));
     if (match.matches) { mqChange.call(match, breakpoint); }
   }
 
@@ -24,25 +24,25 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
     return queries[breakpoint] && queries[breakpoint].matches;
   }
 
-  function media( options, query ) {
+  function media(options, query) {
     var breakpoint;
 
     // No matchMedia support
-    if ( !mMedia ) {
+    if (!mMedia) {
       throw new Error('Media queries not supported.');
     }
 
     // Has matchMedia support
-    if ( typeof options === 'string' ) {
-      bindMedia( options, query );
+    if (typeof options === 'string') {
+      bindMedia(options, query);
       return media;
     }
 
-    if ( typeof options === 'object' ) {
+    if (typeof options === 'object') {
       for (breakpoint in options) {
         if (options.hasOwnProperty(breakpoint)) {
           query = options[breakpoint];
-          bindMedia( breakpoint, query );
+          bindMedia(breakpoint, query);
         }
       }
     }
@@ -59,7 +59,7 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
 
   media.is = isActive;
   media.getState = function(breakpoint) {
-    if ( breakpoint ) {
+    if (breakpoint) {
       return isActive(breakpoint);
     }
 

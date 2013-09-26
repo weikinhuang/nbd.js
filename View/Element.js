@@ -6,22 +6,22 @@ define(['../View'], function(View) {
 
     $parent: null,
 
-    init : function( $parent ) {
+    init : function($parent) {
       this.$parent = $parent;
     },
 
-    render : function( data ) {
+    render : function(data) {
       var $existing = this.$view;
 
       this.trigger('prerender', $existing);
 
       this.$view = this.template(data || this.templateData());
 
-      if ( $existing && $existing.length ) {
-        $existing.replaceWith( this.$view );
+      if ($existing && $existing.length) {
+        $existing.replaceWith(this.$view);
       }
       else {
-        this.$view.appendTo( this.$parent );
+        this.$view.appendTo(this.$parent);
       }
 
       this.trigger('postrender', this.$view);

@@ -10,7 +10,7 @@ define(['./extend'], function(extend) {
     // If complex objects, assume different
     if (!(Object.getPrototypeOf(cur) === Object.prototype &&
           Object.getPrototypeOf(prev) === Object.prototype 
-         )) { return false; }
+        )) { return false; }
 
     for (key in cur) {
       if (cur[key] !== prev[key]) {
@@ -65,7 +65,7 @@ define(['./extend'], function(extend) {
           typeof lhs === "object" && typeof rhs === "object" && 
           lhs && rhs &&
           objectCheck(lhs, rhs)
-        )) {
+       )) {
           differences[key] = [lhs, rhs];
           if (callback) {
             callback.apply(this, [key, lhs, rhs]);

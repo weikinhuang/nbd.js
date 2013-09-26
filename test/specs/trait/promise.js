@@ -139,20 +139,20 @@ define(['real/trait/promise', 'nbd/Class', 'jquery'], function(promise, Class, $
       });
 
       it('returns a jQuery Deferrable-compatible object', function() {
-        expect( promise.done ).toEqual(jasmine.any(Function));
-        expect( promise.fail ).toEqual(jasmine.any(Function));
-        expect( promise.progress ).toEqual(jasmine.any(Function));
-        expect( promise.promise ).toEqual(jasmine.any(Function));
+        expect(promise.done).toEqual(jasmine.any(Function));
+        expect(promise.fail).toEqual(jasmine.any(Function));
+        expect(promise.progress).toEqual(jasmine.any(Function));
+        expect(promise.promise).toEqual(jasmine.any(Function));
       });
 
       it('infinitely returns its own .promise()', function() {
-        expect( promise.promise() ).toBe(promise);
+        expect(promise.promise()).toBe(promise);
       });
 
       it('mixes in with jQuery Deferrables', function() {
         var onDone = jasmine.createSpy('jQuery onDone');
 
-        $.when( promise, undefined ).done(onDone);
+        $.when(promise, undefined).done(onDone);
 
         runs(function() { 
           inst.resolve('promise land');

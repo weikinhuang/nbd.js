@@ -48,8 +48,8 @@ define(['real/util/media'], function(media) {
       describe('is()', function() {
 
         it('reports breakpoint states', function() {
-          expect( media.is('onepx') ).toBe(true);
-          expect( media.is('zeropx') ).toBe(false);
+          expect(media.is('onepx')).toBe(true);
+          expect(media.is('zeropx')).toBe(false);
         });
 
       });
@@ -67,8 +67,8 @@ define(['real/util/media'], function(media) {
         });
 
         it('reports breakpoint states', function() {
-          expect( media.getState('onepx') ).toBe(true);
-          expect( media.getState('zeropx') ).toBe(false);
+          expect(media.getState('onepx')).toBe(true);
+          expect(media.getState('zeropx')).toBe(false);
         });
 
       });

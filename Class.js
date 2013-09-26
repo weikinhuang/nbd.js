@@ -27,7 +27,7 @@ define(function() {
     var prop, result = false;
     if (typeof superclass === 'function') {
       // Testing linear inheritance
-      return superclass.prototype.isPrototypeOf( this.prototype );
+      return superclass.prototype.isPrototypeOf(this.prototype);
     }
     if (typeof superclass === 'object') {
       // Testing horizontal inheritance
@@ -81,7 +81,7 @@ define(function() {
     // The dummy class constructor
     function Class() {
       // All construction is actually done in the init method
-      if ( typeof this.init === "function" ) {
+      if (typeof this.init === "function") {
         this.init.apply(this, arguments);
       }
     }

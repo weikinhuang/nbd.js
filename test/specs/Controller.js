@@ -10,15 +10,15 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View'], function(Controll
     });
 
     it('is a class constructor', function() {
-      expect( Controller ).toEqual(jasmine.any(Function));
-      expect( Controller.inherits(Class) ).toBe(true);
-      expect( inst ).toEqual(jasmine.any(Controller));
+      expect(Controller).toEqual(jasmine.any(Function));
+      expect(Controller.inherits(Class)).toBe(true);
+      expect(inst).toEqual(jasmine.any(Controller));
     });
 
     describe('.destroy()', function() {
 
       it('is a function', function() {
-        expect( inst.destroy ).toEqual(jasmine.any(Function));
+        expect(inst.destroy).toEqual(jasmine.any(Function));
         expect(function() {
           inst.destroy();
         }).not.toThrow();

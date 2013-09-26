@@ -15,7 +15,7 @@ define(['real/util/protochain'], function(protochain) {
     });
 
     it('is a function', function() {
-      expect( protochain ).toEqual(jasmine.any(Function));
+      expect(protochain).toEqual(jasmine.any(Function));
     });
 
     it('appends to the prototype chain when __proto__ is available', function() {
@@ -23,7 +23,7 @@ define(['real/util/protochain'], function(protochain) {
 
       expect(instance).not.toEqual(jasmine.any(Usurper));
 
-      if ( '__proto__' in Subclass.prototype ) {
+      if ('__proto__' in Subclass.prototype) {
         expect(function() { protochain(Subclass, Usurper); }).not.toThrow();
         expect(instance).toEqual(jasmine.any(Usurper));
       }

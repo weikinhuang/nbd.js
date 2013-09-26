@@ -14,20 +14,20 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
     });
 
     it('is a View constructor', function() {
-      expect( Element ).toEqual(jasmine.any(Function));
-      expect( Element.inherits(View) ).toBe(true);
+      expect(Element).toEqual(jasmine.any(Function));
+      expect(Element.inherits(View)).toBe(true);
     });
 
     describe('.init()', function() {
       it('sets its parent element', function() {
-        expect( instance.$parent[0] ).toBe($parent[0]);
+        expect(instance.$parent[0]).toBe($parent[0]);
       });
     });
 
     describe('.render()', function() {
       it('renders a template into the parent element', function() {
         instance.render({ item: "world"});
-        expect( $parent.text() ).toEqual('Hello world');
+        expect($parent.text()).toEqual('Hello world');
       });
 
       it('re-renders even without a parent element', function() {
@@ -35,8 +35,8 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
         instance.$parent = null;
         instance.render({ item: "dolly"});
 
-        expect( instance.$parent ).toBeNull();
-        expect( $parent.text() ).toEqual('Hello dolly');
+        expect(instance.$parent).toBeNull();
+        expect($parent.text()).toEqual('Hello dolly');
       });
     });
 

@@ -26,11 +26,11 @@ define(['./Class',
 
     init: function(id, data) {
 
-      if ( typeof id === 'string' && id.match(/^\d+$/) ) {
+      if (typeof id === 'string' && id.match(/^\d+$/)) {
         id = +id;
       }
 
-      if ( data === undefined && typeof id === 'object' ) {
+      if (data === undefined && typeof id === 'object') {
         data = id;
         id = undefined;
       }
@@ -79,7 +79,7 @@ define(['./Class',
 
       if (!this._dirty) { async(dirtyCheck.bind(this)); }
 
-      if ( typeof values === "string" ) {
+      if (typeof values === "string") {
         if (this._dirty !== true) {
           this._dirty = this._dirty || {};
           if (!(key in this._dirty)) {
@@ -90,9 +90,9 @@ define(['./Class',
         return this;
       }
 
-      if ( typeof values === "object" ) {
-        for ( key in values ) {
-          if ( values.hasOwnProperty( key ) ) {
+      if (typeof values === "object") {
+        for (key in values) {
+          if (values.hasOwnProperty(key)) {
             if (this._dirty !== true) {
               this._dirty = this._dirty || {};
               if (!(key in this._dirty)) {

@@ -6,53 +6,53 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
     it('is a Class constructor', function() {
       expect(Model).toEqual(jasmine.any(Function));
-      expect(Model.inherits( Class )).toBe(true);
+      expect(Model.inherits(Class)).toBe(true);
     });
 
     describe('.init()', function() {
 
       it('initializes with data', function() {
         var rand = Math.random(), 
-        instance = new Model( 1, {xyz:rand}),
+        instance = new Model(1, {xyz:rand}),
         data;
 
-        expect( instance.id() ).toBe(1);
-        expect( data = instance.data() ).toEqual(jasmine.any(Object));
-        expect( data.xyz ).toBe(rand);
+        expect(instance.id()).toBe(1);
+        expect(data = instance.data()).toEqual(jasmine.any(Object));
+        expect(data.xyz).toBe(rand);
       });
 
       it('allows just an id', function() {
-        var instance = new Model( 42 );
-        expect( instance.id() ).toBe(42);
-        expect( instance.data() ).toEqual(jasmine.any(Object));
+        var instance = new Model(42);
+        expect(instance.id()).toBe(42);
+        expect(instance.data()).toEqual(jasmine.any(Object));
       });
 
       it('supports numeric string ids', function() {
         var instance = new Model('42');
-        expect( instance.id() ).toBe(42);
-        expect( instance.data() ).toEqual(jasmine.any(Object));
+        expect(instance.id()).toBe(42);
+        expect(instance.data()).toEqual(jasmine.any(Object));
       });
 
       it('supports non-numeric ids', function() {
-        var instance = new Model( "xyz", {});
-        expect( instance.id() ).toBe('xyz');
+        var instance = new Model("xyz", {});
+        expect(instance.id()).toBe('xyz');
 
-        instance = new Model( -1, {});
-        expect( instance.id() ).toBe(-1);
+        instance = new Model(-1, {});
+        expect(instance.id()).toBe(-1);
       });
 
       it('has optional id', function() {
         var foo = { bar : Infinity },
         instance = new Model(foo);
 
-        expect( instance.id() ).not.toBeDefined();
-        expect( instance.data() ).toBe(foo);
+        expect(instance.id()).not.toBeDefined();
+        expect(instance.data()).toBe(foo);
       });
 
       it('has optional data as well', function() {
         var instance = new Model();
-        expect( instance.id() ).not.toBeDefined();
-        expect( instance.data() ).toEqual(jasmine.any(Object));
+        expect(instance.id()).not.toBeDefined();
+        expect(instance.data()).toEqual(jasmine.any(Object));
       });
 
     });
@@ -60,18 +60,18 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
     describe('.get()', function() {
 
       it('returns a value', function() {
-        var rand = Math.random(), instance = new Model( 1, {xyz:rand});
-        expect( instance.get('xyz') ).toBe(rand);
+        var rand = Math.random(), instance = new Model(1, {xyz:rand});
+        expect(instance.get('xyz')).toBe(rand);
       });
 
       it('returns unepxected property names as undefined', function() {
-        var instance = new Model( 1, {xyz:'xyz'});
+        var instance = new Model(1, {xyz:'xyz'});
         expect(instance.get('abc')).not.toBeDefined();
       });
 
       it('returns undefined values', function() {
-        var instance = new Model( 1, {xyz:undefined});
-        expect( instance.get('xyz') ).not.toBeDefined();
+        var instance = new Model(1, {xyz:undefined});
+        expect(instance.get('xyz')).not.toBeDefined();
       });
 
     });
@@ -81,17 +81,17 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
       beforeEach(function() {
         rand = Math.random();
-        instance = new Model( 1, {xyz:null, foo:'bar'});
+        instance = new Model(1, {xyz:null, foo:'bar'});
       });
 
       it('accepts an object map', function() {
         expect(function(){ instance.set({xyz:0}); }).not.toThrow();
-        expect( instance.get('xyz') ).toBe(0);
+        expect(instance.get('xyz')).toBe(0);
       });
 
       it('accepts a key/value pair', function() {
         expect(function(){ instance.set('xyz', rand); }).not.toThrow();
-        expect( instance.get('xyz') ).toBe(rand);
+        expect(instance.get('xyz')).toBe(rand);
       });
 
       it('ignores any other arguments', function() {
