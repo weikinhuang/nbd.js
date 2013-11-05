@@ -5,7 +5,7 @@ define(['../View'], function(View) {
   var constructor = View.extend({
     init : function(model) {
       if (typeof model === 'object') {
-        this._model = this.Model = model;
+        this._model = model;
       }
 
       this.id = (model && model.id) || function() {
@@ -16,7 +16,7 @@ define(['../View'], function(View) {
     destroy : function(persist) {
       this._model.off(null, null, this);
       if (!persist) {
-        this._model = this.Model = null;
+        this._model = null;
       }
       this._super();
     },

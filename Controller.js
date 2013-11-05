@@ -10,8 +10,8 @@ define([
 
     _initView : function(ViewClass) {
       var args = Array.prototype.slice.call(arguments, 1);
-      this._view = this.View = construct.apply(ViewClass, args);
-      this._view._controller = this._view.Controller = this;
+      this._view = construct.apply(ViewClass, args);
+      this._view._controller = this;
     },
 
     switchView : function() {

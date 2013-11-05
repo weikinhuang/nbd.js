@@ -21,13 +21,13 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
     describe('.init()', function() {
 
       it('creates the Model', function() {
-        expect(instance.Model).toEqual(jasmine.any(Model));
+        expect(instance._model).toEqual(jasmine.any(Model));
       });
 
       it('creates the View', function() {
-        expect(instance.View).toBeDefined();
-        expect(instance.View.Controller).toBe(instance);
-        expect(instance.View.id()).toBe(instance.Model.id());
+        expect(instance._view).toBeDefined();
+        expect(instance._view._controller).toBe(instance);
+        expect(instance._view.id()).toBe(instance._model.id());
 
       });
 
@@ -38,9 +38,9 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
       it('calls View render', function() {
         var $parent = $();
 
-        spyOn(instance.View, 'render');
+        spyOn(instance._view, 'render');
         instance.render($parent);
-        expect(instance.View.render).toHaveBeenCalledWith($parent);
+        expect(instance._view.render).toHaveBeenCalledWith($parent);
       });
 
       it('renders with the specified View class', function() {
@@ -48,7 +48,7 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         NewViewClass = Entity.VIEW_CLASS.extend({});
 
         instance.render($parent, NewViewClass);
-        expect(instance.View).toEqual(jasmine.any(NewViewClass));
+        expect(instance._view).toEqual(jasmine.any(NewViewClass));
       });
 
     });
