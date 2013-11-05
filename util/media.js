@@ -47,7 +47,6 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
       }
     }
     return media;
-
   }
 
   extend(media, pubsub);
@@ -59,13 +58,9 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
 
   media.is = isActive;
   media.getState = function(breakpoint) {
-    if (breakpoint) {
-      return isActive(breakpoint);
-    }
-
+    if (breakpoint) { return isActive(breakpoint); }
     return Object.keys(queries).filter(isActive);
   };
 
   return media;
-
 });

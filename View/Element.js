@@ -3,7 +3,6 @@ define(['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
-
     $parent: null,
 
     init : function($parent) {
@@ -32,9 +31,7 @@ define(['../View'], function(View) {
 
       return this.$view;
     }
-
   });
 
   return constructor;
-
 });

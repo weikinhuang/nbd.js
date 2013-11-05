@@ -185,6 +185,5 @@ define(['../util/async', '../util/extend'], function(async, extend) {
     }
   });
 
-
   return Promise;
 });

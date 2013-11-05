@@ -1,6 +1,7 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['./Class',
-       './util/construct'
+define([
+  './Class',
+  './util/construct'
 ],  function(Class, construct) {
   "use strict";
 
@@ -26,9 +27,7 @@ define(['./Class',
 
       existing.destroy();
     }
-
   });
 
   return constructor;
-
 });

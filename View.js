@@ -1,9 +1,11 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['./Class', './trait/pubsub'], function(Class, pubsub) {
+define([
+  './Class',
+  './trait/pubsub'
+], function(Class, pubsub) {
   "use strict";
 
   var constructor = Class.extend({
-
     $view: null,
 
     render: function(data) {
@@ -37,10 +39,8 @@ define(['./Class', './trait/pubsub'], function(Class, pubsub) {
       this.$view = null;
       this.off();
     }
-
   })
   .mixin(pubsub);
 
   return constructor;
-
 });

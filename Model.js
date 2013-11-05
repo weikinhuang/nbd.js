@@ -1,9 +1,10 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['./Class',
-       './util/async',
-       './util/extend',
-       './util/diff',
-       './trait/pubsub'
+define([
+  './Class',
+  './util/async',
+  './util/extend',
+  './util/diff',
+  './trait/pubsub'
 ], function(Class, async, extend, diff, pubsub) {
   "use strict";
 
@@ -23,9 +24,7 @@ define(['./Class',
   },
 
   constructor = Class.extend({
-
     init: function(id, data) {
-
       if (typeof id === 'string' && id.match(/^\d+$/)) {
         id = +id;
       }
@@ -35,9 +34,7 @@ define(['./Class',
         id = undefined;
       }
 
-      this.id = function() {
-        return id;
-      };
+      this.id = function() { return id; };
 
       try {
         Object.defineProperty(this, '_dirty', { value: 0, writable: true });
@@ -53,7 +50,6 @@ define(['./Class',
         this._dirty = 0;
         this._data = data;
       }
-
     },
 
     destroy: function() {
@@ -113,5 +109,4 @@ define(['./Class',
   .mixin(pubsub);
 
   return constructor;
-
 });
