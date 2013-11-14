@@ -4,11 +4,11 @@
 var Promise = require('../../trait/promise');
 
 module.exports = {
-  pending : function() {
+  deferred : function() {
     var promise = new Promise();
     return {
       promise : promise,
-      fulfill : function(value) {
+      resolve : function(value) {
         promise.resolve(value);
       },
       reject : function(reason) {
