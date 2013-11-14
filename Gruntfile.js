@@ -68,5 +68,5 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['clean:build', 'jshint', 'requirejs:build', 'uglify:build']);
   grunt.registerTask('test', ['karma:persistent']);
   grunt.registerTask('travis', ['jshint', 'karma:multi', 'promises']);
-  grunt.registerTask('default', ['jshint', 'build']);
+  grunt.registerTask('default', ['build']);
 };
