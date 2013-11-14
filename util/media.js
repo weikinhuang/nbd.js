@@ -14,9 +14,15 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
            null;
 
   function bindMedia(breakpoint, query) {
-    var match = mMedia(query);
+    var match;
+    if (match = queries[breakpoint]) {
+      match.removeListener(match.listener);
+    }
+
+    match = mMedia(query);
+    match.listener = mqChange.bind(match, breakpoint);
+    match.addListener(match.listener);
     queries[breakpoint] = match;
-    match.addListener(mqChange.bind(match, breakpoint));
     if (match.matches) { mqChange.call(match, breakpoint); }
   }
 
