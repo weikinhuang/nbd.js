@@ -36,19 +36,19 @@ define(['real/event'], function(event) {
       it('should call bound functions', function() {
         var rand = Math.random(), now = Date.now();
 
-        event.bind( 'test', first );
-        event.bind( 'test', last );
-        event.trigger( 'test', rand, now );
+        event.bind('test', first);
+        event.bind('test', last);
+        event.trigger('test', rand, now);
 
-        expect( first ).toHaveBeenCalledWith(rand, now);
-        expect( last ).toHaveBeenCalledWith(rand, now);
+        expect(first).toHaveBeenCalledWith(rand, now);
+        expect(last).toHaveBeenCalledWith(rand, now);
       });
 
       it('should only call functions bound to the event', function() {
-        event.bind( 'test', middle );
-        event.trigger( 'test_' );
+        event.bind('test', middle);
+        event.trigger('test_');
 
-        expect( middle ).not.toHaveBeenCalled();
+        expect(middle).not.toHaveBeenCalled();
       });
 
     });
@@ -62,7 +62,7 @@ define(['real/event'], function(event) {
       });
 
       it('should allow unbinding nonexistent events', function() {
-        expect(function(){ event.unbind( 'lalilulelo' ); }).not.toThrow();
+        expect(function(){ event.unbind('lalilulelo'); }).not.toThrow();
       });
 
       afterEach(function() {
@@ -70,23 +70,23 @@ define(['real/event'], function(event) {
       });
 
       it('should unbind a function', function() {
-        event.bind( 'test', first );
-        event.bind( 'test', last );
-        event.unbind( 'test', first );
-        event.trigger( 'test' );
+        event.bind('test', first);
+        event.bind('test', last);
+        event.unbind('test', first);
+        event.trigger('test');
 
-        expect( first ).not.toHaveBeenCalled();
-        expect( last ).toHaveBeenCalled();
+        expect(first).not.toHaveBeenCalled();
+        expect(last).toHaveBeenCalled();
       });
 
       it('should unbind all functions', function() {
-        event.bind( 'test', first );
-        event.bind( 'test', last );
-        event.unbind( 'test' );
-        event.trigger( 'test' );
+        event.bind('test', first);
+        event.bind('test', last);
+        event.unbind('test');
+        event.trigger('test');
 
-        expect( first ).not.toHaveBeenCalled();
-        expect( last ).not.toHaveBeenCalled();
+        expect(first).not.toHaveBeenCalled();
+        expect(last).not.toHaveBeenCalled();
       });
 
     });

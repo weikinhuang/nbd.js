@@ -4,7 +4,7 @@ define(['../View'], function(View) {
 
   var constructor = View.extend({
 
-    init : function( model ) {
+    init : function(model) {
       if (typeof model === 'object') {
         this._model = this.Model = model;
       }
@@ -27,28 +27,28 @@ define(['../View'], function(View) {
       return (this._model && this._model.data) ? this._model.data() : this.id();
     },
 
-    render : function( $parent ) {
+    render : function($parent) {
 
       // $existing could be a string
       var $existing = this.$view,
           fresh = !($existing && $parent);
 
-      if ( fresh ) {
+      if (fresh) {
         this.trigger('prerender', $existing);
-        this.$view = this.template( this.templateData() );
+        this.$view = this.template(this.templateData());
       }
 
-      if ( $parent ) {
-        if ( this.$view ) { this.$view.appendTo( $parent ); }
+      if ($parent) {
+        if (this.$view) { this.$view.appendTo($parent); }
       }
       else {
-        if ( $existing ) { $existing.replaceWith( this.$view ); }
+        if ($existing) { $existing.replaceWith(this.$view); }
       }
 
-      if ( fresh ) {
+      if (fresh) {
         this.trigger('postrender', this.$view);
 
-        if ( typeof this.rendered === 'function' ) {
+        if (typeof this.rendered === 'function') {
           this.rendered(this.$view);
         }
       }

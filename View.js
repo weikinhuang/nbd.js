@@ -13,8 +13,8 @@ define(['./Class', './trait/pubsub'], function(Class, pubsub) {
 
       this.$view = this.template(data || this.templateData());
 
-      if ( $existing && $existing.length ) {
-        $existing.replaceWith( this.$view );
+      if ($existing && $existing.length) {
+        $existing.replaceWith(this.$view);
       }
 
       this.trigger('postrender', this.$view);
@@ -31,7 +31,7 @@ define(['./Class', './trait/pubsub'], function(Class, pubsub) {
     templateData: function() { return {}; },
 
     destroy: function() {
-      if ( this.$view && this.$view.remove ) {
+      if (this.$view && this.$view.remove) {
         this.$view.remove();
       }
       this.$view = null;

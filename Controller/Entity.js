@@ -12,11 +12,11 @@ define(['../util/construct',
       this._initView(this.constructor.VIEW_CLASS, this._model);
     },
 
-    render : function( $parent, ViewClass ) {
+    render : function($parent, ViewClass) {
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
-      this.requestView( ViewClass );
-      this._view.render( $parent );
+      this.requestView(ViewClass);
+      this._view.render($parent);
     },
 
     destroy : function() {
@@ -25,8 +25,8 @@ define(['../util/construct',
       this._model = this._view = null;
     },
 
-    requestView : function( ViewClass ) {
-      if ( this._view instanceof ViewClass ) { return; }
+    requestView : function(ViewClass) {
+      if (this._view instanceof ViewClass) { return; }
       this.switchView(ViewClass, this._model);
     }
   },{

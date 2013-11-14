@@ -7,8 +7,8 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
     var instance;
 
     it('is a Controller constructor', function() {
-      expect( Entity ).toEqual(jasmine.any(Function));
-      expect( Entity.inherits(Controller) ).toBe(true);
+      expect(Entity).toEqual(jasmine.any(Function));
+      expect(Entity.inherits(Controller)).toBe(true);
     });
 
     beforeEach(function() {
@@ -21,13 +21,13 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
     describe('.init()', function() {
 
       it('creates the Model', function() {
-        expect( instance.Model ).toEqual(jasmine.any(Model));
+        expect(instance.Model).toEqual(jasmine.any(Model));
       });
 
       it('creates the View', function() {
-        expect( instance.View ).toBeDefined();
-        expect( instance.View.Controller ).toBe( instance );
-        expect( instance.View.id() ).toBe( instance.Model.id() );
+        expect(instance.View).toBeDefined();
+        expect(instance.View.Controller).toBe(instance);
+        expect(instance.View.id()).toBe(instance.Model.id());
 
       });
 
@@ -38,17 +38,17 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
       it('calls View render', function() {
         var $parent = $();
 
-        spyOn( instance.View, 'render' );
-        instance.render( $parent );
-        expect( instance.View.render ).toHaveBeenCalledWith( $parent );
+        spyOn(instance.View, 'render');
+        instance.render($parent);
+        expect(instance.View.render).toHaveBeenCalledWith($parent);
       });
 
       it('renders with the specified View class', function() {
         var $parent = $(),
         NewViewClass = Entity.VIEW_CLASS.extend({});
 
-        instance.render( $parent, NewViewClass );
-        expect( instance.View ).toEqual(jasmine.any(NewViewClass));
+        instance.render($parent, NewViewClass);
+        expect(instance.View).toEqual(jasmine.any(NewViewClass));
       });
 
     });

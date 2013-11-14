@@ -13,11 +13,11 @@ define(['real/util/deparam'], function(deparam) {
     });
 
     it('converts a param string into an object', function() {
-      expect( deparam( params_str ) ).toEqual( params_obj );
+      expect(deparam(params_str)).toEqual(params_obj);
     });
 
     it('type coerces a param string into an object', function() {
-      expect( deparam( params_str, true ) ).toEqual( params_obj_coerce );
+      expect(deparam(params_str, true)).toEqual(params_obj_coerce);
     });
 
   });

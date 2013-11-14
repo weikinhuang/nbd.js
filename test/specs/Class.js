@@ -5,8 +5,8 @@ define(['real/Class'], function(Class) {
   describe('Class', function() {
 
     it('is a constructor', function() {
-      expect( Class ).toBeDefined();
-      expect( Class ).toEqual(jasmine.any(Function));
+      expect(Class).toBeDefined();
+      expect(Class).toEqual(jasmine.any(Function));
     });
 
     describe('Class.extend', function() {
@@ -17,19 +17,19 @@ define(['real/Class'], function(Class) {
 
       it('creates subclasses', function() {
         var Subclass = Class.extend({});
-        expect( Subclass.prototype.constructor ).toBe( Subclass );
-        expect( new Subclass() ).toEqual( jasmine.any(Subclass) );
-        expect( new Subclass() ).toEqual( jasmine.any(Class) );
+        expect(Subclass.prototype.constructor).toBe(Subclass);
+        expect(new Subclass()).toEqual(jasmine.any(Subclass));
+        expect(new Subclass()).toEqual(jasmine.any(Class));
       });
 
       it('inherits from prototype', function() {
         var rand = Math.random(), Subclass = Class.extend({xyz:rand});
-        expect( (new Subclass()).xyz ).toEqual(rand);
+        expect((new Subclass()).xyz).toEqual(rand);
       });
 
       it('inherits from static', function() {
         var rand = Math.random(), Subclass = Class.extend({},{xyz:rand});
-        expect( Subclass.xyz ).toEqual(rand);
+        expect(Subclass.xyz).toEqual(rand);
       });
 
       it('can call its super implementation', function(){
@@ -37,8 +37,8 @@ define(['real/Class'], function(Class) {
         subproto = {impl:function(){this._super('z');}, _super:function(){}},
         Superclass, Subclass, instance;
 
-        spyOn( superproto, 'impl' );
-        spyOn( subproto, '_super' );
+        spyOn(superproto, 'impl');
+        spyOn(subproto, '_super');
         Superclass = Class.extend(superproto);
         Subclass = Superclass.extend(subproto);
 
@@ -54,14 +54,14 @@ define(['real/Class'], function(Class) {
         subproto = {init:function(){}},
         Superclass, Subclass;
 
-        spyOn( superproto, 'init' );
-        spyOn( subproto, 'init' );
+        spyOn(superproto, 'init');
+        spyOn(subproto, 'init');
         Superclass = Class.extend(superproto);
         Subclass = Superclass.extend(subproto);
 
-        expect( new Subclass() ).toEqual(jasmine.any(Class));
-        expect( superproto.init ).not.toHaveBeenCalled();
-        expect( subproto.init ).toHaveBeenCalled();
+        expect(new Subclass()).toEqual(jasmine.any(Class));
+        expect(superproto.init).not.toHaveBeenCalled();
+        expect(subproto.init).toHaveBeenCalled();
       });
 
       it('throws when implementation throws', function() {
@@ -100,30 +100,30 @@ define(['real/Class'], function(Class) {
 
       it('adds object properties into a prototype', function() {
         Klass.mixin({ bigDeal: 'no' });
-        expect( Klass.prototype.bigDeal ).toBe('no');
+        expect(Klass.prototype.bigDeal).toBe('no');
       });
 
       it('doesn\'t add prototype properties into a prototype', function() {
         var A = Class.extend({protoprop:true});
         Klass.mixin(new A());
-        expect( Klass.prototype.protoprop ).not.toBeDefined();
+        expect(Klass.prototype.protoprop).not.toBeDefined();
       });
 
       it('provides to new instances', function() {
         Klass.mixin({ bigDeal: 'no' });
-        expect( new Klass().bigDeal ).toBe('no');
+        expect(new Klass().bigDeal).toBe('no');
       });
 
       it('provides to existing instances', function() {
         Klass.mixin({ bigDeal: 'no' });
-        expect( kInstance.bigDeal ).toBe('no');
+        expect(kInstance.bigDeal).toBe('no');
       });
 
       it('provides to subclasses', function() {
         var Qlass = Klass.extend();
         Klass.mixin({ bigDeal: 'no' });
 
-        expect( new Qlass().bigDeal ).toBe('no');
+        expect(new Qlass().bigDeal).toBe('no');
       });
 
       it('overwrites conflicting mixins', function() {
@@ -133,8 +133,8 @@ define(['real/Class'], function(Class) {
           Klass.mixin({ bigDeal: 'yes' });
         }).not.toThrow();
 
-        expect( Klass.prototype.bigDeal ).toBe('yes');
-        expect( kInstance.bigDeal ).toBe('yes');
+        expect(Klass.prototype.bigDeal).toBe('yes');
+        expect(kInstance.bigDeal).toBe('yes');
       });
     });
 
@@ -152,18 +152,18 @@ define(['real/Class'], function(Class) {
 
       it('can check its ancestor class', function() {
         var A = Class.extend(), B = A.extend(), C = Klass;
-        expect( A.inherits(Class) ).toBe(true);
-        expect( B.inherits(Class) ).toBe(true);
-        expect( C.inherits(Class) ).toBe(true);
-        expect( B.inherits(A) ).toBe(true);
-        expect( B.inherits(C) ).toBe(false);
+        expect(A.inherits(Class)).toBe(true);
+        expect(B.inherits(Class)).toBe(true);
+        expect(C.inherits(Class)).toBe(true);
+        expect(B.inherits(A)).toBe(true);
+        expect(B.inherits(C)).toBe(false);
       });
 
       it('can check whether an object was mixed in', function() {
         var trait = { bigDeal: 'no' };
-        Klass.mixin( trait );
-        expect( Klass.inherits(trait) ).toBe(true);
-        expect( Klass.inherits({rTrait:null}) ).toBe(false);
+        Klass.mixin(trait);
+        expect(Klass.inherits(trait)).toBe(true);
+        expect(Klass.inherits({rTrait:null})).toBe(false);
       });
 
     });

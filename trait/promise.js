@@ -35,7 +35,7 @@ define(['../util/async', '../util/extend'], function(async, extend) {
 
     function resolve(x) {
       if (x === self) {
-        throw new TypeError('Cannot resolve with self');
+        reject(new TypeError('Cannot resolve with self'));
       }
 
       // If handed another promise
@@ -45,14 +45,23 @@ define(['../util/async', '../util/extend'], function(async, extend) {
       }
 
       // If handed another then-able
-      try {
-        if ((typeof x === 'object' || typeof x === 'function') &&
-            x !== null && typeof x.then === 'function') {
+      if ((typeof x === 'object' || typeof x === 'function') && x !== null) {
+        var then;
+
+        try {
+          then = x.then;
+        }
+        catch (e) {
+          reject(e);
+          return;
+        }
+
+        if (typeof then === 'function') {
           return (function thenAble() {
             var mutex = false;
 
             try {
-              x.then(function resolvePromise(y) {
+              then.call(x, function resolvePromise(y) {
                 if (mutex) { return; }
                 (y === x ? fulfill : resolve)(y);
                 mutex = true;
@@ -65,10 +74,6 @@ define(['../util/async', '../util/extend'], function(async, extend) {
             catch (e) { if (!mutex) { reject(e); } }
           }());
         }
-      }
-      catch (e) {
-        reject(e);
-        return;
       }
 
       fulfill(x);

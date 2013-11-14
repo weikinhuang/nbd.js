@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, spyOn, mostRecentAjaxRequest */
-define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.tmpl'], function(Controller, $, Class, View, jqtmpl) {
+define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View'], function(Controller, $, Class, View) {
   'use strict';
 
   describe('Controller', function() {
@@ -10,15 +10,15 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View', 'nbd/trait/jquery.
     });
 
     it('is a class constructor', function() {
-      expect( Controller ).toEqual(jasmine.any(Function));
-      expect( Controller.inherits(Class) ).toBe(true);
-      expect( inst ).toEqual(jasmine.any(Controller));
+      expect(Controller).toEqual(jasmine.any(Function));
+      expect(Controller.inherits(Class)).toBe(true);
+      expect(inst).toEqual(jasmine.any(Controller));
     });
 
     describe('.destroy()', function() {
 
       it('is a function', function() {
-        expect( inst.destroy ).toEqual(jasmine.any(Function));
+        expect(inst.destroy).toEqual(jasmine.any(Function));
         expect(function() {
           inst.destroy();
         }).not.toThrow();
