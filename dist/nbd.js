@@ -436,7 +436,7 @@ define('nbd/Class',[],function() {
     var prop, result = false;
     if (typeof superclass === 'function') {
       // Testing linear inheritance
-      return superclass.prototype.isPrototypeOf( this.prototype );
+      return superclass.prototype.isPrototypeOf(this.prototype);
     }
     if (typeof superclass === 'object') {
       // Testing horizontal inheritance
@@ -490,7 +490,7 @@ define('nbd/Class',[],function() {
     // The dummy class constructor
     function Class() {
       // All construction is actually done in the init method
-      if ( typeof this.init === "function" ) {
+      if (typeof this.init === "function") {
         this.init.apply(this, arguments);
       }
     }
@@ -795,7 +795,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
     // If complex objects, assume different
     if (!(Object.getPrototypeOf(cur) === Object.prototype &&
           Object.getPrototypeOf(prev) === Object.prototype 
-         )) { return false; }
+        )) { return false; }
 
     for (key in cur) {
       if (cur[key] !== prev[key]) {
@@ -850,7 +850,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
           typeof lhs === "object" && typeof rhs === "object" && 
           lhs && rhs &&
           objectCheck(lhs, rhs)
-        )) {
+       )) {
           differences[key] = [lhs, rhs];
           if (callback) {
             callback.apply(this, [key, lhs, rhs]);
@@ -1050,11 +1050,11 @@ define('nbd/Model',['./Class',
 
     init: function(id, data) {
 
-      if ( typeof id === 'string' && id.match(/^\d+$/) ) {
+      if (typeof id === 'string' && id.match(/^\d+$/)) {
         id = +id;
       }
 
-      if ( data === undefined && typeof id === 'object' ) {
+      if (data === undefined && typeof id === 'object') {
         data = id;
         id = undefined;
       }
@@ -1103,7 +1103,7 @@ define('nbd/Model',['./Class',
 
       if (!this._dirty) { async(dirtyCheck.bind(this)); }
 
-      if ( typeof values === "string" ) {
+      if (typeof values === "string") {
         if (this._dirty !== true) {
           this._dirty = this._dirty || {};
           if (!(key in this._dirty)) {
@@ -1114,9 +1114,9 @@ define('nbd/Model',['./Class',
         return this;
       }
 
-      if ( typeof values === "object" ) {
-        for ( key in values ) {
-          if ( values.hasOwnProperty( key ) ) {
+      if (typeof values === "object") {
+        for (key in values) {
+          if (values.hasOwnProperty(key)) {
             if (this._dirty !== true) {
               this._dirty = this._dirty || {};
               if (!(key in this._dirty)) {
@@ -1155,8 +1155,8 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
 
       this.$view = this.template(data || this.templateData());
 
-      if ( $existing && $existing.length ) {
-        $existing.replaceWith( this.$view );
+      if ($existing && $existing.length) {
+        $existing.replaceWith(this.$view);
       }
 
       this.trigger('postrender', this.$view);
@@ -1173,7 +1173,7 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
     templateData: function() { return {}; },
 
     destroy: function() {
-      if ( this.$view && this.$view.remove ) {
+      if (this.$view && this.$view.remove) {
         this.$view.remove();
       }
       this.$view = null;
@@ -1193,7 +1193,7 @@ define('nbd/View/Entity',['../View'], function(View) {
 
   var constructor = View.extend({
 
-    init : function( model ) {
+    init : function(model) {
       if (typeof model === 'object') {
         this._model = this.Model = model;
       }
@@ -1216,28 +1216,28 @@ define('nbd/View/Entity',['../View'], function(View) {
       return (this._model && this._model.data) ? this._model.data() : this.id();
     },
 
-    render : function( $parent ) {
+    render : function($parent) {
 
       // $existing could be a string
       var $existing = this.$view,
           fresh = !($existing && $parent);
 
-      if ( fresh ) {
+      if (fresh) {
         this.trigger('prerender', $existing);
-        this.$view = this.template( this.templateData() );
+        this.$view = this.template(this.templateData());
       }
 
-      if ( $parent ) {
-        if ( this.$view ) { this.$view.appendTo( $parent ); }
+      if ($parent) {
+        if (this.$view) { this.$view.appendTo($parent); }
       }
       else {
-        if ( $existing ) { $existing.replaceWith( this.$view ); }
+        if ($existing) { $existing.replaceWith(this.$view); }
       }
 
-      if ( fresh ) {
+      if (fresh) {
         this.trigger('postrender', this.$view);
 
-        if ( typeof this.rendered === 'function' ) {
+        if (typeof this.rendered === 'function') {
           this.rendered(this.$view);
         }
       }
@@ -1260,22 +1260,22 @@ define('nbd/View/Element',['../View'], function(View) {
 
     $parent: null,
 
-    init : function( $parent ) {
+    init : function($parent) {
       this.$parent = $parent;
     },
 
-    render : function( data ) {
+    render : function(data) {
       var $existing = this.$view;
 
       this.trigger('prerender', $existing);
 
       this.$view = this.template(data || this.templateData());
 
-      if ( $existing && $existing.length ) {
-        $existing.replaceWith( this.$view );
+      if ($existing && $existing.length) {
+        $existing.replaceWith(this.$view);
       }
       else {
-        this.$view.appendTo( this.$parent );
+        this.$view.appendTo(this.$parent);
       }
 
       this.trigger('postrender', this.$view);
@@ -1301,7 +1301,7 @@ define('nbd/util/construct',[],function() {
 
   return function construct() {
     // Type check this is a function
-    if ( !~toStr.call(this).indexOf('Function') ) {
+    if (!~toStr.call(this).indexOf('Function')) {
       throw new TypeError('construct called on incompatible Object');
     }
 
@@ -1321,7 +1321,7 @@ define('nbd/Controller',['./Class',
   var constructor = Class.extend({
     destroy : function() {},
 
-    _initView : function( ViewClass ) {
+    _initView : function(ViewClass) {
       var args = Array.prototype.slice.call(arguments, 1);
       this._view = this.View = construct.apply(ViewClass, args);
       this._view._controller = this._view.Controller = this;
@@ -1331,7 +1331,7 @@ define('nbd/Controller',['./Class',
       var existing = this._view;
       this._initView.apply(this, arguments);
 
-      if ( !existing ) { return; }
+      if (!existing) { return; }
 
       if (existing.$view) {
         this._view.$view = existing.$view;
@@ -1361,11 +1361,11 @@ define('nbd/Controller/Entity',['../util/construct',
       this._initView(this.constructor.VIEW_CLASS, this._model);
     },
 
-    render : function( $parent, ViewClass ) {
+    render : function($parent, ViewClass) {
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
-      this.requestView( ViewClass );
-      this._view.render( $parent );
+      this.requestView(ViewClass);
+      this._view.render($parent);
     },
 
     destroy : function() {
@@ -1374,8 +1374,8 @@ define('nbd/Controller/Entity',['../util/construct',
       this._model = this._view = null;
     },
 
-    requestView : function( ViewClass ) {
-      if ( this._view instanceof ViewClass ) { return; }
+    requestView : function(ViewClass) {
+      if (this._view instanceof ViewClass) { return; }
       this.switchView(ViewClass, this._model);
     }
   },{
@@ -1441,7 +1441,7 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
 
     function resolve(x) {
       if (x === self) {
-        throw new TypeError('Cannot resolve with self');
+        reject(new TypeError('Cannot resolve with self'));
       }
 
       // If handed another promise
@@ -1451,14 +1451,23 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
       }
 
       // If handed another then-able
-      try {
-        if ((typeof x === 'object' || typeof x === 'function') &&
-            x !== null && typeof x.then === 'function') {
+      if ((typeof x === 'object' || typeof x === 'function') && x !== null) {
+        var then;
+
+        try {
+          then = x.then;
+        }
+        catch (e) {
+          reject(e);
+          return;
+        }
+
+        if (typeof then === 'function') {
           return (function thenAble() {
             var mutex = false;
 
             try {
-              x.then(function resolvePromise(y) {
+              then.call(x, function resolvePromise(y) {
                 if (mutex) { return; }
                 (y === x ? fulfill : resolve)(y);
                 mutex = true;
@@ -1471,10 +1480,6 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
             catch (e) { if (!mutex) { reject(e); } }
           }());
         }
-      }
-      catch (e) {
-        reject(e);
-        return;
       }
 
       fulfill(x);
@@ -1648,7 +1653,7 @@ define('nbd/util/deparam',[],function() {
               : val;                                                // string
         }
           
-        if ( keys_last ) {
+        if (keys_last) {
           // Complex key, build deep object structure based on a few rules:
           // * The 'cur' pointer starts at the object top-level.
           // * [] = array push (n is set to array length), [n] = array if n is 
@@ -1671,7 +1676,7 @@ define('nbd/util/deparam',[],function() {
             
           if (Array.isArray(obj[key])) {
             // val is already an array, so push on the next value.
-            obj[key].push( val );
+            obj[key].push(val);
               
           } else if (obj[key] !== undefined) {
             // val isn't an array, but since a second value has been specified,
@@ -1710,10 +1715,16 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
            typeof msMatchMedia !== 'undefined' ? msMatchMedia :
            null;
 
-  function bindMedia( breakpoint, query ) {
-    var match = mMedia( query );
+  function bindMedia(breakpoint, query) {
+    var match;
+    if (match = queries[breakpoint]) {
+      match.removeListener(match.listener);
+    }
+
+    match = mMedia(query);
+    match.listener = mqChange.bind(match, breakpoint);
+    match.addListener(match.listener);
     queries[breakpoint] = match;
-    match.addListener( mqChange.bind(match, breakpoint) );
     if (match.matches) { mqChange.call(match, breakpoint); }
   }
 
@@ -1721,25 +1732,25 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
     return queries[breakpoint] && queries[breakpoint].matches;
   }
 
-  function media( options, query ) {
+  function media(options, query) {
     var breakpoint;
 
     // No matchMedia support
-    if ( !mMedia ) {
+    if (!mMedia) {
       throw new Error('Media queries not supported.');
     }
 
     // Has matchMedia support
-    if ( typeof options === 'string' ) {
-      bindMedia( options, query );
+    if (typeof options === 'string') {
+      bindMedia(options, query);
       return media;
     }
 
-    if ( typeof options === 'object' ) {
+    if (typeof options === 'object') {
       for (breakpoint in options) {
         if (options.hasOwnProperty(breakpoint)) {
           query = options[breakpoint];
-          bindMedia( breakpoint, query );
+          bindMedia(breakpoint, query);
         }
       }
     }
@@ -1756,7 +1767,7 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
 
   media.is = isActive;
   media.getState = function(breakpoint) {
-    if ( breakpoint ) {
+    if (breakpoint) {
       return isActive(breakpoint);
     }
 
@@ -1800,8 +1811,7 @@ define('nbd/util/when',['../trait/promise'], function(Promise) {
     for (i = 0; i < arguments.length; ++i) {
       if (arguments[i] instanceof Promise) {
         x = arguments[i];
-      }
-      else {
+      } else {
         x = new Promise();
         x.resolve(arguments[i]);
       }
@@ -1809,7 +1819,11 @@ define('nbd/util/when',['../trait/promise'], function(Promise) {
       chain = chain ? chain.then(ret.bind(x)) : x;
     }
 
-    chain.then(p.resolve.bind(null, results));
+    if (arguments.length) {
+      chain.then(p.resolve.bind(null, results), p.reject);
+    } else {
+      p.resolve(results);
+    }
 
     return p;
   };
