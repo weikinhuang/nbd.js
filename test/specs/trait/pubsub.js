@@ -105,7 +105,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
     });
 
     it("bind a callback with a supplied context", function () {
-      var obj, 
+      var obj,
       TestClass = function () {},
       instance = new TestClass();
 
