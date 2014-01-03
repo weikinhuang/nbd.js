@@ -6,7 +6,7 @@ define(['../util/curry'], function(curry) {
   var slice = Array.prototype.slice,
   eventSplitter = /\s+/,
 
-  splitCaller = curry(function(fn, map) {
+  splitCaller = curry.bind(function(fn, map) {
     if (map == null) {
       fn.apply(this, slice.call(arguments, 1));
       return this;

@@ -2,13 +2,16 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
   'use strict';
 
-  return function curry(fn) {
+  var toStr = Object.prototype.toString;
+
+  return function() {
+    var fn = this,
+        rest = arguments,
+        type = toStr.call(fn);
+    if (type !== '[object Function]') { throw new TypeError("curry called on incompatible "+type); }
     return function() {
-      var rest = arguments;
-      return function() {
-        Array.prototype.unshift.apply(arguments, rest);
-        return fn.apply(this, arguments);
-      };
+      Array.prototype.unshift.apply(arguments, rest);
+      return fn.apply(this, arguments);
     };
   };
 });

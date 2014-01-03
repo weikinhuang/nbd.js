@@ -3,52 +3,79 @@ define(['real/util/curry'], function(curry) {
   'use strict';
 
   describe('util/curry', function() {
-    var spy;
+    var spy, curried;
 
     beforeEach(function() {
       spy = jasmine.createSpy('spycy');
+      curried = curry.bind(spy);
+    });
+
+    it('only works on function context', function() {
+      expect(function() {
+        curry.call(function() {});
+      }).not.toThrow();
+
+      expect(function() {
+        curry.call({});
+      }).toThrow();
+
+      expect(function() {
+        curry.call(12);
+      }).toThrow();
+
+      expect(function() {
+        curry.call("Hello");
+      }).toThrow();
+
+      expect(function() {
+        curry.call(null);
+      }).toThrow();
+
+      expect(function() {
+        curry();
+      }).toThrow();
     });
 
     it('produces a function', function() {
-      var curried = curry(spy);
-      expect(curried).toEqual(jasmine.any(Function));
+      expect(curried()).toEqual(jasmine.any(Function));
     });
 
     describe('curried function', function() {
       it('produces a function', function() {
-        var curried = curry(spy)('alpha');
-        expect(curried).toEqual(jasmine.any(Function));
+        var ret = curried('alpha');
+        expect(ret).toEqual(jasmine.any(Function));
 
-        curried('beta');
+        ret('beta');
         expect(spy).toHaveBeenCalledWith('alpha', 'beta');
       });
 
       it('preserves context', function() {
-        var originalContext, ctxt = {};
+        var originalContext,
+        ctxt = { ret: curried() };
+
         spy.andCallFake(function() {
           originalContext = this;
         });
 
-        var curried = curry(spy)();
-        curried.call(ctxt);
+        ctxt.ret();
 
         expect(spy).toHaveBeenCalled();
         expect(originalContext).toBe(ctxt);
       });
 
       it('can be called multiple times', function() {
-        var curried = curry(spy)('alpha', 'beta', 'gamma');
+        var ret = curried('alpha', 'beta', 'gamma');
 
-        curried('delta');
+        ret('delta');
         expect(spy).toHaveBeenCalledWith('alpha', 'beta', 'gamma', 'delta');
-        curried('epsilon');
+        ret('epsilon');
         expect(spy).toHaveBeenCalledWith('alpha', 'beta', 'gamma', 'epsilon');
       });
 
       it('returns curried function\'s return value', function() {
-        var obj = {},
-        curried = curry(spy.andReturn(obj))();
-        expect(curried()).toBe(obj);
+        var obj = {};
+        spy.andReturn(obj);
+        expect(curried()()).toBe(obj);
       });
     });
   });
