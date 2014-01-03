@@ -5,7 +5,9 @@ define(function() {
   // The base Class implementation (does nothing)
   var Klass = function() {},
   extend, mixin, inherits,
-  fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
+  fnTest = /xyz/.test(function(){/*global xyz*/ return xyz; }) ?
+    /\b_super\b/ :
+    /.*/;
 
   // allows adding any object's properties into the class
   mixin = function(abstract) {
@@ -55,7 +57,9 @@ define(function() {
     stat = stat || {};
 
     function protochain(name, fn) {
-      var applySuper = function() {return _super[name].apply(this,arguments);};
+      var applySuper = function() {
+        return _super[name].apply(this, arguments);
+      };
       return function() {
         var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
 
@@ -73,7 +77,7 @@ define(function() {
           throw e;
         }
         finally {
-          if (hadSuper) {this._super = tmp;}
+          if (hadSuper) { this._super = tmp; }
         }
       };
     }
@@ -90,7 +94,7 @@ define(function() {
     Object.keys(prop).forEach(function(name) {
       var p = prop[name];
       // Check if we're overwriting an existing function
-      prototype[name] = 
+      prototype[name] =
         typeof p === "function" &&
         typeof _super[name] === "function" &&
         fnTest.test(p) ?
@@ -108,13 +112,13 @@ define(function() {
     Class.prototype = prototype;
 
     // Enforce the constructor to be what we expect
-    Object.defineProperty(Class.prototype, "constructor", {value:Class});
+    Object.defineProperty(Class.prototype, "constructor", { value: Class });
 
     // Class guaranteed methods
     Object.defineProperties(Class, {
-      extend: {value:extend, enumerable:false},
-      mixin : {value:mixin},
-      inherits: {value:inherits}
+      extend: { value: extend, enumerable: false },
+      mixin: { value: mixin },
+      inherits: { value: inherits }
     });
 
     return Class;

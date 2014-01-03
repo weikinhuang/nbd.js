@@ -1,14 +1,15 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['../util/construct',
-       '../Controller',
-       '../View/Entity',
-       '../Model'
+define([
+  '../util/construct',
+  '../Controller',
+  '../View/Entity',
+  '../Model'
 ], function(construct, Controller, View, Model) {
   'use strict';
 
   var constructor = Controller.extend({
     init : function() {
-      this._model = this.Model = construct.apply(this.constructor.MODEL_CLASS, arguments);
+      this._model = construct.apply(this.constructor.MODEL_CLASS, arguments);
       this._initView(this.constructor.VIEW_CLASS, this._model);
     },
 
@@ -38,5 +39,4 @@ define(['../util/construct',
   });
 
   return constructor;
-
 });

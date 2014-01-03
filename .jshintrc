@@ -1,0 +1,22 @@
+{
+  "strict": true,
+  "unused": true,
+  "boss": true,
+  "browser": true,
+  "curly": true,
+  "eqeqeq": true,
+  "eqnull": true,
+  "expr": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "node": true,
+  "trailing": true,
+  "undef": true,
+  "unused": "vars",
+  "globals": {
+    "require": true,
+    "define": true
+  }
+}
+

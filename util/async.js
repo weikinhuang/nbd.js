@@ -10,7 +10,7 @@ define(function() {
   var global = typeof global !== 'undefined' ? global :
                typeof window !== 'undefined' ? window :
                this,
-  async;
+      async;
 
   var tasks = (function () {
     function Task(handler, args) {

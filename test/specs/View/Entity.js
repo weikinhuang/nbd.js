@@ -19,7 +19,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
         expect(instance.id).toBeDefined();
         expect(instance.id()).toBe(id);
-        expect(instance.Model).toBe(model);
+        expect(instance._model).toBe(model);
       });
 
       it('accepts non-Models', function() {
@@ -28,7 +28,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
         expect(instance.id).toBeDefined();
         expect(instance.id()).toBe(id);
-        expect(instance.Model).not.toBeDefined();
+        expect(instance._model).not.toBeDefined();
       });
 
     });

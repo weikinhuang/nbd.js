@@ -3,10 +3,9 @@ define(['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
-
     init : function(model) {
       if (typeof model === 'object') {
-        this._model = this.Model = model;
+        this._model = model;
       }
 
       this.id = (model && model.id) || function() {
@@ -17,19 +16,17 @@ define(['../View'], function(View) {
     destroy : function(persist) {
       this._model.off(null, null, this);
       if (!persist) {
-        this._model = this.Model = null;
+        this._model = null;
       }
       this._super();
     },
 
-    // all data needed to template the view
+    // All data needed to template the view
     templateData : function() {
       return (this._model && this._model.data) ? this._model.data() : this.id();
     },
 
     render : function($parent) {
-
-      // $existing could be a string
       var $existing = this.$view,
           fresh = !($existing && $parent);
 
@@ -54,11 +51,8 @@ define(['../View'], function(View) {
       }
 
       return this.$view;
-
-    } // render
-
-  }); // View Entity
+    }
+  });
 
   return constructor;
-
 });
