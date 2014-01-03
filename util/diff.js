@@ -9,7 +9,7 @@ define(['./extend'], function(extend) {
 
     // If complex objects, assume different
     if (!(Object.getPrototypeOf(cur) === Object.prototype &&
-          Object.getPrototypeOf(prev) === Object.prototype 
+          Object.getPrototypeOf(prev) === Object.prototype
         )) { return false; }
 
     for (key in cur) {
@@ -18,7 +18,7 @@ define(['./extend'], function(extend) {
       }
 
       if (cur.hasOwnProperty(key) &&
-          typeof cur[key] === "object" && cur[key] && 
+          typeof cur[key] === "object" && cur[key] &&
           Object.getPrototypeOf(cur[key]) === Object.prototype) {
         // Property has been visited, skip
         if (~stack.indexOf(cur[key])) { continue; }
@@ -62,7 +62,7 @@ define(['./extend'], function(extend) {
 
         // if either is not a simple object OR objectCheck fails then mark
         if (!(
-          typeof lhs === "object" && typeof rhs === "object" && 
+          typeof lhs === "object" && typeof rhs === "object" &&
           lhs && rhs &&
           objectCheck(lhs, rhs)
        )) {
@@ -83,7 +83,7 @@ define(['./extend'], function(extend) {
         }
       }
     }
-    
+
     return differences;
   };
 });

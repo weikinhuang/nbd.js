@@ -5,7 +5,7 @@ define(function() {
   // The base Class implementation (does nothing)
   var Klass = function() {},
   extend, mixin, inherits,
-  fnTest = /xyz/.test(function(){ return xyz; }) ?
+  fnTest = /xyz/.test(function(){/*global xyz*/ return xyz; }) ?
     /\b_super\b/ :
     /.*/;
 
