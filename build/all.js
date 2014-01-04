@@ -8,6 +8,7 @@ define([
        'nbd/View/Element',
        'nbd/Controller',
        'nbd/Controller/Entity',
+       'nbd/Promise',
        'nbd/event',
        'nbd/trait/promise',
        'nbd/trait/pubsub',
@@ -20,7 +21,7 @@ define([
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/when'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, Promise, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
   'use strict';
 
   var exports = {
@@ -28,6 +29,7 @@ define([
     Model : Model,
     View : View,
     Controller : Controller,
+    Promise : Promise,
     event : event,
     trait : {
       promise : promise,

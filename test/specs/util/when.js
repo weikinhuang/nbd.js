@@ -1,5 +1,5 @@
 /*global jasmine, describe, it, expect, runs, beforeEach, waits */
-define(['real/util/when', 'real/Promise'], function(when, Promise) {
+define(['real/util/when', 'nbd/Promise'], function(when, Promise) {
   'use strict';
 
   describe('util/when', function() {
