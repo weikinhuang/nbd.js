@@ -121,7 +121,7 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
     }
 
     Object.defineProperties(this, {
-      reject : {value: reject},
+      reject: {value: reject},
       resolve: {value: resolve}
     });
 
@@ -132,7 +132,21 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
     }
   }
 
+  var forEach = Array.prototype.forEach;
+
   extend(Promise.prototype, {
+    kept: function(onFulfilled) {
+      return this.then(onFulfilled);
+    },
+
+    broken: function(onRejected) {
+      return this.then(undefined, onRejected);
+    },
+
+    eitherWay: function(onAny) {
+      return this.then(onAny, onAny);
+    },
+
     thenable: function() {
       return { then: this.then };
     },
@@ -142,18 +156,20 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
       retSelf = function() { return api; },
       api = {
         done: function() {
-          Array.prototype.concat.apply([], arguments)
-          .forEach(function(fn) { then(fn); });
+          forEach.call(arguments, function(fn) { then(fn); });
           return api;
         },
         fail: function() {
-          Array.prototype.concat.apply([], arguments)
-          .forEach(function(fn) { then(undefined, fn); });
+          forEach.call(arguments, function(fn) { then(undefined, fn); });
           return api;
         },
-        then : then,
-        progress : retSelf,
-        promise : retSelf
+        always: function() {
+          forEach.call(arguments, function(fn) { then(fn, fn); });
+          return api;
+        },
+        then: then,
+        progress: retSelf,
+        promise: retSelf
       };
 
       return api;

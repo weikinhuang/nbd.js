@@ -1,4 +1,4 @@
-/*global jasmine, describe, it, expect, runs, waits, beforeEach */
+/*global jasmine, describe, it, expect, runs, waits, beforeEach, spyOn */
 define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
   'use strict';
 
@@ -115,6 +115,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       it('returns a jQuery Deferrable-compatible object', function() {
         expect(promise.done).toEqual(jasmine.any(Function));
         expect(promise.fail).toEqual(jasmine.any(Function));
+        expect(promise.always).toEqual(jasmine.any(Function));
         expect(promise.progress).toEqual(jasmine.any(Function));
         expect(promise.promise).toEqual(jasmine.any(Function));
       });
@@ -123,7 +124,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         expect(promise.promise()).toBe(promise);
       });
 
-      it('mixes in with jQuery Deferrables', function() {
+      it('is compatible with jQuery Deferreds', function() {
         var onDone = jasmine.createSpy('jQuery onDone');
 
         $.when(promise, undefined).done(onDone);
@@ -134,6 +135,103 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         waits(15);
         runs(function() {
           expect(onDone).toHaveBeenCalledWith('promise land', undefined);
+        });
+      });
+    });
+
+    describe('.kept()', function() {
+      var promise;
+      beforeEach(function() {
+        promise = new Promise();
+      });
+
+      it('attaches callbacks with .then', function() {
+        var spy = jasmine.createSpy();
+        spyOn(promise, 'then');
+        promise.kept(spy);
+        expect(promise.then).toHaveBeenCalledWith(spy);
+      });
+
+      it('calls back on resolved', function() {
+        var spy = jasmine.createSpy();
+        promise.kept(spy);
+        promise.resolve(42);
+        waits(10), runs(function() {
+          expect(spy).toHaveBeenCalledWith(42);
+        });
+      });
+
+      it('does not call back on rejected', function() {
+        var spy = jasmine.createSpy();
+        promise.kept(spy);
+        promise.reject(NaN);
+        waits(10), runs(function() {
+          expect(spy).not.toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe('.broken()', function() {
+      var promise;
+      beforeEach(function() {
+        promise = new Promise();
+      });
+
+      it('attaches callbacks with .then', function() {
+        var spy = jasmine.createSpy();
+        spyOn(promise, 'then');
+        promise.broken(spy);
+        expect(promise.then).toHaveBeenCalled();
+        expect(promise.then.argsForCall[0][1]).toBe(spy);
+      });
+
+      it('does not call back on resolved', function() {
+        var spy = jasmine.createSpy();
+        promise.broken(spy);
+        promise.resolve(42);
+        waits(10), runs(function() {
+          expect(spy).not.toHaveBeenCalled();
+        });
+      });
+
+      it('calls back on rejected', function() {
+        var spy = jasmine.createSpy();
+        promise.broken(spy);
+        promise.reject(Infinity);
+        waits(10), runs(function() {
+          expect(spy).toHaveBeenCalledWith(Infinity);
+        });
+      });
+    });
+
+    describe('.eitherWay()', function() {
+      var promise;
+      beforeEach(function() {
+        promise = new Promise();
+      });
+
+      it('attaches callbacks with .then', function() {
+        var spy = jasmine.createSpy();
+        spyOn(promise, 'then');
+        promise.eitherWay(spy);
+        expect(promise.then).toHaveBeenCalledWith(spy, spy);
+      });
+
+      it('calls back on resolved', function() {
+        var spy = jasmine.createSpy();
+        promise.eitherWay(spy);
+        promise.resolve(42);
+        waits(10), runs(function() {
+          expect(spy).toHaveBeenCalledWith(42);
+        });
+      });
+
+      it('calls back on rejected', function() {
+        var spy = jasmine.createSpy();
+        promise.eitherWay(spy);
+        promise.reject(Infinity);
+        waits(10), runs(function() {
+          expect(spy).toHaveBeenCalledWith(Infinity);
         });
       });
     });
