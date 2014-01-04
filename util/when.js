@@ -1,5 +1,5 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['../trait/promise'], function(Promise) {
+define(['../Promise'], function(Promise) {
   'use strict';
 
   var ret = function() { return this; };
