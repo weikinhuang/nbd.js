@@ -1,4 +1,4 @@
-/*global jasmine, describe, it, expect, runs, waitsFor */
+/*global jasmine, describe, it, expect */
 define(['real/util/diff'], function(diff) {
   'use strict';
 
@@ -17,7 +17,7 @@ define(['real/util/diff'], function(diff) {
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
     });
-    
+
     it('returns an array of differences', function() {
       var o, p, r;
 
@@ -40,6 +40,22 @@ define(['real/util/diff'], function(diff) {
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
+    });
+
+    it('finds modified arrays', function() {
+      var o, p, r;
+
+      o = {simple: [0]};
+      p = {simple: [0]};
+      r = diff(o,p);
+
+      expect(r.simple).not.toBeDefined();
+
+      o = {simple: [0]};
+      p = {simple: [1]};
+      r = diff(o,p);
+
+      expect(r.simple).toBeDefined();
     });
 
     it('calls a callback for every difference', function() {
