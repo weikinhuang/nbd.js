@@ -12,7 +12,7 @@ define(['real/util/diff'], function(diff) {
 
       o = {simple: "foobar"};
       p = {simple: "foobar"};
-      r = diff(o,p);
+      r = diff(o, p);
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
@@ -23,7 +23,7 @@ define(['real/util/diff'], function(diff) {
 
       o = {simple: "foobar"};
       p = {simple: "foobaz"};
-      r = diff(o,p);
+      r = diff(o, p);
 
       expect(r).toEqual(jasmine.any(Object));
       expect(r.simple).toBeDefined();
@@ -36,24 +36,27 @@ define(['real/util/diff'], function(diff) {
 
       o = {simple: {}};
       p = {simple: {}};
-      r = diff(o,p);
+      r = diff(o, p);
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
+    });
+
+    it('does not find unmodified arrays', function() {
+      var o, p, r;
+
+      o = {simple: [0]};
+      p = {simple: [0]};
+      r = diff(o, p);
+      expect(r.simple).not.toBeDefined();
     });
 
     it('finds modified arrays', function() {
       var o, p, r;
 
       o = {simple: [0]};
-      p = {simple: [0]};
-      r = diff(o,p);
-
-      expect(r.simple).not.toBeDefined();
-
-      o = {simple: [0]};
       p = {simple: [1]};
-      r = diff(o,p);
+      r = diff(o, p);
 
       expect(r.simple).toBeDefined();
     });
@@ -62,14 +65,14 @@ define(['real/util/diff'], function(diff) {
       var o, p, r, cb = jasmine.createSpy('diffspy');
 
       o = {
-        unchanged:10,
+        unchanged: 10,
         simple: "foobar",
         complex: {
           meaning: 42
         }
       };
       p = {
-        unchanged:10,
+        unchanged: 10,
         simple: "foobaz",
         complex: {
           meaning: '42'
@@ -77,8 +80,8 @@ define(['real/util/diff'], function(diff) {
       };
       r = diff(o, p, cb);
 
-      expect(cb).toHaveBeenCalledWith('simple','foobar','foobaz');
-      expect(cb).toHaveBeenCalledWith('complex',o.complex,p.complex);
+      expect(cb).toHaveBeenCalledWith('simple', 'foobar', 'foobaz');
+      expect(cb).toHaveBeenCalledWith('complex', o.complex, p.complex);
       expect(cb.callCount).toBe(2);
     });
 
@@ -89,7 +92,7 @@ define(['real/util/diff'], function(diff) {
 
       o.self = o;
       p.self = o;
-      r = diff(o,p);
+      r = diff(o, p);
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
     });
@@ -106,7 +109,7 @@ define(['real/util/diff'], function(diff) {
       a.inner = true;
       b.inner = true;
 
-      r = diff(o,p);
+      r = diff(o, p);
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(1);
       expect(Object.keys(r).indexOf('q')).toBeGreaterThan(-1);
@@ -117,25 +120,25 @@ define(['real/util/diff'], function(diff) {
 
       o = {simple: null};
       p = {simple: {}};
-      r = diff(o,p);
+      r = diff(o, p);
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(1);
 
-      r = diff(p,o);
+      r = diff(p, o);
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(1);
 
       o = {simple: null};
       p = {simple: null};
-      r = diff(o,p);
+      r = diff(o, p);
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
 
       p = {simple: undefined};
-      r = diff(o,p);
+      r = diff(o, p);
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(1);

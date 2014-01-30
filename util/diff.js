@@ -6,14 +6,14 @@ define(['./extend'], function(extend) {
 
   function isObject(obj) {
     var proto;
-    return typeof obj === "object" && obj &&
+    return obj && typeof obj === "object" &&
       (proto = Object.getPrototypeOf(obj),
        proto === Object.prototype ||
        proto === Array.prototype);
   }
 
   function objectCheck(cur, prev) {
-    var key, equal=true;
+    var key, equal = true;
 
     // If complex objects, assume different
     if (!(isObject(cur) && isObject(prev))) { return false; }

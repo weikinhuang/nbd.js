@@ -75,14 +75,11 @@ define([
       this._data = null;
     },
 
-    data : function() {
-      var key, clone = {}, data = this._data;
-
-      for (key in data) {
-        if (data.hasOwnProperty(key)) {
-          clone[key] = copy(data[key]);
-        }
-      }
+    data: function() {
+      var orig = this._data,
+          clone = Object.keys(orig).reduce(function(obj, key) {
+            return obj[key] = copy(orig[key]), obj;
+          }, {});
 
       if (this._dirty !== true) {
         async(dirtyCheck.bind(this, extend(clone, this._dirty || undefined)));
