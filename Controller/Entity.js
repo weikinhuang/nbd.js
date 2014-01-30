@@ -29,6 +29,10 @@ define([
     requestView : function(ViewClass) {
       if (this._view instanceof ViewClass) { return; }
       this.switchView(ViewClass, this._model);
+    },
+
+    toJSON : function() {
+      return this._model.toJSON();
     }
   },{
     // Corresponding Entity View class

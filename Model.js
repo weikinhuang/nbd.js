@@ -8,6 +8,15 @@ define([
 ], function(Class, async, extend, diff, pubsub) {
   "use strict";
 
+  function copy(a) {
+    if (a != null && typeof a === 'object') {
+      return Object.getPrototypeOf(a) === Array.prototype ?
+        Array.prototype.slice.call(a) :
+        extend({}, a);
+    }
+    return a;
+  }
+
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
     if (this._dirty !== true) {
@@ -21,6 +30,15 @@ define([
     else { return; }
 
     this._dirty = 0;
+  },
+
+  markDirty = function(prop) {
+    if (this._dirty !== true) {
+      this._dirty = this._dirty || {};
+      if (!(prop in this._dirty)) {
+        this._dirty[prop] = this._data[prop];
+      }
+    }
   },
 
   constructor = Class.extend({
@@ -57,17 +75,25 @@ define([
       this._data = null;
     },
 
-    data : function() {
+    data: function() {
+      var orig = this._data,
+          clone = Object.keys(orig).reduce(function(obj, key) {
+            return obj[key] = copy(orig[key]), obj;
+          }, {});
+
       if (this._dirty !== true) {
-        async(dirtyCheck.bind(this, extend({}, this._data,
-                                           this._dirty || undefined)));
+        async(dirtyCheck.bind(this, extend(clone, this._dirty || undefined)));
         this._dirty = true;
       }
       return this._data;
     },
 
     get: function(prop) {
-      return this._data[prop];
+      var value = this._data[prop];
+      if (Object.getPrototypeOf(Object(value)) === Array.prototype) {
+        markDirty.call(this, prop);
+      }
+      return value;
     },
 
     set: function(values, value) {
@@ -76,26 +102,16 @@ define([
       if (!this._dirty) { async(dirtyCheck.bind(this)); }
 
       if (typeof values === "string") {
-        if (this._dirty !== true) {
-          this._dirty = this._dirty || {};
-          if (!(key in this._dirty)) {
-            this._dirty[values] = data[values];
-          }
-        }
-        data[values] = value;
+        markDirty.call(this, values);
+        data[values] = copy(value);
         return this;
       }
 
       if (typeof values === "object") {
         for (key in values) {
           if (values.hasOwnProperty(key)) {
-            if (this._dirty !== true) {
-              this._dirty = this._dirty || {};
-              if (!(key in this._dirty)) {
-                this._dirty[key] = data[key];
-              }
-            }
-            data[key] = values[key];
+            markDirty.call(this, key);
+            data[key] = copy(values[key]);
           }
         }
         return this;

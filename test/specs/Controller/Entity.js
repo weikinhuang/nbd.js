@@ -19,7 +19,6 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
     });
 
     describe('.init()', function() {
-
       it('creates the Model', function() {
         expect(instance._model).toEqual(jasmine.any(Model));
       });
@@ -30,11 +29,9 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         expect(instance._view.id()).toBe(instance._model.id());
 
       });
-
     });
 
     describe('.render()', function() {
-
       it('calls View render', function() {
         var $parent = $();
 
@@ -50,9 +47,17 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         instance.render($parent, NewViewClass);
         expect(instance._view).toEqual(jasmine.any(NewViewClass));
       });
-
     });
 
+    describe('.toJSON()', function() {
+      it('returns the model data', function() {
+        spyOn(instance._model, 'toJSON').andCallThrough();
+
+        var json = JSON.stringify(instance);
+        expect(instance._model.toJSON).toHaveBeenCalled();
+        expect(json).toEqual(JSON.stringify(instance._model));
+      });
+    });
   });
 
   return Entity;

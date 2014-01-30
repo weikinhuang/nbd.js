@@ -1,4 +1,4 @@
-/*global jasmine, describe, it, expect, spyOn, runs, waitsFor */
+/*global jasmine, describe, it, expect, beforeEach, afterEach, runs, waitsFor */
 define(['real/Model', 'nbd/Class'], function(Model, Class) {
   'use strict';
 
@@ -12,7 +12,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
     describe('.init()', function() {
 
       it('initializes with data', function() {
-        var rand = Math.random(), 
+        var rand = Math.random(),
         instance = new Model(1, {xyz:rand}),
         data;
 
@@ -116,9 +116,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         it('announces singular set() calls', function() {
           runs(function() {
             instance.on('foo', cb);
-
-            expect(instance.get('foo')).toBe('bar');
-            instance.set('foo', 'baz');
+            instance.set('foo', 'baq');
           });
 
           waitsFor(function() {
@@ -126,8 +124,8 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
           }, "change notification", 10);
 
           runs(function() {
-            expect(cb).toHaveBeenCalledWith('baz', 'bar');
-            expect(instance.get('foo')).toBe('baz');
+            expect(cb).toHaveBeenCalledWith('baq', 'bar');
+            expect(instance.get('foo')).toBe('baq');
           });
         });
 
@@ -157,7 +155,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
       var data, instance;
 
       beforeEach(function() {
-        data = { foo: 'bar' };
+        data = { foo: 'bar', arr: [], obj: {} };
         instance = new Model(data);
       });
 
@@ -165,7 +163,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         expect(instance.data()).toBe(data);
       });
 
-      describe('announces changes to the data object', function() {
+      describe('watches for changes', function() {
         var result = 0, cb;
 
         beforeEach(function() {
@@ -177,12 +175,10 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
           result = 0;
         });
 
-        it('announces property changes on object', function() {
+        it('announces property changes', function() {
           runs(function() {
             var d = instance.data();
             instance.on('foo', cb);
-
-            expect(d.foo).toBe('bar');
             d.foo = 'baz';
           });
 
@@ -193,6 +189,22 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
           runs(function() {
             expect(cb).toHaveBeenCalledWith('baz', 'bar');
             expect(instance.get('foo')).toBe('baz');
+          });
+        });
+
+        it('announces array modifications', function() {
+          runs(function() {
+            var d = instance.data();
+            instance.on('arr', cb);
+            d.arr.push(1);
+          });
+
+          waitsFor(function() {
+            return !!result;
+          }, "change notification", 10);
+
+          runs(function() {
+            expect(instance.get('arr').length).not.toBe(0);
           });
         });
 

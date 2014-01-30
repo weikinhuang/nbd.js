@@ -4,22 +4,26 @@ define(['./extend'], function(extend) {
 
   var stack = [];
 
+  function isObject(obj) {
+    var proto;
+    return obj && typeof obj === "object" &&
+      (proto = Object.getPrototypeOf(obj),
+       proto === Object.prototype ||
+       proto === Array.prototype);
+  }
+
   function objectCheck(cur, prev) {
-    var key, equal=true;
+    var key, equal = true;
 
     // If complex objects, assume different
-    if (!(Object.getPrototypeOf(cur) === Object.prototype &&
-          Object.getPrototypeOf(prev) === Object.prototype
-        )) { return false; }
+    if (!(isObject(cur) && isObject(prev))) { return false; }
 
     for (key in cur) {
       if (cur[key] !== prev[key]) {
         return false;
       }
 
-      if (cur.hasOwnProperty(key) &&
-          typeof cur[key] === "object" && cur[key] &&
-          Object.getPrototypeOf(cur[key]) === Object.prototype) {
+      if (cur.hasOwnProperty(key) && isObject(cur[key])) {
         // Property has been visited, skip
         if (~stack.indexOf(cur[key])) { continue; }
 
@@ -44,8 +48,7 @@ define(['./extend'], function(extend) {
   return function diff(cur, prev, callback) {
     var key, lhs, rhs, differences = {};
 
-    if (typeof prev !== "object" || typeof cur !== "object" ||
-        prev === null || cur === null) {
+    if (!(isObject(cur) && isObject(prev))) {
       throw new TypeError('Arguments must be objects');
     }
 
@@ -68,7 +71,7 @@ define(['./extend'], function(extend) {
        )) {
           differences[key] = [lhs, rhs];
           if (callback) {
-            callback.apply(this, [key, lhs, rhs]);
+            callback.call(this, key, lhs, rhs);
           }
         }
       }
@@ -79,7 +82,7 @@ define(['./extend'], function(extend) {
       if (prev.hasOwnProperty(key) && prev[key] !== undefined) {
         differences[key] = [cur[key]];
         if (callback) {
-          callback.apply(this, [key, undefined, prev[key]]);
+          callback.call(this, key, undefined, prev[key]);
         }
       }
     }
