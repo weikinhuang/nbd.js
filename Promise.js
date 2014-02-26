@@ -12,7 +12,7 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
     function call(fns) {
       if (fns.length) {
         async(function() {
-          for (var i=0; i<fns.length; ++i) { fns[i](value); }
+          for (var i = 0; i < fns.length; ++i) { fns[i](value); }
         });
       }
       // Reset callbacks
@@ -135,15 +135,11 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
   var forEach = Array.prototype.forEach;
 
   extend(Promise.prototype, {
-    kept: function(onFulfilled) {
-      return this.then(onFulfilled);
-    },
-
-    broken: function(onRejected) {
+    catch: function(onRejected) {
       return this.then(undefined, onRejected);
     },
 
-    eitherWay: function(onAny) {
+    finally: function(onAny) {
       return this.then(onAny, onAny);
     },
 

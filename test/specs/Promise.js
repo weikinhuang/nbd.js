@@ -139,7 +139,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       });
     });
 
-    describe('.kept()', function() {
+    describe('.catch()', function() {
       var promise;
       beforeEach(function() {
         promise = new Promise();
@@ -148,46 +148,14 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       it('attaches callbacks with .then', function() {
         var spy = jasmine.createSpy();
         spyOn(promise, 'then');
-        promise.kept(spy);
-        expect(promise.then).toHaveBeenCalledWith(spy);
-      });
-
-      it('calls back on resolved', function() {
-        var spy = jasmine.createSpy();
-        promise.kept(spy);
-        promise.resolve(42);
-        waits(10), runs(function() {
-          expect(spy).toHaveBeenCalledWith(42);
-        });
-      });
-
-      it('does not call back on rejected', function() {
-        var spy = jasmine.createSpy();
-        promise.kept(spy);
-        promise.reject(NaN);
-        waits(10), runs(function() {
-          expect(spy).not.toHaveBeenCalled();
-        });
-      });
-    });
-
-    describe('.broken()', function() {
-      var promise;
-      beforeEach(function() {
-        promise = new Promise();
-      });
-
-      it('attaches callbacks with .then', function() {
-        var spy = jasmine.createSpy();
-        spyOn(promise, 'then');
-        promise.broken(spy);
+        promise.catch(spy);
         expect(promise.then).toHaveBeenCalled();
         expect(promise.then.argsForCall[0][1]).toBe(spy);
       });
 
       it('does not call back on resolved', function() {
         var spy = jasmine.createSpy();
-        promise.broken(spy);
+        promise.catch(spy);
         promise.resolve(42);
         waits(10), runs(function() {
           expect(spy).not.toHaveBeenCalled();
@@ -196,7 +164,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
 
       it('calls back on rejected', function() {
         var spy = jasmine.createSpy();
-        promise.broken(spy);
+        promise.catch(spy);
         promise.reject(Infinity);
         waits(10), runs(function() {
           expect(spy).toHaveBeenCalledWith(Infinity);
@@ -204,7 +172,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       });
     });
 
-    describe('.eitherWay()', function() {
+    describe('.finally()', function() {
       var promise;
       beforeEach(function() {
         promise = new Promise();
@@ -213,13 +181,13 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       it('attaches callbacks with .then', function() {
         var spy = jasmine.createSpy();
         spyOn(promise, 'then');
-        promise.eitherWay(spy);
+        promise.finally(spy);
         expect(promise.then).toHaveBeenCalledWith(spy, spy);
       });
 
       it('calls back on resolved', function() {
         var spy = jasmine.createSpy();
-        promise.eitherWay(spy);
+        promise.finally(spy);
         promise.resolve(42);
         waits(10), runs(function() {
           expect(spy).toHaveBeenCalledWith(42);
@@ -228,7 +196,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
 
       it('calls back on rejected', function() {
         var spy = jasmine.createSpy();
-        promise.eitherWay(spy);
+        promise.finally(spy);
         promise.reject(Infinity);
         waits(10), runs(function() {
           expect(spy).toHaveBeenCalledWith(Infinity);
