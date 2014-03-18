@@ -10,7 +10,7 @@ define([
 
   function copy(a) {
     if (a != null && typeof a === 'object') {
-      return Object.getPrototypeOf(a) === Array.prototype ?
+      return Array.isArray(a) ?
         Array.prototype.slice.call(a) :
         extend({}, a);
     }
@@ -19,12 +19,7 @@ define([
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    if (this._dirty !== true) {
-      for (var k in this._dirty) {
-        this.trigger(k, this._data[k], this._dirty[k]);
-      }
-    }
-    else if (old) {
+    if (old) {
       diff.call(this, novel || this._data, old, this.trigger);
     }
     else { return; }
@@ -90,16 +85,15 @@ define([
 
     get: function(prop) {
       var value = this._data[prop];
-      if (Object.getPrototypeOf(Object(value)) === Array.prototype) {
+      // If getting an array, we must watch for array mutators
+      if (Array.isArray(value)) {
         markDirty.call(this, prop);
       }
       return value;
     },
 
     set: function(values, value) {
-      var key, data = this._data;
-
-      if (!this._dirty) { async(dirtyCheck.bind(this)); }
+      var key, data = this.data();
 
       if (typeof values === "string") {
         markDirty.call(this, values);

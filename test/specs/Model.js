@@ -1,4 +1,4 @@
-/*global jasmine, describe, it, expect, beforeEach, afterEach, runs, waitsFor */
+/*global jasmine, describe, it, expect, beforeEach, afterEach, runs, waits, waitsFor */
 define(['real/Model', 'nbd/Class'], function(Model, Class) {
   'use strict';
 
@@ -13,7 +13,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
       it('initializes with data', function() {
         var rand = Math.random(),
-        instance = new Model(1, {xyz:rand}),
+        instance = new Model(1, {xyz: rand}),
         data;
 
         expect(instance.id()).toBe(1);
@@ -42,7 +42,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
       });
 
       it('has optional id', function() {
-        var foo = { bar : Infinity },
+        var foo = { bar: Infinity },
         instance = new Model(foo);
 
         expect(instance.id()).not.toBeDefined();
@@ -60,17 +60,17 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
     describe('.get()', function() {
 
       it('returns a value', function() {
-        var rand = Math.random(), instance = new Model(1, {xyz:rand});
+        var rand = Math.random(), instance = new Model(1, {xyz: rand});
         expect(instance.get('xyz')).toBe(rand);
       });
 
       it('returns unepxected property names as undefined', function() {
-        var instance = new Model(1, {xyz:'xyz'});
+        var instance = new Model(1, {xyz: 'xyz'});
         expect(instance.get('abc')).not.toBeDefined();
       });
 
       it('returns undefined values', function() {
-        var instance = new Model(1, {xyz:undefined});
+        var instance = new Model(1, {xyz: undefined});
         expect(instance.get('xyz')).not.toBeDefined();
       });
 
@@ -81,11 +81,11 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
       beforeEach(function() {
         rand = Math.random();
-        instance = new Model(1, {xyz:null, foo:'bar'});
+        instance = new Model(1, {xyz: null, foo: 'bar'});
       });
 
       it('accepts an object map', function() {
-        expect(function(){ instance.set({xyz:0}); }).not.toThrow();
+        expect(function(){ instance.set({xyz: 0}); }).not.toThrow();
         expect(instance.get('xyz')).toBe(0);
       });
 
@@ -129,11 +129,25 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
           });
         });
 
+        it('mutes singular identical set() calls', function() {
+          runs(function() {
+            instance.on('foo', cb);
+            instance.set('foo', 'bar');
+          });
+
+          waits(40);
+
+          runs(function() {
+            expect(cb).not.toHaveBeenCalled();
+            expect(instance.get('foo')).toBe('bar');
+          });
+        });
+
         it('announces mapped set() calls', function() {
           runs(function() {
             instance.on('foo', cb);
             instance.on('xyz', cb);
-            instance.set({'foo': 'baz', 'xyz':42});
+            instance.set({ foo: 'baz', xyz: 42 });
           });
 
           waitsFor(function() {
@@ -142,10 +156,26 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
           runs(function() {
             expect(cb.callCount).toBe(2);
-            expect(cb.argsForCall[0]).toEqual(['baz', 'bar']);
-            expect(cb.argsForCall[1]).toEqual([42, null]);
+            expect(cb.argsForCall[1]).toEqual(['baz', 'bar']);
+            expect(cb.argsForCall[0]).toEqual([42, null]);
             expect(instance.get('foo')).toBe('baz');
             expect(instance.get('xyz')).toBe(42);
+          });
+        });
+
+        it('mutes identical mapped set() calls', function() {
+          runs(function() {
+            instance.on('foo', cb);
+            instance.on('xyz', cb);
+            instance.set({ foo: 'bar', xyz: null });
+          });
+
+          waits(40);
+
+          runs(function() {
+            expect(cb).not.toHaveBeenCalled();
+            expect(instance.get('foo')).toBe('bar');
+            expect(instance.get('xyz')).toBe(null);
           });
         });
       });
