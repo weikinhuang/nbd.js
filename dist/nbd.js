@@ -1033,12 +1033,7 @@ define('nbd/Model',['./Class',
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
-    if (this._dirty !== true) {
-      for (var k in this._dirty) {
-        this.trigger(k, this._data[k], this._dirty[k]);
-      }
-    }
-    else if (old) {
+    if (old) {
       diff.call(this, novel || this._data, old, this.trigger);
     }
     else { return; }
@@ -1099,9 +1094,7 @@ define('nbd/Model',['./Class',
     },
 
     set: function(values, value) {
-      var key, data = this._data;
-
-      if (!this._dirty) { async(dirtyCheck.bind(this)); }
+      var key, data = this.data();
 
       if (typeof values === "string") {
         if (this._dirty !== true) {
