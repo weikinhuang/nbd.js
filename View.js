@@ -22,7 +22,7 @@ define([
       this.trigger('postrender', this.$view);
 
       // Prefer the postrender event over this method
-      if(this.rendered) {
+      if (this.rendered) {
         this.rendered(this.$view);
       }
 
@@ -37,7 +37,7 @@ define([
         this.$view.remove();
       }
       this.$view = null;
-      this.off();
+      this.off().stopListening();
     }
   })
   .mixin(pubsub);
