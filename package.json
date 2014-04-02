@@ -21,16 +21,16 @@
   "devDependencies": {
     "almond": "",
     "promises-aplus-tests": "",
-    "grunt": "0.4.x",
+    "grunt": "",
     "grunt-contrib-jshint": "",
     "grunt-contrib-requirejs": "",
     "grunt-contrib-uglify": "",
     "grunt-contrib-clean": "",
-    "grunt-karma": "~0.6.1",
-    "karma-jasmine": "~0.1.0",
-    "karma-requirejs": "~0.1.0",
-    "karma-coverage": "~0.1.0",
-    "karma-firefox-launcher": "~0.1.0"
+    "grunt-karma": "",
+    "karma-jasmine": "",
+    "karma-requirejs": "",
+    "karma-coverage": "",
+    "karma-firefox-launcher": ""
   },
   "scripts": {
     "test": "grunt travis"
