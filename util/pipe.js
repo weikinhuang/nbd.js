@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
   'use strict';
@@ -6,8 +7,8 @@ define(function() {
     var chainArgs = arguments;
     return function() {
       var i, retval;
-      for (i=0; i<chainArgs.length; ++i) {
-        retval=chainArgs[i].apply(this, i===0?arguments:[retval]);
+      for (i = 0; i < chainArgs.length; ++i) {
+        retval = chainArgs[i].apply(this, i === 0 ? arguments : [retval]);
       }
       return retval;
     };

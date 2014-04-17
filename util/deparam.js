@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /*
  * Extraction of the deparam method from Ben Alman's jQuery BBQ
