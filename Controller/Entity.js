@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
   '../util/construct',
@@ -8,38 +9,38 @@ define([
   'use strict';
 
   var constructor = Controller.extend({
-    init : function() {
+    init: function() {
       this._model = construct.apply(this.constructor.MODEL_CLASS, arguments);
       this._initView(this.constructor.VIEW_CLASS, this._model);
     },
 
-    render : function($parent, ViewClass) {
+    render: function($parent, ViewClass) {
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
       this.requestView(ViewClass);
       this._view.render($parent);
     },
 
-    destroy : function() {
+    destroy: function() {
       this._view.destroy();
       this._model.destroy();
       this._model = this._view = null;
     },
 
-    requestView : function(ViewClass) {
+    requestView: function(ViewClass) {
       if (this._view instanceof ViewClass) { return; }
       this.switchView(ViewClass, this._model);
     },
 
-    toJSON : function() {
+    toJSON: function() {
       return this._model.toJSON();
     }
-  },{
+  }, {
     // Corresponding Entity View class
-    VIEW_CLASS : View,
+    VIEW_CLASS: View,
 
     // Corresponding Entity Model class
-    MODEL_CLASS : Model
+    MODEL_CLASS: Model
   });
 
   return constructor;
