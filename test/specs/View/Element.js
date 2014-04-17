@@ -30,6 +30,15 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
         expect($parent.text()).toEqual('Hello world');
       });
 
+      it('renders using templateData() by default', function() {
+        spyOn(instance, 'templateData').andCallFake(function() {
+          return { item: 'foo' };
+        });
+        instance.render();
+        expect(instance.templateData).toHaveBeenCalled();
+        expect($parent.text()).toEqual('Hello foo');
+      });
+
       it('re-renders even without a parent element', function() {
         instance.render({ item: "world"});
         instance.$parent = null;
@@ -40,6 +49,14 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
       });
     });
 
+    describe('.rendered()', function() {
+      it('is called when render() completes', function() {
+        instance.rendered = jasmine.createSpy('rendered');
+        instance.render();
+
+        expect(instance.rendered).toHaveBeenCalledWith(instance.$view);
+      });
+    });
   });
 
   return Element;

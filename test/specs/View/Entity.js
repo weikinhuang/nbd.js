@@ -3,7 +3,6 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
   'use strict';
 
   describe('View/Entity', function() {
-    var instance;
 
     it('is a View constructor', function() {
       expect(Entity).toEqual(jasmine.any(Function));
@@ -39,9 +38,13 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         var model = new Model(0, {}),
         instance = new Entity(model);
 
-        expect(instance.templateData).toBeDefined();
         expect(instance.templateData()).toEqual(jasmine.any(Object));
         expect(instance.templateData()).toBe(model.data());
+      });
+
+      it('returns whatever was given, if not a Model', function() {
+        var instance = new Entity('not a model');
+        expect(instance.templateData()).toBe('not a model');
       });
 
     });
@@ -54,10 +57,10 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         id = Date.now();
         item = 'lorem ipsum';
         $test = $('<div id="entity-test"/>');
-        model = new Model(id, {item:item});
+        model = new Model(id, {item: item});
         instance = new Entity(model);
         instance.template = function(data) {
-          return $('<span>', {text:this.id()+" : "+data.item});
+          return $('<span>', {text: this.id()+" : "+data.item});
         };
       });
 
@@ -129,6 +132,24 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect(shun.callCount).toBe(1);
       });
 
+    });
+
+    describe('.destroy()', function() {
+      it('releases reference to its model', function() {
+        var model = new Model(),
+        instance = new Entity(model);
+
+        instance.destroy();
+        expect(instance._model).toEqual();
+      });
+
+      it('can retain reference to its model', function() {
+        var model = new Model(),
+        instance = new Entity(model);
+
+        instance.destroy(true);
+        expect(instance._model).toBe(model);
+      });
     });
   });
 
