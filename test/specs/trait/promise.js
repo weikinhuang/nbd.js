@@ -1,4 +1,4 @@
-/*global jasmine, describe, it, expect, beforeEach */
+/*global jasmine, describe, it, expect, beforeEach, waits, runs */
 define(['real/trait/promise', 'nbd/Class', 'jquery'], function(promise, Class, $) {
   'use strict';
   // Only ever test nbd related functionality here
@@ -91,6 +91,39 @@ define(['real/trait/promise', 'nbd/Class', 'jquery'], function(promise, Class, $
           expect(fake).not.toHaveBeenCalled();
           expect(sentinel).toHaveBeenCalledWith('original');
         });
+      });
+    });
+
+    describe('.thenable()', function() {
+      it('returns an object with then()', function() {
+        var thenable = inst.thenable();
+
+        expect(thenable).toEqual(jasmine.any(Object));
+        expect(thenable.then).toEqual(jasmine.any(Function));
+      });
+    });
+
+    describe('.promise()', function() {
+      it('returns an object with itself', function() {
+        var promise = inst.promise();
+
+        expect(promise).toEqual(jasmine.any(Object));
+        expect(promise.promise()).toEqual(promise);
+      });
+
+      it('returns an object with done()', function() {
+        var promise = inst.promise();
+        expect(promise.done).toEqual(jasmine.any(Function));
+      });
+
+      it('returns an object with fail()', function() {
+        var promise = inst.promise();
+        expect(promise.fail).toEqual(jasmine.any(Function));
+      });
+
+      it('returns an object with always()', function() {
+        var promise = inst.promise();
+        expect(promise.always).toEqual(jasmine.any(Function));
       });
     });
   });
