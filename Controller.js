@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
   './Class',
@@ -6,15 +7,15 @@ define([
   "use strict";
 
   var constructor = Class.extend({
-    destroy : function() {},
+    destroy: function() {},
 
-    _initView : function(ViewClass) {
+    _initView: function(ViewClass) {
       var args = Array.prototype.slice.call(arguments, 1);
       this._view = construct.apply(ViewClass, args);
       this._view._controller = this;
     },
 
-    switchView : function() {
+    switchView: function() {
       var existing = this._view;
       this._initView.apply(this, arguments);
 
