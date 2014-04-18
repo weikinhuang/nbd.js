@@ -7,6 +7,9 @@ define(['real/Class'], function(Class) {
     it('is a constructor', function() {
       expect(Class).toBeDefined();
       expect(Class).toEqual(jasmine.any(Function));
+      expect(function() {
+        return new Class();
+      }).not.toThrow();
     });
 
     describe('Class.extend', function() {
@@ -23,18 +26,18 @@ define(['real/Class'], function(Class) {
       });
 
       it('inherits from prototype', function() {
-        var rand = Math.random(), Subclass = Class.extend({xyz:rand});
+        var rand = Math.random(), Subclass = Class.extend({xyz: rand});
         expect((new Subclass()).xyz).toEqual(rand);
       });
 
       it('inherits from static', function() {
-        var rand = Math.random(), Subclass = Class.extend({},{xyz:rand});
+        var rand = Math.random(), Subclass = Class.extend({}, {xyz: rand});
         expect(Subclass.xyz).toEqual(rand);
       });
 
       it('can call its super implementation', function(){
-        var superproto = {impl:function(){}},
-        subproto = {impl:function(){this._super('z');}, _super:function(){}},
+        var superproto = {impl: function(){}},
+        subproto = {impl: function() {this._super('z');}, _super: function(){}},
         Superclass, Subclass, instance;
 
         spyOn(superproto, 'impl');
@@ -50,8 +53,8 @@ define(['real/Class'], function(Class) {
       });
 
       it('doesn\'t call up the init chain by default', function() {
-        var superproto = {init:function(){}},
-        subproto = {init:function(){}},
+        var superproto = {init: function(){}},
+        subproto = {init: function(){}},
         Superclass, Subclass;
 
         spyOn(superproto, 'init');
@@ -84,6 +87,33 @@ define(['real/Class'], function(Class) {
         }).toThrow('unfortunate');
       });
 
+      it('preserves instance _super', function() {
+        var Super = Class.extend({
+          hello: function() { return 'world'; }
+        }),
+        Subclass = Super.extend({
+          hello: function() { return this._super(); }
+        }),
+        inst = new Subclass();
+
+        inst._super = "duper";
+        expect(inst.hello()).toBe('world');
+        expect(inst._super).toBe('duper');
+      });
+
+      it('preserves prototype _super', function() {
+        var Super = Class.extend({
+          hello: function() { return 'world'; }
+        }),
+        Subclass = Super.extend({
+          _super: 'duper',
+          hello: function() { return this._super(); }
+        }),
+        inst = new Subclass();
+
+        expect(inst.hello()).toBe('world');
+        expect(inst._super).toBe('duper');
+      });
     });
 
     describe('Class.mixin', function() {
@@ -104,7 +134,7 @@ define(['real/Class'], function(Class) {
       });
 
       it('doesn\'t add prototype properties into a prototype', function() {
-        var A = Class.extend({protoprop:true});
+        var A = Class.extend({protoprop: true});
         Klass.mixin(new A());
         expect(Klass.prototype.protoprop).not.toBeDefined();
       });
@@ -139,11 +169,10 @@ define(['real/Class'], function(Class) {
     });
 
     describe('Class.inherits', function() {
-
       var Klass;
 
       beforeEach(function() {
-        Klass= Class.extend();
+        Klass = Class.extend();
       });
 
       it('is non-enumerable', function() {
@@ -163,13 +192,18 @@ define(['real/Class'], function(Class) {
         var trait = { bigDeal: 'no' };
         Klass.mixin(trait);
         expect(Klass.inherits(trait)).toBe(true);
-        expect(Klass.inherits({rTrait:null})).toBe(false);
+        expect(Klass.inherits({rTrait: null})).toBe(false);
       });
 
+      it("expects only function or object", function() {
+        expect(Klass.inherits()).toBe(false);
+        expect(Klass.inherits(0)).toBe(false);
+        expect(Klass.inherits(false)).toBe(false);
+        expect(Klass.inherits(/.*/)).toBe(false);
+        expect(Klass.inherits(null)).toBe(false);
+      });
     });
-
   });
 
   return Class;
-
 });

@@ -25,7 +25,6 @@ define(['real/util/diff'], function(diff) {
       p = {simple: "foobaz"};
       r = diff(o, p);
 
-      expect(r).toEqual(jasmine.any(Object));
       expect(r.simple).toBeDefined();
       expect(r.simple[0]).toBe("foobar");
       expect(r.simple[1]).toBe("foobaz");
@@ -38,8 +37,31 @@ define(['real/util/diff'], function(diff) {
       p = {simple: {}};
       r = diff(o, p);
 
-      expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(0);
+    });
+
+    it('finds unequal keys', function() {
+      var o, p, r;
+
+      o = {simple: {}};
+      p = {};
+      r = diff(o, p);
+
+      expect(r.simple).toBeDefined();
+      expect(r.simple[0]).toBeDefined();
+      expect(r.simple[1]).not.toBeDefined();
+    });
+
+    it('finds unequal keys in the opposite direction', function() {
+      var o, p, r;
+
+      o = {};
+      p = {simple: {}};
+      r = diff(o, p);
+
+      expect(r.simple).toBeDefined();
+      expect(r.simple[0]).not.toBeDefined();
+      expect(r.simple[1]).toBeDefined();
     });
 
     it('does not find unmodified arrays', function() {
@@ -76,13 +98,15 @@ define(['real/util/diff'], function(diff) {
         simple: "foobaz",
         complex: {
           meaning: '42'
-        }
+        },
+        extra: 'credit'
       };
       r = diff(o, p, cb);
 
       expect(cb).toHaveBeenCalledWith('simple', 'foobar', 'foobaz');
       expect(cb).toHaveBeenCalledWith('complex', o.complex, p.complex);
-      expect(cb.callCount).toBe(2);
+      expect(cb).toHaveBeenCalledWith('extra', undefined, 'credit');
+      expect(cb.callCount).toBe(3);
     });
 
     it('does not infinitely recurse', function() {
@@ -142,6 +166,49 @@ define(['real/util/diff'], function(diff) {
 
       expect(r).toEqual(jasmine.any(Object));
       expect(Object.keys(r).length).toBe(1);
+    });
+
+    it('deep checks objects with self-references', function() {
+      var o, p, r,
+      same1 = {
+        foo: 'baz'
+      },
+      same2 = {
+        foo: 'baz'
+      };
+
+      same1.different = same1;
+      same2.different = same2;
+
+      o = {complex: {
+        first: {
+          foo: 'bar',
+          different: same1
+        }
+      }};
+      p = {complex: {
+        first: {
+          foo: 'bar',
+          different: same2
+        }
+      }};
+      r = diff(o, p);
+
+      expect(Object.keys(r).length).toBe(0);
+    });
+
+    it('does not check non-objects', function() {
+      expect(function() {
+        diff(1, null);
+      }).toThrow();
+
+      expect(function() {
+        diff(/\./, {});
+      }).toThrow();
+
+      expect(function() {
+        diff(undefined, true);
+      }).toThrow();
     });
   });
 

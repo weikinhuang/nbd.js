@@ -34,6 +34,37 @@ define(['real/util/construct'], function(construct) {
       expect(args).not.toBe(testArr);
       expect(args).toEqual(testArr);
     });
+
+    it('constructors with return values', function() {
+      function Constructor() {
+        return [];
+      }
+
+      var inst = construct.call(Constructor);
+      expect(inst).toEqual(jasmine.any(Array));
+    });
+
+    it("can't construct non-functions", function() {
+      expect(function() {
+        construct();
+      }).toThrow();
+
+      expect(function() {
+        construct.call({});
+      }).toThrow();
+
+      expect(function() {
+        construct.call(true);
+      }).toThrow();
+
+      expect(function() {
+        construct.call(Infinity);
+      }).toThrow();
+
+      expect(function() {
+        construct.call(/.*/);
+      }).toThrow();
+    });
   });
 
   return construct;

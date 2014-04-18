@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /**
  * Responsive media query callbacks
@@ -31,8 +32,6 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
   }
 
   function media(options, query) {
-    var breakpoint;
-
     // No matchMedia support
     if (!mMedia) {
       throw new Error('Media queries not supported.');
@@ -45,12 +44,9 @@ define(['./extend', '../trait/pubsub'], function(extend, pubsub) {
     }
 
     if (typeof options === 'object') {
-      for (breakpoint in options) {
-        if (options.hasOwnProperty(breakpoint)) {
-          query = options[breakpoint];
-          bindMedia(breakpoint, query);
-        }
-      }
+      Object.keys(options).forEach(function(breakpoint) {
+        bindMedia(breakpoint, this[breakpoint]);
+      }, options);
     }
     return media;
   }

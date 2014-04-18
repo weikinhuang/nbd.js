@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['./extend'], function(extend) {
   'use strict';
@@ -15,15 +16,13 @@ define(['./extend'], function(extend) {
   function objectCheck(cur, prev) {
     var key, equal = true;
 
-    // If complex objects, assume different
+    // If not objects, assume different
     if (!(isObject(cur) && isObject(prev))) { return false; }
 
     for (key in cur) {
-      if (cur[key] !== prev[key]) {
-        return false;
-      }
+      if (cur[key] === prev[key]) { continue; }
 
-      if (cur.hasOwnProperty(key) && isObject(cur[key])) {
+      if (isObject(cur[key]) && cur[key] && isObject(prev[key]) && prev[key]) {
         // Property has been visited, skip
         if (~stack.indexOf(cur[key])) { continue; }
 
@@ -31,13 +30,13 @@ define(['./extend'], function(extend) {
           stack.push(cur[key]);
 
           // Recurse into object to find diff
-          equal = equal && objectCheck(prev[key], cur[key]);
+          equal = equal && objectCheck(cur[key], prev[key]);
         }
         catch (emptyArgs) {}
         finally {
           stack.pop();
         }
-      }
+      } else { equal = false; }
 
       if (!equal) { return equal; }
     }
@@ -80,7 +79,7 @@ define(['./extend'], function(extend) {
     // Any remaining keys are only in the prev
     for (key in prev) {
       if (prev.hasOwnProperty(key) && prev[key] !== undefined) {
-        differences[key] = [cur[key]];
+        differences[key] = [cur[key], prev[key]];
         if (callback) {
           callback.call(this, key, undefined, prev[key]);
         }

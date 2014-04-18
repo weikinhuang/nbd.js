@@ -58,6 +58,26 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         expect(json).toEqual(JSON.stringify(instance._model));
       });
     });
+
+    describe('.destroy()', function() {
+      it('destroys associated view', function() {
+        var spy = spyOn(instance._view, 'destroy');
+        instance.destroy();
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it('destroys associated model', function() {
+        var spy = spyOn(instance._model, 'destroy');
+        instance.destroy();
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it('resets references', function() {
+        instance.destroy();
+        expect(instance._view).toEqual();
+        expect(instance._model).toEqual();
+      });
+    });
   });
 
   return Entity;

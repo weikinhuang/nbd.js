@@ -79,4 +79,6 @@ define(['real/util/curry'], function(curry) {
       });
     });
   });
+
+  return curry;
 });

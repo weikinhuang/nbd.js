@@ -55,6 +55,20 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         expect(instance.data()).toEqual(jasmine.any(Object));
       });
 
+      it('works without Object.defineProperty', function() {
+        var defineProperty = Object.defineProperty, instance;
+        // Careful...
+        Object.defineProperty = undefined;
+
+        expect(Object.defineProperty).not.toBeDefined();
+        expect(function() {
+          instance = new Model();
+        }).not.toThrow();
+        expect(instance).toBeDefined();
+
+        // Carefully put it back and hope nobody notices.
+        Object.defineProperty = defineProperty;
+      });
     });
 
     describe('.get()', function() {
@@ -132,6 +146,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         it('mutes singular identical set() calls', function() {
           runs(function() {
             instance.on('foo', cb);
+            instance.set('foo', 'baz');
             instance.set('foo', 'bar');
           });
 

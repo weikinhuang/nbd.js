@@ -34,6 +34,40 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
           expect(spy).toHaveBeenCalledWith('alpha');
         });
       });
+
+      it('can produce immediately rejected promise', function() {
+        var p = new Promise({ then: function() { throw 'reject'; } }),
+        spy = jasmine.createSpy();
+        p.then(null, spy);
+
+        waits(10), runs(function() {
+          expect(spy).toHaveBeenCalledWith('reject');
+        });
+      });
+
+      it('can chain another resolved thenable', function() {
+        var o = new Promise(),
+        p = new Promise(o.thenable()),
+        spy = jasmine.createSpy();
+        p.then(spy);
+
+        o.resolve('accept');
+        waits(30), runs(function() {
+          expect(spy).toHaveBeenCalledWith('accept');
+        });
+      });
+
+      it('can chain another rejected thenable', function() {
+        var o = new Promise(),
+        p = new Promise(o.thenable()),
+        spy = jasmine.createSpy();
+        p.then(null, spy);
+
+        o.reject('accept');
+        waits(30), runs(function() {
+          expect(spy).toHaveBeenCalledWith('accept');
+        });
+      });
     });
 
     describe('resolved', function() {
@@ -122,6 +156,21 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
 
       it('infinitely returns its own .promise()', function() {
         expect(promise.promise()).toBe(promise);
+      });
+
+      it('conveniences all arguments to always', function() {
+        var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
+
+        promise.always(spy1, spy2);
+
+        runs(function() {
+          inst.resolve('promise land');
+        });
+        waits(15);
+        runs(function() {
+          expect(spy1).toHaveBeenCalledWith('promise land');
+          expect(spy2).toHaveBeenCalledWith('promise land');
+        });
       });
 
       it('is compatible with jQuery Deferreds', function() {

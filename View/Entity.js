@@ -1,9 +1,10 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
-    init : function(model) {
+    init: function(model) {
       if (typeof model === 'object') {
         this._model = model;
       }
@@ -13,8 +14,7 @@ define(['../View'], function(View) {
       };
     },
 
-    destroy : function(persist) {
-      this._model.off(null, null, this);
+    destroy: function(persist) {
       if (!persist) {
         this._model = null;
       }
@@ -22,24 +22,24 @@ define(['../View'], function(View) {
     },
 
     // All data needed to template the view
-    templateData : function() {
+    templateData: function() {
       return (this._model && this._model.data) ? this._model.data() : this.id();
     },
 
-    render : function($parent) {
+    render: function($parent) {
       var $existing = this.$view,
           fresh = !($existing && $parent);
 
       if (fresh) {
         this.trigger('prerender', $existing);
-        this.$view = this.template(this.templateData());
+        this.$view = View.domify(this.template(this.templateData()));
       }
 
       if ($parent) {
-        if (this.$view) { this.$view.appendTo($parent); }
+        View.appendTo(this.$view, $parent);
       }
       else {
-        if ($existing) { $existing.replaceWith(this.$view); }
+        View.replace($existing, this.$view);
       }
 
       if (fresh) {

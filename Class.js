@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
   "use strict";
@@ -14,10 +15,10 @@ define(function() {
     var descriptor = {};
     Object.keys(abstract).forEach(function(prop) {
       descriptor[prop] = {
-        configurable:true,
-        writable:true,
-        enumerable:false,
-        value:abstract[prop]
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: abstract[prop]
       };
     });
     Object.defineProperties(this.prototype, descriptor);
@@ -33,12 +34,12 @@ define(function() {
     }
     if (typeof superclass === 'object') {
       // Testing horizontal inheritance
-      result = true;
       for (prop in superclass) {
         if (superclass.hasOwnProperty(prop) &&
             superclass[prop] !== this.prototype[prop]) {
-          result = false;
-          break;
+          return false;
+        } else {
+          result = true;
         }
       }
     }
@@ -78,6 +79,7 @@ define(function() {
         }
         finally {
           if (hadSuper) { this._super = tmp; }
+          else { delete this._super; }
         }
       };
     }
