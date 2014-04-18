@@ -1,4 +1,4 @@
-/*global jasmine, describe, xdescribe, it, expect, spyOn, beforeEach */
+/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
   'use strict';
 
@@ -45,7 +45,7 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
       it('replaces view if existing', function() {
         var replace = jasmine.createSpy('replaceWith');
         spyOn(instance, 'template').andCallFake(function() {
-          return { length:1, replaceWith : replace, "1":null };
+          return { length: 1, replaceWith: replace, 1: null };
         });
 
         instance.render();
@@ -92,7 +92,6 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
       });
     });
 
-
     describe('.destroy()', function() {
       it('destroys itself', function() {
         var instance = new View();
@@ -105,6 +104,54 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
         instance.destroy();
         expect($('#mytest').length).toBe(0);
         expect(instance.$view).toBe(null);
+      });
+    });
+
+    describe('View.domify()', function() {
+      it('parses HTML', function() {
+        var el = View.domify('<article></article>');
+
+        expect(el).toEqual(jasmine.any(Element));
+        expect(el.nodeName).toBe('ARTICLE');
+      });
+    });
+
+    describe('View.appendTo()', function() {
+      it('appends child to parent', function() {
+        var child = document.createElement('li'),
+        parent = document.createElement('ul');
+
+        View.appendTo(child, parent);
+        expect(child.parentNode).toBe(parent);
+      });
+    });
+
+    describe('View.replace()', function() {
+      it('replaces a child of a parent', function() {
+        var child = document.createElement('li'),
+        parent = document.createElement('ul'),
+        usurper = document.createElement('li');
+
+        parent.appendChild(child);
+        View.replace(child, usurper);
+
+        expect(child.parentNode).toBe(null);
+        expect(usurper.parentNode).toBe(parent);
+        expect(parent.childNodes.length).toBe(1);
+        expect(parent.childNodes[0]).toBe(usurper);
+      });
+    });
+
+    describe('View.remove()', function() {
+      it('removes child from parent', function() {
+        var child = document.createElement('li'),
+        parent = document.createElement('ul');
+
+        parent.appendChild(child);
+        View.remove(child);
+
+        expect(child.parentNode).toBe(null);
+        expect(parent.childNodes.length).toBe(0);
       });
     });
   });
