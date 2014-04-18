@@ -1,6 +1,5 @@
-(function(root) {
-/**
- * almond 0.2.5 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+(function(root) {/**
+ * @license almond 0.2.9 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -17,7 +16,8 @@ var requirejs, require, define;
         config = {},
         defining = {},
         hasOwn = Object.prototype.hasOwnProperty,
-        aps = [].slice;
+        aps = [].slice,
+        jsSuffixRegExp = /\.js$/;
 
     function hasProp(obj, prop) {
         return hasOwn.call(obj, prop);
@@ -32,7 +32,7 @@ var requirejs, require, define;
      * @returns {String} normalized name
      */
     function normalize(name, baseName) {
-        var nameParts, nameSegment, mapValue, foundMap,
+        var nameParts, nameSegment, mapValue, foundMap, lastIndex,
             foundI, foundStarMap, starI, i, j, part,
             baseParts = baseName && baseName.split("/"),
             map = config.map,
@@ -50,8 +50,15 @@ var requirejs, require, define;
                 //"one/two/three.js", but we want the directory, "one/two" for
                 //this normalization.
                 baseParts = baseParts.slice(0, baseParts.length - 1);
+                name = name.split('/');
+                lastIndex = name.length - 1;
 
-                name = baseParts.concat(name.split("/"));
+                // Node .js allowance:
+                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
+                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+                }
+
+                name = baseParts.concat(name);
 
                 //start trimDots
                 for (i = 0; i < name.length; i += 1) {
@@ -260,14 +267,14 @@ var requirejs, require, define;
     main = function (name, deps, callback, relName) {
         var cjsModule, depName, ret, map, i,
             args = [],
+            callbackType = typeof callback,
             usingExports;
 
         //Use name if no relName
         relName = relName || name;
 
         //Call the callback to define the module, if necessary.
-        if (typeof callback === 'function') {
-
+        if (callbackType === 'undefined' || callbackType === 'function') {
             //Pull out the defined dependencies and pass the ordered
             //values to the callback.
             //Default to [require, exports, module] if no deps
@@ -298,7 +305,7 @@ var requirejs, require, define;
                 }
             }
 
-            ret = callback.apply(defined[name], args);
+            ret = callback ? callback.apply(defined[name], args) : undefined;
 
             if (name) {
                 //If setting exports via "module" is in play,
@@ -333,6 +340,13 @@ var requirejs, require, define;
         } else if (!deps.splice) {
             //deps is a config object, not an array.
             config = deps;
+            if (config.deps) {
+                req(config.deps, config.callback);
+            }
+            if (!callback) {
+                return;
+            }
+
             if (callback.splice) {
                 //callback is an array, which means it is a dependency list.
                 //Adjust args if there are dependencies
@@ -377,12 +391,13 @@ var requirejs, require, define;
      * the config return value is used.
      */
     req.config = function (cfg) {
-        config = cfg;
-        if (config.deps) {
-            req(config.deps, config.callback);
-        }
-        return req;
+        return req(cfg);
     };
+
+    /**
+     * Expose module registry for debugging and tooling
+     */
+    requirejs._defined = defined;
 
     define = function (name, deps, callback) {
 
@@ -407,6 +422,7 @@ var requirejs, require, define;
 
 define("node_modules/almond/almond", function(){});
 
+/* istanbul ignore if */
 
 define('nbd/Class',[],function() {
   "use strict";
@@ -414,17 +430,19 @@ define('nbd/Class',[],function() {
   // The base Class implementation (does nothing)
   var Klass = function() {},
   extend, mixin, inherits,
-  fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
+  fnTest = /xyz/.test(function(){/*global xyz*/ return xyz; }) ?
+    /\b_super\b/ :
+    /.*/;
 
   // allows adding any object's properties into the class
   mixin = function(abstract) {
     var descriptor = {};
     Object.keys(abstract).forEach(function(prop) {
       descriptor[prop] = {
-        configurable:true,
-        writable:true,
-        enumerable:false,
-        value:abstract[prop]
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: abstract[prop]
       };
     });
     Object.defineProperties(this.prototype, descriptor);
@@ -440,12 +458,12 @@ define('nbd/Class',[],function() {
     }
     if (typeof superclass === 'object') {
       // Testing horizontal inheritance
-      result = true;
       for (prop in superclass) {
         if (superclass.hasOwnProperty(prop) &&
             superclass[prop] !== this.prototype[prop]) {
-          result = false;
-          break;
+          return false;
+        } else {
+          result = true;
         }
       }
     }
@@ -464,7 +482,9 @@ define('nbd/Class',[],function() {
     stat = stat || {};
 
     function protochain(name, fn) {
-      var applySuper = function() {return _super[name].apply(this,arguments);};
+      var applySuper = function() {
+        return _super[name].apply(this, arguments);
+      };
       return function() {
         var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
 
@@ -482,7 +502,8 @@ define('nbd/Class',[],function() {
           throw e;
         }
         finally {
-          if (hadSuper) {this._super = tmp;}
+          if (hadSuper) { this._super = tmp; }
+          else { delete this._super; }
         }
       };
     }
@@ -499,7 +520,7 @@ define('nbd/Class',[],function() {
     Object.keys(prop).forEach(function(name) {
       var p = prop[name];
       // Check if we're overwriting an existing function
-      prototype[name] = 
+      prototype[name] =
         typeof p === "function" &&
         typeof _super[name] === "function" &&
         fnTest.test(p) ?
@@ -517,13 +538,13 @@ define('nbd/Class',[],function() {
     Class.prototype = prototype;
 
     // Enforce the constructor to be what we expect
-    Object.defineProperty(Class.prototype, "constructor", {value:Class});
+    Object.defineProperty(Class.prototype, "constructor", { value: Class });
 
     // Class guaranteed methods
     Object.defineProperties(Class, {
-      extend: {value:extend, enumerable:false},
-      mixin : {value:mixin},
-      inherits: {value:inherits}
+      extend: { value: extend, enumerable: false },
+      mixin: { value: mixin },
+      inherits: { value: inherits }
     });
 
     return Class;
@@ -534,6 +555,7 @@ define('nbd/Class',[],function() {
   return Klass;
 });
 
+/* istanbul ignore if */
 
 /**
  * Utility function to break out of the current JavaScript callstack
@@ -546,7 +568,7 @@ define('nbd/util/async',[],function() {
   var global = typeof global !== 'undefined' ? global :
                typeof window !== 'undefined' ? window :
                this,
-  async;
+      async;
 
   var tasks = (function () {
     function Task(handler, args) {
@@ -767,13 +789,14 @@ define('nbd/util/async',[],function() {
   return async;
 });
 
+/* istanbul ignore if */
 
 define('nbd/util/extend',[],function() {
   'use strict';
 
   return function(obj) {
     var i, prop, source;
-    for (i=1; i<arguments.length; ++i) {
+    for (i = 1; i < arguments.length; ++i) {
       source = arguments[i];
       for (prop in source) {
         obj[prop] = source[prop];
@@ -783,28 +806,31 @@ define('nbd/util/extend',[],function() {
   };
 });
 
+/* istanbul ignore if */
 
 define('nbd/util/diff',['./extend'], function(extend) {
   'use strict';
 
   var stack = [];
 
-  function objectCheck(cur, prev) {
-    var key, equal=true;
+  function isObject(obj) {
+    var proto;
+    return obj && typeof obj === "object" &&
+      (proto = Object.getPrototypeOf(obj),
+       proto === Object.prototype ||
+       proto === Array.prototype);
+  }
 
-    // If complex objects, assume different
-    if (!(Object.getPrototypeOf(cur) === Object.prototype &&
-          Object.getPrototypeOf(prev) === Object.prototype 
-        )) { return false; }
+  function objectCheck(cur, prev) {
+    var key, equal = true;
+
+    // If not objects, assume different
+    if (!(isObject(cur) && isObject(prev))) { return false; }
 
     for (key in cur) {
-      if (cur[key] !== prev[key]) {
-        return false;
-      }
+      if (cur[key] === prev[key]) { continue; }
 
-      if (cur.hasOwnProperty(key) &&
-          typeof cur[key] === "object" && cur[key] && 
-          Object.getPrototypeOf(cur[key]) === Object.prototype) {
+      if (isObject(cur[key]) && cur[key] && isObject(prev[key]) && prev[key]) {
         // Property has been visited, skip
         if (~stack.indexOf(cur[key])) { continue; }
 
@@ -812,13 +838,13 @@ define('nbd/util/diff',['./extend'], function(extend) {
           stack.push(cur[key]);
 
           // Recurse into object to find diff
-          equal = equal && objectCheck(prev[key], cur[key]);
+          equal = equal && objectCheck(cur[key], prev[key]);
         }
         catch (emptyArgs) {}
         finally {
           stack.pop();
         }
-      }
+      } else { equal = false; }
 
       if (!equal) { return equal; }
     }
@@ -829,8 +855,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
   return function diff(cur, prev, callback) {
     var key, lhs, rhs, differences = {};
 
-    if (typeof prev !== "object" || typeof cur !== "object" ||
-        prev === null || cur === null) {
+    if (!(isObject(cur) && isObject(prev))) {
       throw new TypeError('Arguments must be objects');
     }
 
@@ -847,13 +872,13 @@ define('nbd/util/diff',['./extend'], function(extend) {
 
         // if either is not a simple object OR objectCheck fails then mark
         if (!(
-          typeof lhs === "object" && typeof rhs === "object" && 
+          typeof lhs === "object" && typeof rhs === "object" &&
           lhs && rhs &&
           objectCheck(lhs, rhs)
        )) {
           differences[key] = [lhs, rhs];
           if (callback) {
-            callback.apply(this, [key, lhs, rhs]);
+            callback.call(this, key, lhs, rhs);
           }
         }
       }
@@ -862,135 +887,144 @@ define('nbd/util/diff',['./extend'], function(extend) {
     // Any remaining keys are only in the prev
     for (key in prev) {
       if (prev.hasOwnProperty(key) && prev[key] !== undefined) {
-        differences[key] = [cur[key]];
+        differences[key] = [cur[key], prev[key]];
         if (callback) {
-          callback.apply(this, [key, undefined, prev[key]]);
+          callback.call(this, key, undefined, prev[key]);
         }
       }
     }
-    
+
     return differences;
   };
 });
 
+/* istanbul ignore if */
 
-// Backbone.Events
-// ---------------
-define('nbd/trait/pubsub',[],function() {
+define('nbd/util/curry',[],function() {
+  'use strict';
+
+  var toStr = Object.prototype.toString;
+
+  return function() {
+    var fn = this,
+        rest = arguments,
+        type = toStr.call(fn);
+    if (type !== '[object Function]') { throw new TypeError("curry called on incompatible "+type); }
+    return function() {
+      Array.prototype.unshift.apply(arguments, rest);
+      return fn.apply(this, arguments);
+    };
+  };
+});
+
+/* istanbul ignore if */
+
+define('nbd/trait/pubsub',['../util/curry'], function(curry) {
   'use strict';
 
   // Regular expression used to split event strings
-  var eventSplitter = /\s+/,
-  
+  var slice = Array.prototype.slice,
+  eventSplitter = /\s+/,
+
+  splitCaller = curry.bind(function(fn, map) {
+    if (map == null) {
+      fn.apply(this, slice.call(arguments, 1));
+      return this;
+    }
+
+    var rest = slice.call(arguments, 2),
+        keys = typeof map === 'object' ?  Object.keys(map) : [map],
+        front = [],
+        event, i;
+
+    for (i = 0; i < keys.length; ++i) {
+      event = keys[i].split(eventSplitter);
+      if (typeof map === 'object') {
+        front[1] = map[keys[i]];
+      }
+      while ((front[0] = event.shift())) {
+        fn.apply(this, front.concat(rest));
+      }
+    }
+    return this;
+  }),
+
+  addEntry = function(event, callback, context, once) {
+    if (!this._events) {
+      Object.defineProperty(this, '_events', {
+        configurable: true,
+        value: {},
+        writable: true
+      });
+    }
+
+    (this._events[event] || (this._events[event] = [])).push({
+      fn: callback,
+      ctxt: context,
+      self: this,
+      once: once
+    });
+
+    return this;
+  },
+
+  triggerEntry = function(entry, index, array) {
+    entry.fn.apply(entry.ctxt || entry.self, this);
+    if (entry.once) { array.splice(index, 1); }
+  },
+
   uId = function uid(prefix) {
     uid.i = uid.i || 0;
     return (prefix || '') + (++uid.i);
   };
 
-  // A module that can be mixed in to *any object* in order to provide it with
-  // custom events. You may bind with `on` or remove with `off` callback functions
-  // to an event; `trigger`-ing an event fires all callbacks in succession.
   return {
-
-    // Bind one or more space separated events, `events`, to a `callback`
-    // function. Passing `"all"` will bind the callback to all events fired.
-    on: function(events, callback, context) {
-      var calls, event, list;
+    on: splitCaller(function(event, callback, context) {
       if (!callback) { return this; }
+      return addEntry.call(this, event, callback, context);
+    }),
 
-      events = events.split(eventSplitter);
+    one: splitCaller(function(event, callback, context) {
+      if (!callback) { return this; }
+      return addEntry.call(this, event, callback, context, true);
+    }),
 
-      if (!this._callbacks) {
-        Object.defineProperty(this, '_callbacks', {
-          configurable: true,
-          value: {},
-          writable: true
-        });
+    off: splitCaller(function(event, callback, context) {
+      var calls, events, i;
+
+      function entryTest(entry) {
+        return (callback && entry.fn !== callback) ||
+          (context && entry.ctxt !== context);
       }
-      calls = this._callbacks;
-
-      while (event = events.shift()) {
-        list = calls[event] || (calls[event] = []);
-        list.push(callback, context);
-      }
-
-      return this;
-    },
-
-    // Remove one or many callbacks. If `context` is null, removes all callbacks
-    // with that function. If `callback` is null, removes all callbacks for the
-    // event. If `events` is null, removes all bound callbacks for all events.
-    off: function(events, callback, context) {
-      var event, calls, list, i;
 
       // No events, or removing *all* events.
-      if (!(calls = this._callbacks)) { return this; }
-      if (!(events || callback || context)) {
-        delete this._callbacks;
+      if (!(calls = this._events)) { return this; }
+      if (!(event || callback || context)) {
+        delete this._events;
         return this;
       }
 
-      events = events ? events.split(eventSplitter) : Object.keys(calls);
-
-      // Loop through the callback list, splicing where appropriate.
-      while (event = events.shift()) {
-        if (!(list = calls[event]) || !(callback || context)) {
-          delete calls[event];
-          continue;
-        }
-
-        for (i = list.length - 2; i >= 0; i -= 2) {
-          if (!(callback && list[i] !== callback || context && list[i + 1] !== context)) {
-            list.splice(i, 2);
+      events = event ? [event] : Object.keys(calls);
+      for (i = 0; i < events.length; ++i) {
+        if ((event = events[i]) && calls[event]) {
+          calls[event] = calls[event].filter(entryTest);
+          if (!calls[event].length) {
+            delete calls[event];
           }
         }
       }
+    }),
+
+    trigger: splitCaller(function(event) {
+      if (!this._events) { return this; }
+      var events = this._events[event],
+          all = this._events.all;
+
+      if (events) { events.forEach(triggerEntry, slice.call(arguments, 1)); }
+      if (all) { all.forEach(triggerEntry, arguments); }
 
       return this;
-    },
-
-    // Trigger one or many events, firing all bound callbacks. Callbacks are
-    // passed the same arguments as `trigger` is, apart from the event name
-    // (unless you're listening on `"all"`, which will cause your callback to
-    // receive the true name of the event as the first argument).
-    trigger: function(events) {
-      var event, calls, list, i, length, args, all, rest;
-      if (!(calls = this._callbacks)) { return this; }
-
-      rest = [];
-      events = events.split(eventSplitter);
-
-      // Fill up `rest` with the callback arguments. Since we're only copying
-      // the tail of `arguments`, a loop is much faster than Array#slice.
-      for (i = 1, length = arguments.length; i < length; i++) {
-        rest[i - 1] = arguments[i];
-      }
-
-      // For each event, walk through the list of callbacks twice, first to
-      // trigger the event, then to trigger any `"all"` callbacks.
-      while (event = events.shift()) {
-        // Copy callback lists to prevent modification.
-        if (all = calls.all) all = all.slice();
-        if (list = calls[event]) list = list.slice();
-
-        // Execute event callbacks.
-        if (list) {
-          for (i = 0, length = list.length; i < length; i += 2) {
-            list[i].apply(list[i + 1] || this, rest);
-          }
-        }
-
-        // Execute "all" callbacks.
-        if (all) {
-          args = [event].concat(rest);
-          for (i = 0, length = all.length; i < length; i += 2) {
-            all[i].apply(all[i + 1] || this, args);
-          }
-        }
-      }
-
-      return this;
-    },
+    }),
 
     // An inversion-of-control version of `on`. Tell *this* object to listen to
     // an event in another object ... keeping track of what it's listening to.
@@ -1006,11 +1040,12 @@ define('nbd/trait/pubsub',[],function() {
     // to every object it's currently listening to.
     stopListening: function(object, events, callback) {
       var listeners = this._listeners;
-      if (!listeners) return;
+      if (!listeners) { return this; }
       if (object) {
         object.off(events, callback, this);
-        if (!events && !callback) delete listeners[object._listenerId];
-      } else {
+        if (!(events || callback)) { delete listeners[object._listenerId]; }
+      }
+      else {
         for (var id in listeners) {
           listeners[id].off(null, null, this);
         }
@@ -1018,38 +1053,36 @@ define('nbd/trait/pubsub',[],function() {
       }
       return this;
     }
-
   };
 });
 
+/* istanbul ignore if */
 
-define('nbd/Model',['./Class',
-       './util/async',
-       './util/extend',
-       './util/diff',
-       './trait/pubsub'
+define('nbd/Model',[
+  './Class',
+  './util/async',
+  './util/extend',
+  './util/diff',
+  './trait/pubsub'
 ], function(Class, async, extend, diff, pubsub) {
   "use strict";
 
-  var dirtyCheck = function(old, novel) {
-    if (!this._dirty) { return; }
-    if (this._dirty !== true) {
-      for (var k in this._dirty) {
-        this.trigger(k, this._data[k], this._dirty[k]);
-      }
+  function copy(a) {
+    if (a != null && typeof a === 'object') {
+      return Array.isArray(a) ?
+        Array.prototype.slice.call(a) :
+        extend({}, a);
     }
-    else if (old) {
-      diff.call(this, novel || this._data, old, this.trigger);
-    }
-    else { return; }
+    return a;
+  }
 
+  var dirtyCheck = function(old, novel) {
+    diff.call(this, novel || this._data, old, this.trigger);
     this._dirty = 0;
   },
 
   constructor = Class.extend({
-
     init: function(id, data) {
-
       if (typeof id === 'string' && id.match(/^\d+$/)) {
         id = +id;
       }
@@ -1059,9 +1092,7 @@ define('nbd/Model',['./Class',
         id = undefined;
       }
 
-      this.id = function() {
-        return id;
-      };
+      this.id = function() { return id; };
 
       try {
         Object.defineProperty(this, '_dirty', { value: 0, writable: true });
@@ -1077,7 +1108,6 @@ define('nbd/Model',['./Class',
         this._dirty = 0;
         this._data = data;
       }
-
     },
 
     destroy: function() {
@@ -1085,45 +1115,42 @@ define('nbd/Model',['./Class',
       this._data = null;
     },
 
-    data : function() {
+    data: function() {
+      var orig = this._data, clone;
+
       if (this._dirty !== true) {
-        async(dirtyCheck.bind(this, extend({}, this._data,
-                                           this._dirty || undefined)));
+        clone = Object.keys(orig).reduce(function(obj, key) {
+          return obj[key] = copy(orig[key]), obj;
+        }, {});
+        async(dirtyCheck.bind(this, clone));
         this._dirty = true;
       }
       return this._data;
     },
 
     get: function(prop) {
-      return this._data[prop];
+      var value = this._data[prop];
+      // If getting an array, we must watch for array mutators
+      if (Array.isArray(value)) {
+        return this.data()[prop];
+      }
+      return value;
     },
 
     set: function(values, value) {
-      var key, data = this._data;
-
-      if (!this._dirty) { async(dirtyCheck.bind(this)); }
+      var key, data = this.data();
 
       if (typeof values === "string") {
-        if (this._dirty !== true) {
-          this._dirty = this._dirty || {};
-          if (!(key in this._dirty)) {
-            this._dirty[values] = data[values];
-          }
-        }
-        data[values] = value;
+        this._dirty = true;
+        data[values] = copy(value);
         return this;
       }
 
       if (typeof values === "object") {
         for (key in values) {
           if (values.hasOwnProperty(key)) {
-            if (this._dirty !== true) {
-              this._dirty = this._dirty || {};
-              if (!(key in this._dirty)) {
-                this._dirty[key] = data[key];
-              }
-            }
-            data[key] = values[key];
+            this._dirty = true;
+            data[key] = copy(values[key]);
           }
         }
         return this;
@@ -1137,15 +1164,17 @@ define('nbd/Model',['./Class',
   .mixin(pubsub);
 
   return constructor;
-
 });
 
+/* istanbul ignore if */
 
-define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
+define('nbd/View',[
+  './Class',
+  './trait/pubsub'
+], function(Class, pubsub) {
   "use strict";
 
   var constructor = Class.extend({
-
     $view: null,
 
     render: function(data) {
@@ -1153,16 +1182,13 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
 
       this.trigger('prerender', $existing);
 
-      this.$view = this.template(data || this.templateData());
-
-      if ($existing && $existing.length) {
-        $existing.replaceWith(this.$view);
-      }
+      this.$view = constructor.domify(this.template(data || this.templateData()));
+      constructor.replace($existing, this.$view);
 
       this.trigger('postrender', this.$view);
 
       // Prefer the postrender event over this method
-      if(this.rendered) {
+      if (this.rendered) {
         this.rendered(this.$view);
       }
 
@@ -1173,29 +1199,62 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
     templateData: function() { return {}; },
 
     destroy: function() {
-      if (this.$view && this.$view.remove) {
-        this.$view.remove();
-      }
+      constructor.remove(this.$view);
       this.$view = null;
-      this.off();
+      this.off().stopListening();
     }
+  }, {
+    domify: function(html) {
+      var container;
+      if (typeof html === 'string') {
+        container = document.createElement('div');
+        container.innerHTML = html;
+        return container.removeChild(container.childNodes[0]);
+      }
 
+      return html;
+    },
+
+    appendTo: function($child, $parent) {
+      if (!($child && $parent)) { return; }
+      if ($child.appendTo) {
+        return $child.appendTo($parent);
+      }
+      return ($parent.append || $parent.appendChild).call($parent, $child);
+    },
+
+    replace: function($old, $new) {
+      if (!$old) { return; }
+      if ($old.replaceWith) {
+        return $old.replaceWith($new);
+      }
+      return $old.parentNode &&
+        $old.parentNode.replaceChild($new, $old);
+    },
+
+    remove: function($el) {
+      if (!$el) { return; }
+      if ($el.remove) {
+        return $el.remove();
+      }
+      return $el.parentNode &&
+        $el.parentNode.removeChild($el);
+    }
   })
   .mixin(pubsub);
 
   return constructor;
-
 });
 
+/* istanbul ignore if */
 
 define('nbd/View/Entity',['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
-
-    init : function(model) {
+    init: function(model) {
       if (typeof model === 'object') {
-        this._model = this.Model = model;
+        this._model = model;
       }
 
       this.id = (model && model.id) || function() {
@@ -1203,35 +1262,32 @@ define('nbd/View/Entity',['../View'], function(View) {
       };
     },
 
-    destroy : function(persist) {
-      this._model.off(null, null, this);
+    destroy: function(persist) {
       if (!persist) {
-        this._model = this.Model = null;
+        this._model = null;
       }
       this._super();
     },
 
-    // all data needed to template the view
-    templateData : function() {
+    // All data needed to template the view
+    templateData: function() {
       return (this._model && this._model.data) ? this._model.data() : this.id();
     },
 
-    render : function($parent) {
-
-      // $existing could be a string
+    render: function($parent) {
       var $existing = this.$view,
           fresh = !($existing && $parent);
 
       if (fresh) {
         this.trigger('prerender', $existing);
-        this.$view = this.template(this.templateData());
+        this.$view = View.domify(this.template(this.templateData()));
       }
 
       if ($parent) {
-        if (this.$view) { this.$view.appendTo($parent); }
+        View.appendTo(this.$view, $parent);
       }
       else {
-        if ($existing) { $existing.replaceWith(this.$view); }
+        View.replace($existing, this.$view);
       }
 
       if (fresh) {
@@ -1243,56 +1299,52 @@ define('nbd/View/Entity',['../View'], function(View) {
       }
 
       return this.$view;
-
-    } // render
-
-  }); // View Entity
+    }
+  });
 
   return constructor;
-
 });
 
+/* istanbul ignore if */
 
 define('nbd/View/Element',['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
-
     $parent: null,
 
-    init : function($parent) {
+    init: function($parent) {
       this.$parent = $parent;
     },
 
-    render : function(data) {
+    render: function(data) {
       var $existing = this.$view;
 
       this.trigger('prerender', $existing);
 
-      this.$view = this.template(data || this.templateData());
+      this.$view = View.domify(this.template(data || this.templateData()));
 
-      if ($existing && $existing.length) {
-        $existing.replaceWith(this.$view);
+      if ($existing) {
+        View.replace($existing, this.$view);
       }
       else {
-        this.$view.appendTo(this.$parent);
+        View.appendTo(this.$view, this.$parent);
       }
 
       this.trigger('postrender', this.$view);
 
-      if(this.rendered) {
+      if (typeof this.rendered === 'function') {
         this.rendered(this.$view);
       }
 
       return this.$view;
     }
-
   });
 
   return constructor;
-
 });
 
+/* istanbul ignore if */
 
 define('nbd/util/construct',[],function() {
   'use strict';
@@ -1312,22 +1364,24 @@ define('nbd/util/construct',[],function() {
   };
 });
 
+/* istanbul ignore if */
 
-define('nbd/Controller',['./Class',
-       './util/construct'
+define('nbd/Controller',[
+  './Class',
+  './util/construct'
 ],  function(Class, construct) {
   "use strict";
 
   var constructor = Class.extend({
-    destroy : function() {},
+    destroy: function() {},
 
-    _initView : function(ViewClass) {
+    _initView: function(ViewClass) {
       var args = Array.prototype.slice.call(arguments, 1);
-      this._view = this.View = construct.apply(ViewClass, args);
-      this._view._controller = this._view.Controller = this;
+      this._view = construct.apply(ViewClass, args);
+      this._view._controller = this;
     },
 
-    switchView : function() {
+    switchView: function() {
       var existing = this._view;
       this._initView.apply(this, arguments);
 
@@ -1340,75 +1394,65 @@ define('nbd/Controller',['./Class',
 
       existing.destroy();
     }
-
   });
 
   return constructor;
-
 });
 
+/* istanbul ignore if */
 
-define('nbd/Controller/Entity',['../util/construct',
-       '../Controller',
-       '../View/Entity',
-       '../Model'
+define('nbd/Controller/Entity',[
+  '../util/construct',
+  '../Controller',
+  '../View/Entity',
+  '../Model'
 ], function(construct, Controller, View, Model) {
   'use strict';
 
   var constructor = Controller.extend({
-    init : function() {
-      this._model = this.Model = construct.apply(this.constructor.MODEL_CLASS, arguments);
+    init: function() {
+      this._model = construct.apply(this.constructor.MODEL_CLASS, arguments);
       this._initView(this.constructor.VIEW_CLASS, this._model);
     },
 
-    render : function($parent, ViewClass) {
+    render: function($parent, ViewClass) {
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
       this.requestView(ViewClass);
       this._view.render($parent);
     },
 
-    destroy : function() {
+    destroy: function() {
       this._view.destroy();
       this._model.destroy();
       this._model = this._view = null;
     },
 
-    requestView : function(ViewClass) {
+    requestView: function(ViewClass) {
       if (this._view instanceof ViewClass) { return; }
       this.switchView(ViewClass, this._model);
+    },
+
+    toJSON: function() {
+      return this._model.toJSON();
     }
-  },{
+  }, {
     // Corresponding Entity View class
-    VIEW_CLASS : View,
+    VIEW_CLASS: View,
 
     // Corresponding Entity Model class
-    MODEL_CLASS : Model
+    MODEL_CLASS: Model
   });
 
   return constructor;
-
 });
 
+/* istanbul ignore if */
 
-define('nbd/event',['./util/extend', './trait/pubsub'], function(extend, pubsub) {
+define('nbd/Promise',['./util/async', './util/construct', './util/extend'], function(async, construct, extend) {
   'use strict';
 
-  var exports = extend({}, pubsub);
-
-  // Aliases
-  exports.bind = exports.on;
-  exports.unbind = exports.off;
-  exports.fire = exports.trigger;
-
-  return exports;
-});
-
-
-define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, extend) {
-  'use strict';
-
-  function Promise() {
+  function Promise(starting) {
     var self = this,
     onResolve = [],
     onReject = [],
@@ -1418,7 +1462,7 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
     function call(fns) {
       if (fns.length) {
         async(function() {
-          for (var i=0; i<fns.length; ++i) { fns[i](value); }
+          for (var i = 0; i < fns.length; ++i) { fns[i](value); }
         });
       }
       // Reset callbacks
@@ -1513,13 +1557,13 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
       }
       // Promise fulfilled/rejected
       else {
-        var toCall = state > 0 ? onFulfilled : onRejected;
+        var toCall = ~state ? onFulfilled : onRejected;
         if (typeof toCall === 'function') {
           toCall = wrap(toCall);
           async(function() { toCall(value); });
         }
         else {
-          next[ state > 0 ? 'resolve' : 'reject' ](value);
+          next[~state ? 'resolve' : 'reject'](value);
         }
       }
 
@@ -1527,79 +1571,126 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
     }
 
     Object.defineProperties(this, {
-      reject : {value: reject},
+      reject: {value: reject},
       resolve: {value: resolve}
     });
 
     this.then = then;
+
+    if (arguments.length) {
+      resolve(starting);
+    }
   }
 
-  Promise.prototype.thenable = function() {
-    return { then : this.then };
-  };
+  var forEach = Array.prototype.forEach;
 
-  Promise.prototype.promise = function() {
-    var then = this.then,
-    retSelf = function() {return api;},
-    api = {
-      done : function() {
-        var fns = Array.prototype.concat.apply([], arguments);
-        fns.forEach(function(fn) { then(fn); });
-        return api;
-      },
-      fail : function() {
-        var fns = Array.prototype.concat.apply([], arguments);
-        fns.forEach(function(fn) { then(undefined, fn); });
-        return api;
-      },
-      then : then,
-      progress : retSelf,
-      promise : retSelf
-    };
-
-    return api;
-  };
-
-  var promiseMe = function() {
-    // Ensure there is a promise instance
-    if (!this._promise) {
-      Object.defineProperty(this, '_promise', {value: new Promise()});
-    }
-  };
-
-  extend(Promise, {
-    then: function(onFulfilled, onRejected) {
-      promiseMe.call(this);
-      return this._promise.then(onFulfilled, onRejected);
+  extend(Promise.prototype, {
+    catch: function(onRejected) {
+      return this.then(undefined, onRejected);
     },
 
-    resolve: function(value) {
-      promiseMe.call(this);
-      this._promise.resolve(value);
-      return this;
-    },
-
-    reject: function(value) {
-      promiseMe.call(this);
-      this._promise.reject(value);
-      return this;
+    finally: function(onAny) {
+      return this.then(onAny, onAny);
     },
 
     thenable: function() {
-      promiseMe.call(this);
-      return this._promise.thenable();
+      return { then: this.then };
     },
 
     promise: function() {
-      promiseMe.call(this);
-      return this._promise.promise();
+      var then = this.then,
+      retSelf = function() { return api; },
+      api = {
+        done: function() {
+          forEach.call(arguments, function(fn) { then(fn); });
+          return api;
+        },
+        fail: function() {
+          forEach.call(arguments, function(fn) { then(undefined, fn); });
+          return api;
+        },
+        always: function() {
+          forEach.call(arguments, function(fn) { then(fn, fn); });
+          return api;
+        },
+        then: then,
+        progress: retSelf,
+        promise: retSelf
+      };
+
+      return api;
     }
   });
 
+  extend(Promise, {
+    resolved: construct,
+    rejected: function(reason) {
+      var p = new this();
+      p.reject(reason);
+      return p;
+    }
+  });
 
   return Promise;
 });
 
+/* istanbul ignore if */
+
+define('nbd/event',[
+  './util/extend',
+  './trait/pubsub'
+], function(extend, pubsub) {
+  'use strict';
+
+  var exports = extend({}, pubsub);
+
+  // Aliases
+  exports.bind = exports.on;
+  exports.unbind = exports.off;
+  exports.fire = exports.trigger;
+
+  return exports;
+});
+
+/* istanbul ignore if */
+
+define('nbd/trait/promise',['../Promise', '../util/extend'], function(Promise, extend) {
+  'use strict';
+
+  var promiseMe = function promise() {
+    // Ensure there is a promise instance
+    if (!this._promise) {
+      Object.defineProperty(this, '_promise', {value: new Promise()});
+    }
+    return this._promise;
+  };
+
+  return extend(promiseMe, {
+    then: function(onFulfilled, onRejected) {
+      return promiseMe.call(this).then(onFulfilled, onRejected);
+    },
+
+    resolve: function(value) {
+      promiseMe.call(this).resolve(value);
+      return this;
+    },
+
+    reject: function(value) {
+      promiseMe.call(this).reject(value);
+      return this;
+    },
+
+    thenable: function() {
+      return promiseMe.call(this).thenable();
+    },
+
+    promise: function() {
+      return promiseMe.call(this).promise();
+    }
+  });
+});
+
+/* istanbul ignore if */
 
 /*
  * Extraction of the deparam method from Ben Alman's jQuery BBQ
@@ -1611,7 +1702,7 @@ define('nbd/util/deparam',[],function() {
   return function (params, coerce) {
     var obj = {},
         coerce_types = { 'true': true, 'false': false, 'null': null };
-      
+
     // Iterate over all name=value pairs.
     params.replace(/\+/g, ' ').split('&').forEach(function (v) {
       var param = v.split('='),
@@ -1619,32 +1710,32 @@ define('nbd/util/deparam',[],function() {
           val,
           cur = obj,
           i = 0,
-            
+
           // If key is more complex than 'foo', like 'a[]' or 'a[b][c]', split it
           // into its component parts.
           keys = key.split(']['),
           keys_last = keys.length - 1;
-        
+
       // If the first keys part contains [ and the last ends with ], then []
       // are correctly balanced.
       if (/\[/.test(keys[0]) && /\]$/.test(keys[keys_last])) {
         // Remove the trailing ] from the last keys part.
         keys[keys_last] = keys[keys_last].replace(/\]$/, '');
-          
+
         // Split first keys part into two parts on the [ and add them back onto
         // the beginning of the keys array.
         keys = keys.shift().split('[').concat(keys);
-          
+
         keys_last = keys.length - 1;
       } else {
         // Basic 'foo' style key.
         keys_last = 0;
       }
-        
+
       // Are we dealing with a name=value pair, or just a name?
       if (param.length === 2) {
         val = decodeURIComponent(param[1]);
-          
+
         // Coerce values.
         if (coerce) {
           val = val && !isNaN(val)              ? +val              // number
@@ -1652,11 +1743,11 @@ define('nbd/util/deparam',[],function() {
               : coerce_types[val] !== undefined ? coerce_types[val] // true, false, null
               : val;                                                // string
         }
-          
+
         if (keys_last) {
           // Complex key, build deep object structure based on a few rules:
           // * The 'cur' pointer starts at the object top-level.
-          // * [] = array push (n is set to array length), [n] = array if n is 
+          // * [] = array push (n is set to array length), [n] = array if n is
           //   numeric, otherwise object.
           // * If at the last keys part, set the value.
           // * For each keys part, if the current level is undefined create an
@@ -1669,37 +1760,37 @@ define('nbd/util/deparam',[],function() {
               cur[key] || (keys[i+1] && isNaN(keys[i+1]) ? {} : []) :
               val;
           }
-            
+
         } else {
           // Simple key, even simpler rules, since only scalars and shallow
           // arrays are allowed.
-            
+
           if (Array.isArray(obj[key])) {
             // val is already an array, so push on the next value.
             obj[key].push(val);
-              
+
           } else if (obj[key] !== undefined) {
             // val isn't an array, but since a second value has been specified,
             // convert val into an array.
             obj[key] = [obj[key], val];
-              
+
           } else {
             // val is a scalar.
             obj[key] = val;
           }
         }
-          
+
       } else if (key) {
         // No value was defined, so set something meaningful.
         obj[key] = coerce ? undefined : '';
       }
     });
-      
+
     return obj;
   };
-
 });
 
+/* istanbul ignore if */
 
 /**
  * Responsive media query callbacks
@@ -1733,8 +1824,6 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
   }
 
   function media(options, query) {
-    var breakpoint;
-
     // No matchMedia support
     if (!mMedia) {
       throw new Error('Media queries not supported.');
@@ -1747,15 +1836,11 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
     }
 
     if (typeof options === 'object') {
-      for (breakpoint in options) {
-        if (options.hasOwnProperty(breakpoint)) {
-          query = options[breakpoint];
-          bindMedia(breakpoint, query);
-        }
-      }
+      Object.keys(options).forEach(function(breakpoint) {
+        bindMedia(breakpoint, this[breakpoint]);
+      }, options);
     }
     return media;
-
   }
 
   extend(media, pubsub);
@@ -1767,34 +1852,33 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
 
   media.is = isActive;
   media.getState = function(breakpoint) {
-    if (breakpoint) {
-      return isActive(breakpoint);
-    }
-
+    if (breakpoint) { return isActive(breakpoint); }
     return Object.keys(queries).filter(isActive);
   };
 
   return media;
-
 });
 
+/* istanbul ignore if */
 
 define('nbd/util/pipe',[],function() {
   'use strict';
+
   return function chain() {
     var chainArgs = arguments;
     return function() {
       var i, retval;
-      for (i=0; i<chainArgs.length; ++i) {
-        retval=chainArgs[i].apply(this, i===0?arguments:[retval]);
+      for (i = 0; i < chainArgs.length; ++i) {
+        retval = chainArgs[i].apply(this, i === 0 ? arguments : [retval]);
       }
       return retval;
     };
   };
 });
 
+/* istanbul ignore if */
 
-define('nbd/util/when',['../trait/promise'], function(Promise) {
+define('nbd/util/when',['../Promise'], function(Promise) {
   'use strict';
 
   var ret = function() { return this; };
@@ -1839,18 +1923,20 @@ define('build/all',[
        'nbd/View/Element',
        'nbd/Controller',
        'nbd/Controller/Entity',
+       'nbd/Promise',
        'nbd/event',
        'nbd/trait/promise',
        'nbd/trait/pubsub',
        'nbd/util/async',
        'nbd/util/construct',
+       'nbd/util/curry',
        'nbd/util/deparam',
        'nbd/util/diff',
        'nbd/util/extend',
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/when'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe, when) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, Promise, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
   'use strict';
 
   var exports = {
@@ -1858,6 +1944,7 @@ define('build/all',[
     Model : Model,
     View : View,
     Controller : Controller,
+    Promise : Promise,
     event : event,
     trait : {
       promise : promise,
@@ -1866,6 +1953,7 @@ define('build/all',[
     util : {
       async : async,
       construct : construct,
+      curry : curry,
       deparam : deparam,
       diff : diff,
       extend : extend,
@@ -1881,4 +1969,5 @@ define('build/all',[
 
   return exports;
 });
+
 root.nbd = require('build/all'); })(this);
