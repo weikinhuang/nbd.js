@@ -1,3 +1,4 @@
+/* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
   './Class',
@@ -18,22 +19,8 @@ define([
   }
 
   var dirtyCheck = function(old, novel) {
-    if (!this._dirty) { return; }
-    if (old) {
-      diff.call(this, novel || this._data, old, this.trigger);
-    }
-    else { return; }
-
+    diff.call(this, novel || this._data, old, this.trigger);
     this._dirty = 0;
-  },
-
-  markDirty = function(prop) {
-    if (this._dirty !== true) {
-      this._dirty = this._dirty || {};
-      if (!(prop in this._dirty)) {
-        this._dirty[prop] = this._data[prop];
-      }
-    }
   },
 
   constructor = Class.extend({
@@ -71,13 +58,13 @@ define([
     },
 
     data: function() {
-      var orig = this._data,
-          clone = Object.keys(orig).reduce(function(obj, key) {
-            return obj[key] = copy(orig[key]), obj;
-          }, {});
+      var orig = this._data, clone;
 
       if (this._dirty !== true) {
-        async(dirtyCheck.bind(this, extend(clone, this._dirty || undefined)));
+        clone = Object.keys(orig).reduce(function(obj, key) {
+          return obj[key] = copy(orig[key]), obj;
+        }, {});
+        async(dirtyCheck.bind(this, clone));
         this._dirty = true;
       }
       return this._data;
@@ -87,7 +74,7 @@ define([
       var value = this._data[prop];
       // If getting an array, we must watch for array mutators
       if (Array.isArray(value)) {
-        markDirty.call(this, prop);
+        return this.data()[prop];
       }
       return value;
     },
@@ -96,7 +83,7 @@ define([
       var key, data = this.data();
 
       if (typeof values === "string") {
-        markDirty.call(this, values);
+        this._dirty = true;
         data[values] = copy(value);
         return this;
       }
@@ -104,7 +91,7 @@ define([
       if (typeof values === "object") {
         for (key in values) {
           if (values.hasOwnProperty(key)) {
-            markDirty.call(this, key);
+            this._dirty = true;
             data[key] = copy(values[key]);
           }
         }
