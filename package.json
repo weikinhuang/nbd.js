@@ -34,7 +34,6 @@
     "karma-phantomjs-launcher": ""
   },
   "scripts": {
-    "preinstall": "npm install npm -g",
     "test": "grunt travis"
   }
 }
