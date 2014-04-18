@@ -52,7 +52,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         p.then(spy);
 
         o.resolve('accept');
-        waits(10), runs(function() {
+        waits(30), runs(function() {
           expect(spy).toHaveBeenCalledWith('accept');
         });
       });
@@ -64,7 +64,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         p.then(null, spy);
 
         o.reject('accept');
-        waits(10), runs(function() {
+        waits(30), runs(function() {
           expect(spy).toHaveBeenCalledWith('accept');
         });
       });
