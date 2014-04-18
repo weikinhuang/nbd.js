@@ -30,9 +30,11 @@
     "karma-jasmine": "",
     "karma-requirejs": "",
     "karma-coverage": "",
-    "karma-firefox-launcher": ""
+    "karma-firefox-launcher": "",
+    "karma-phantomjs-launcher": ""
   },
   "scripts": {
+    "preinstall": "npm install npm -g",
     "test": "grunt travis"
   }
 }
