@@ -4,7 +4,9 @@
   "description": "No Big Deal modular MVC and tools library",
   "keywords": [
     "mvc",
-    "utils",
+    "mvvm",
+    "utility",
+    "promise",
     "mobile",
     "responsive"
   ],
