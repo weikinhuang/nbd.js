@@ -11,7 +11,7 @@ define([
   var constructor = Controller.extend({
     init: function() {
       this._model = construct.apply(this.constructor.MODEL_CLASS, arguments);
-      this._initView(this.constructor.VIEW_CLASS, this._model);
+      this.requestView(this.constructor.VIEW_CLASS);
     },
 
     render: function($parent, ViewClass) {
