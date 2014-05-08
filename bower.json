@@ -1,0 +1,30 @@
+{
+  "name": "nbd",
+  "version": "0.4.0",
+  "description": "No Big Deal modular MVC and tools library",
+  "homepage": "https://github.com/behance/nbd.js",
+  "authors": [
+    "Alex Lee <axal@adobe.com>"
+  ],
+  "main": "build/all",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "mvc",
+    "mvvm",
+    "utility",
+    "promise",
+    "mobile",
+    "responsive"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "test",
+    "docs",
+    "dist",
+    "build"
+  ]
+}

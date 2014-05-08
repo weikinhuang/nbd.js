@@ -35,6 +35,8 @@ define([
       }
 
       this.id = function() { return id; };
+      this.get = this.get.bind(this);
+      this.set = this.set.bind(this);
 
       try {
         Object.defineProperty(this, '_dirty', { value: 0, writable: true });
