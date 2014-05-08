@@ -31,6 +31,16 @@ Unbinds callback functions. If an `event` is specified and no callbacks are spec
 
 Fires off an event. As with all uses of `pubsub` functions, `event` can be a space delimited string of event names. All subsequent arguments are passed along to the bound callback functions as arguments.
 
+An `'all'` event will be fired for each triggered event after all events have been triggered – passing in the triggered event's name as an argument to the listener's callback. 
+
+```javascript
+this.trigger('foo');
+this.trigger('bar');
+
+// 'all' event triggered for 'foo'
+// 'all' event triggered for 'bar'
+```
+
 **returns** ___this___
 
 ## `.listenTo( publisher, event, callback )`
