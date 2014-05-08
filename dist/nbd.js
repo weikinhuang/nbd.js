@@ -1093,6 +1093,8 @@ define('nbd/Model',[
       }
 
       this.id = function() { return id; };
+      this.get = this.get.bind(this);
+      this.set = this.set.bind(this);
 
       try {
         Object.defineProperty(this, '_dirty', { value: 0, writable: true });
@@ -1375,9 +1377,9 @@ define('nbd/Controller',[
   var constructor = Class.extend({
     destroy: function() {},
 
-    _initView: function(ViewClass) {
-      var args = Array.prototype.slice.call(arguments, 1);
-      this._view = construct.apply(ViewClass, args);
+    _initView: function() {
+      var ViewClass = Array.prototype.shift.call(arguments);
+      this._view = construct.apply(ViewClass, arguments);
       this._view._controller = this;
     },
 
@@ -1412,7 +1414,7 @@ define('nbd/Controller/Entity',[
   var constructor = Controller.extend({
     init: function() {
       this._model = construct.apply(this.constructor.MODEL_CLASS, arguments);
-      this._initView(this.constructor.VIEW_CLASS, this._model);
+      this.requestView(this.constructor.VIEW_CLASS);
     },
 
     render: function($parent, ViewClass) {
@@ -1442,6 +1444,128 @@ define('nbd/Controller/Entity',[
 
     // Corresponding Entity Model class
     MODEL_CLASS: Model
+  });
+
+  return constructor;
+});
+
+/* istanbul ignore if */
+
+/**
+ * Responsive media query callbacks
+ * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
+ */
+/*global matchMedia, msMatchMedia */
+define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub) {
+  'use strict';
+
+  var queries = {},
+  mqChange,
+  mMedia = typeof matchMedia !== 'undefined' ? matchMedia :
+           typeof msMatchMedia !== 'undefined' ? msMatchMedia :
+           null;
+
+  function bindMedia(breakpoint, query) {
+    var match;
+    if (match = queries[breakpoint]) {
+      match.removeListener(match.listener);
+    }
+
+    match = mMedia(query);
+    match.listener = mqChange.bind(match, breakpoint);
+    match.addListener(match.listener);
+    queries[breakpoint] = match;
+    if (match.matches) { mqChange.call(match, breakpoint); }
+  }
+
+  function isActive(breakpoint) {
+    return queries[breakpoint] && queries[breakpoint].matches;
+  }
+
+  function media(options, query) {
+    // No matchMedia support
+    if (!mMedia) {
+      throw new Error('Media queries not supported.');
+    }
+
+    // Has matchMedia support
+    if (typeof options === 'string') {
+      bindMedia(options, query);
+      return media;
+    }
+
+    if (typeof options === 'object') {
+      Object.keys(options).forEach(function(breakpoint) {
+        bindMedia(breakpoint, this[breakpoint]);
+      }, options);
+    }
+    return media;
+  }
+
+  extend(media, pubsub);
+
+  mqChange = function(breakpoint) {
+    media.trigger(breakpoint + (this.matches ? ':enter' : ':exit'));
+    media.trigger(breakpoint, this.matches);
+  };
+
+  media.is = isActive;
+  media.getState = function(breakpoint) {
+    if (breakpoint) { return isActive(breakpoint); }
+    return Object.keys(queries).filter(isActive);
+  };
+
+  return media;
+});
+
+/* istanbul ignore if */
+
+define('nbd/Controller/Responsive',[
+  './Entity',
+  '../util/media'
+], function(Entity, media) {
+  'use strict';
+
+  var constructor = Entity.extend({
+    init: function() {
+      this._super.apply(this, arguments);
+      media.on('all', this.mediaView, this);
+    },
+
+    destroy: function() {
+      media.off(null, null, this);
+      if (this._view) {
+        this._view.destroy();
+      }
+      this._model.destroy();
+    },
+
+    render: function() {
+      return this._view && this._view.render.apply(this._view, arguments);
+    },
+
+    requestView: function(ViewClass) {
+      if (typeof ViewClass !== 'function') {
+        ViewClass = media.getState().map(function(state) {
+          return this && this[state];
+        }, ViewClass)
+        .filter(Boolean)[0];
+      }
+      if (typeof ViewClass === 'function' &&
+          !(this._view instanceof ViewClass)) {
+        this.switchView(ViewClass, this._model);
+      }
+    },
+
+    mediaView: function(breakpoint, active) {
+      var ViewClass = this.constructor.VIEW_CLASS;
+      if (typeof ViewClass !== 'function') {
+        ViewClass = ViewClass[breakpoint];
+        if (typeof ViewClass === 'function' && active) {
+          this.requestView(ViewClass);
+        }
+      }
+    }
   });
 
   return constructor;
@@ -1792,75 +1916,6 @@ define('nbd/util/deparam',[],function() {
 
 /* istanbul ignore if */
 
-/**
- * Responsive media query callbacks
- * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
- */
-/*global matchMedia, msMatchMedia */
-define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub) {
-  'use strict';
-
-  var queries = {},
-  mqChange,
-  mMedia = typeof matchMedia !== 'undefined' ? matchMedia :
-           typeof msMatchMedia !== 'undefined' ? msMatchMedia :
-           null;
-
-  function bindMedia(breakpoint, query) {
-    var match;
-    if (match = queries[breakpoint]) {
-      match.removeListener(match.listener);
-    }
-
-    match = mMedia(query);
-    match.listener = mqChange.bind(match, breakpoint);
-    match.addListener(match.listener);
-    queries[breakpoint] = match;
-    if (match.matches) { mqChange.call(match, breakpoint); }
-  }
-
-  function isActive(breakpoint) {
-    return queries[breakpoint] && queries[breakpoint].matches;
-  }
-
-  function media(options, query) {
-    // No matchMedia support
-    if (!mMedia) {
-      throw new Error('Media queries not supported.');
-    }
-
-    // Has matchMedia support
-    if (typeof options === 'string') {
-      bindMedia(options, query);
-      return media;
-    }
-
-    if (typeof options === 'object') {
-      Object.keys(options).forEach(function(breakpoint) {
-        bindMedia(breakpoint, this[breakpoint]);
-      }, options);
-    }
-    return media;
-  }
-
-  extend(media, pubsub);
-
-  mqChange = function(breakpoint) {
-    media.trigger(breakpoint + (this.matches ? ':enter' : ':exit'));
-    media.trigger(breakpoint, this.matches);
-  };
-
-  media.is = isActive;
-  media.getState = function(breakpoint) {
-    if (breakpoint) { return isActive(breakpoint); }
-    return Object.keys(queries).filter(isActive);
-  };
-
-  return media;
-});
-
-/* istanbul ignore if */
-
 define('nbd/util/pipe',[],function() {
   'use strict';
 
@@ -1923,6 +1978,7 @@ define('build/all',[
        'nbd/View/Element',
        'nbd/Controller',
        'nbd/Controller/Entity',
+       'nbd/Controller/Responsive',
        'nbd/Promise',
        'nbd/event',
        'nbd/trait/promise',
@@ -1936,7 +1992,7 @@ define('build/all',[
        'nbd/util/media',
        'nbd/util/pipe',
        'nbd/util/when'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, Promise, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
+], function(Class, Model, View, EntityView, ElementView, Controller, Entity, Responsive, Promise, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
   'use strict';
 
   var exports = {
@@ -1966,6 +2022,7 @@ define('build/all',[
   exports.View.Element = ElementView;
   exports.View.Entity = EntityView;
   exports.Controller.Entity = Entity;
+  exports.Controller.Responsive = Responsive;
 
   return exports;
 });
