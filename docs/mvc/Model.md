@@ -13,6 +13,8 @@ Events:
 
 The data-wrapping class of **nbd.js**. It is meant to be instanciated with the data object you want to manage. The primary purpose of having the `Model` class manage a data object is to have a consistent interface by which the data is accessed and modified, and to provide change notification.
 
+Async Diff Check:
+
 When a `Model` instance has its data members changed according to the [`nbd/util/diff`](../util/diff.md) module, it triggers an event with the same name as the key of the member that has changed, with the value as the argument to the event.
 This change detection happens off the current callstack, so as not to put overhead on data manipulation itself.
 
@@ -40,7 +42,7 @@ In addition to the data, `Model` can also be created with an id for the common u
 
 The accessor method for retrieving the entire data object.
 
-It is one of the two interface accessor methods. Calling it will trigger an async diff check if data has changed. This is so that you can retrieve the object once, make manipulations to it, and then have the `Model` automatically detect all the changes.
+It is one of the two interface accessor methods. Calling it **will** trigger an async diff check if data has changed – firing off events of the changed keys. This is so that you can retrieve the object once, make manipulations to it, and then have the `Model` automatically detect all the changes.
 
 **returns** *Object* The data object that the instance of `Model` is managing
 
@@ -56,7 +58,7 @@ It is the other accessor method. Calling it will *not* trigger an async diff che
 ## `.set( data )`
 
 The setter function. It takes two forms, either the key-value pair as two arguments, or an object of keys and values.
-Calling this method will trigger an async diff check.
+Calling this method **will** trigger an async diff check.
 
 **returns** ___this___
 
