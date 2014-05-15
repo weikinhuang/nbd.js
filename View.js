@@ -14,8 +14,8 @@ define([
 
       this.trigger('prerender', $existing);
 
-      this.$view = constructor.domify(this.template(data || this.templateData()));
-      constructor.replace($existing, this.$view);
+      this.$view = this.constructor.domify(this.template(data || this.templateData()));
+      this.constructor.replace($existing, this.$view);
 
       this.trigger('postrender', this.$view);
 
@@ -31,7 +31,7 @@ define([
     templateData: function() { return {}; },
 
     destroy: function() {
-      constructor.remove(this.$view);
+      this.constructor.remove(this.$view);
       this.$view = null;
       this.off().stopListening();
     }
