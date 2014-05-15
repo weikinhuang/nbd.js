@@ -15,13 +15,13 @@ define(['../View'], function(View) {
 
       this.trigger('prerender', $existing);
 
-      this.$view = View.domify(this.template(data || this.templateData()));
+      this.$view = this.constructor.domify(this.template(data || this.templateData()));
 
       if ($existing) {
-        View.replace($existing, this.$view);
+        this.constructor.replace($existing, this.$view);
       }
       else {
-        View.appendTo(this.$view, this.$parent);
+        this.constructor.appendTo(this.$view, this.$parent);
       }
 
       this.trigger('postrender', this.$view);

@@ -32,14 +32,14 @@ define(['../View'], function(View) {
 
       if (fresh) {
         this.trigger('prerender', $existing);
-        this.$view = View.domify(this.template(this.templateData()));
+        this.$view = this.constructor.domify(this.template(this.templateData()));
       }
 
       if ($parent) {
-        View.appendTo(this.$view, $parent);
+        this.constructor.appendTo(this.$view, $parent);
       }
       else {
-        View.replace($existing, this.$view);
+        this.constructor.replace($existing, this.$view);
       }
 
       if (fresh) {
