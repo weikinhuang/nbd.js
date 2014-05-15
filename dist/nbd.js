@@ -1184,8 +1184,8 @@ define('nbd/View',[
 
       this.trigger('prerender', $existing);
 
-      this.$view = constructor.domify(this.template(data || this.templateData()));
-      constructor.replace($existing, this.$view);
+      this.$view = this.constructor.domify(this.template(data || this.templateData()));
+      this.constructor.replace($existing, this.$view);
 
       this.trigger('postrender', this.$view);
 
@@ -1201,7 +1201,7 @@ define('nbd/View',[
     templateData: function() { return {}; },
 
     destroy: function() {
-      constructor.remove(this.$view);
+      this.constructor.remove(this.$view);
       this.$view = null;
       this.off().stopListening();
     }
@@ -1282,14 +1282,14 @@ define('nbd/View/Entity',['../View'], function(View) {
 
       if (fresh) {
         this.trigger('prerender', $existing);
-        this.$view = View.domify(this.template(this.templateData()));
+        this.$view = this.constructor.domify(this.template(this.templateData()));
       }
 
       if ($parent) {
-        View.appendTo(this.$view, $parent);
+        this.constructor.appendTo(this.$view, $parent);
       }
       else {
-        View.replace($existing, this.$view);
+        this.constructor.replace($existing, this.$view);
       }
 
       if (fresh) {
@@ -1324,13 +1324,13 @@ define('nbd/View/Element',['../View'], function(View) {
 
       this.trigger('prerender', $existing);
 
-      this.$view = View.domify(this.template(data || this.templateData()));
+      this.$view = this.constructor.domify(this.template(data || this.templateData()));
 
       if ($existing) {
-        View.replace($existing, this.$view);
+        this.constructor.replace($existing, this.$view);
       }
       else {
-        View.appendTo(this.$view, this.$parent);
+        this.constructor.appendTo(this.$view, this.$parent);
       }
 
       this.trigger('postrender', this.$view);
