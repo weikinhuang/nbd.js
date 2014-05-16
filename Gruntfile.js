@@ -21,7 +21,18 @@ module.exports = function(grunt) {
     },
     requirejs: {
       build: {
-        options: grunt.file.readJSON('build/build.json')
+        options: {
+          "baseUrl": ".",
+          "optimize": "none",
+          "name": "index",
+          "useStrict": true,
+          "include": ["node_modules/almond/almond"],
+          "wrap": {
+            "start": "(function(root) {",
+            "end": "return root.nbd = require('index'); })(this);"
+          },
+          "out": "dist/nbd.js"
+        }
       }
     },
     uglify: {
@@ -30,7 +41,7 @@ module.exports = function(grunt) {
           report: 'gzip'
         },
         files: {
-          'dist/nbd.min.js':['dist/nbd.js']
+          'dist/nbd.min.js': ['dist/nbd.js']
         }
       }
     },
@@ -68,8 +79,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-karma');
 
-  grunt.registerTask('build', ['clean:build', 'jshint', 'requirejs:build', 'uglify:build']);
+  grunt.registerTask('build', ['clean:build', 'requirejs:build', 'uglify:build']);
   grunt.registerTask('test', ['karma:persistent']);
   grunt.registerTask('travis', ['jshint', 'karma:multi', 'promises']);
-  grunt.registerTask('default', ['build']);
+  grunt.registerTask('default', ['jshint', 'build']);
 };

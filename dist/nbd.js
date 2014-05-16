@@ -424,7 +424,7 @@ define("node_modules/almond/almond", function(){});
 
 /* istanbul ignore if */
 
-define('nbd/Class',[],function() {
+define('Class',[],function() {
   "use strict";
 
   // The base Class implementation (does nothing)
@@ -562,7 +562,7 @@ define('nbd/Class',[],function() {
  * @see https://github.com/NobleJS/setImmediate
  * @module util/async
  */
-define('nbd/util/async',[],function() {
+define('util/async',[],function() {
   'use strict';
 
   var global = typeof global !== 'undefined' ? global :
@@ -791,7 +791,7 @@ define('nbd/util/async',[],function() {
 
 /* istanbul ignore if */
 
-define('nbd/util/extend',[],function() {
+define('util/extend',[],function() {
   'use strict';
 
   return function(obj) {
@@ -808,7 +808,7 @@ define('nbd/util/extend',[],function() {
 
 /* istanbul ignore if */
 
-define('nbd/util/diff',['./extend'], function(extend) {
+define('util/diff',['./extend'], function(extend) {
   'use strict';
 
   var stack = [];
@@ -900,7 +900,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
 
 /* istanbul ignore if */
 
-define('nbd/util/curry',[],function() {
+define('util/curry',[],function() {
   'use strict';
 
   var toStr = Object.prototype.toString;
@@ -919,7 +919,7 @@ define('nbd/util/curry',[],function() {
 
 /* istanbul ignore if */
 
-define('nbd/trait/pubsub',['../util/curry'], function(curry) {
+define('trait/pubsub',['../util/curry'], function(curry) {
   'use strict';
 
   // Regular expression used to split event strings
@@ -1058,7 +1058,7 @@ define('nbd/trait/pubsub',['../util/curry'], function(curry) {
 
 /* istanbul ignore if */
 
-define('nbd/Model',[
+define('Model',[
   './Class',
   './util/async',
   './util/extend',
@@ -1170,7 +1170,7 @@ define('nbd/Model',[
 
 /* istanbul ignore if */
 
-define('nbd/View',[
+define('View',[
   './Class',
   './trait/pubsub'
 ], function(Class, pubsub) {
@@ -1250,7 +1250,7 @@ define('nbd/View',[
 
 /* istanbul ignore if */
 
-define('nbd/View/Entity',['../View'], function(View) {
+define('View/Entity',['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
@@ -1309,7 +1309,7 @@ define('nbd/View/Entity',['../View'], function(View) {
 
 /* istanbul ignore if */
 
-define('nbd/View/Element',['../View'], function(View) {
+define('View/Element',['../View'], function(View) {
   "use strict";
 
   var constructor = View.extend({
@@ -1348,7 +1348,7 @@ define('nbd/View/Element',['../View'], function(View) {
 
 /* istanbul ignore if */
 
-define('nbd/util/construct',[],function() {
+define('util/construct',[],function() {
   'use strict';
 
   var toStr = Object.prototype.toString;
@@ -1368,7 +1368,7 @@ define('nbd/util/construct',[],function() {
 
 /* istanbul ignore if */
 
-define('nbd/Controller',[
+define('Controller',[
   './Class',
   './util/construct'
 ],  function(Class, construct) {
@@ -1403,7 +1403,7 @@ define('nbd/Controller',[
 
 /* istanbul ignore if */
 
-define('nbd/Controller/Entity',[
+define('Controller/Entity',[
   '../util/construct',
   '../Controller',
   '../View/Entity',
@@ -1456,7 +1456,7 @@ define('nbd/Controller/Entity',[
  * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
  */
 /*global matchMedia, msMatchMedia */
-define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub) {
+define('util/media',['./extend', '../trait/pubsub'], function(extend, pubsub) {
   'use strict';
 
   var queries = {},
@@ -1520,7 +1520,7 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
 
 /* istanbul ignore if */
 
-define('nbd/Controller/Responsive',[
+define('Controller/Responsive',[
   './Entity',
   '../util/media'
 ], function(Entity, media) {
@@ -1573,7 +1573,7 @@ define('nbd/Controller/Responsive',[
 
 /* istanbul ignore if */
 
-define('nbd/Promise',['./util/async', './util/construct', './util/extend'], function(async, construct, extend) {
+define('Promise',['./util/async', './util/construct', './util/extend'], function(async, construct, extend) {
   'use strict';
 
   function Promise(starting) {
@@ -1760,7 +1760,7 @@ define('nbd/Promise',['./util/async', './util/construct', './util/extend'], func
 
 /* istanbul ignore if */
 
-define('nbd/event',[
+define('event',[
   './util/extend',
   './trait/pubsub'
 ], function(extend, pubsub) {
@@ -1778,7 +1778,7 @@ define('nbd/event',[
 
 /* istanbul ignore if */
 
-define('nbd/trait/promise',['../Promise', '../util/extend'], function(Promise, extend) {
+define('trait/promise',['../Promise', '../util/extend'], function(Promise, extend) {
   'use strict';
 
   var promiseMe = function promise() {
@@ -1820,7 +1820,7 @@ define('nbd/trait/promise',['../Promise', '../util/extend'], function(Promise, e
  * Extraction of the deparam method from Ben Alman's jQuery BBQ
  * @see http://benalman.com/projects/jquery-bbq-plugin/
  */
-define('nbd/util/deparam',[],function() {
+define('util/deparam',[],function() {
   'use strict';
 
   return function (params, coerce) {
@@ -1916,7 +1916,7 @@ define('nbd/util/deparam',[],function() {
 
 /* istanbul ignore if */
 
-define('nbd/util/pipe',[],function() {
+define('util/pipe',[],function() {
   'use strict';
 
   return function chain() {
@@ -1933,7 +1933,7 @@ define('nbd/util/pipe',[],function() {
 
 /* istanbul ignore if */
 
-define('nbd/util/when',['../Promise'], function(Promise) {
+define('util/when',['../Promise'], function(Promise) {
   'use strict';
 
   var ret = function() { return this; };
@@ -1970,28 +1970,28 @@ define('nbd/util/when',['../Promise'], function(Promise) {
 
 
 
-define('build/all',[
-       'nbd/Class',
-       'nbd/Model',
-       'nbd/View',
-       'nbd/View/Entity',
-       'nbd/View/Element',
-       'nbd/Controller',
-       'nbd/Controller/Entity',
-       'nbd/Controller/Responsive',
-       'nbd/Promise',
-       'nbd/event',
-       'nbd/trait/promise',
-       'nbd/trait/pubsub',
-       'nbd/util/async',
-       'nbd/util/construct',
-       'nbd/util/curry',
-       'nbd/util/deparam',
-       'nbd/util/diff',
-       'nbd/util/extend',
-       'nbd/util/media',
-       'nbd/util/pipe',
-       'nbd/util/when'
+define('index',[
+       './Class',
+       './Model',
+       './View',
+       './View/Entity',
+       './View/Element',
+       './Controller',
+       './Controller/Entity',
+       './Controller/Responsive',
+       './Promise',
+       './event',
+       './trait/promise',
+       './trait/pubsub',
+       './util/async',
+       './util/construct',
+       './util/curry',
+       './util/deparam',
+       './util/diff',
+       './util/extend',
+       './util/media',
+       './util/pipe',
+       './util/when'
 ], function(Class, Model, View, EntityView, ElementView, Controller, Entity, Responsive, Promise, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
   'use strict';
 
@@ -2027,4 +2027,4 @@ define('build/all',[
   return exports;
 });
 
-root.nbd = require('build/all'); })(this);
+return root.nbd = require('index'); })(this);

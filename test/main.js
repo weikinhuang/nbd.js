@@ -2,12 +2,18 @@ require.onError=function(err) {
   throw new Error([err.requireType, err.requireModules].join(' '));
 };
 require({
-  baseUrl: '/base',
+  baseUrl: '/base/test/specs',
   paths: {
-    'real' : '.',
-    'nbd' : 'test/specs'
+    'nbd': '.',
+    'real': '../..',
+    'index': '../../index',
+  },
+  map: {
+    'index': {
+      '.': 'nbd'
+    }
   },
   deps: [
-    'test/lib/es5-shim'
+    '../lib/es5-shim'
   ]
-}, ['build/all'], window.__karma__.start);
+}, ['index'], window.__karma__.start);

@@ -1,27 +1,27 @@
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 
 define([
-       'nbd/Class',
-       'nbd/Model',
-       'nbd/View',
-       'nbd/View/Entity',
-       'nbd/View/Element',
-       'nbd/Controller',
-       'nbd/Controller/Entity',
-       'nbd/Controller/Responsive',
-       'nbd/Promise',
-       'nbd/event',
-       'nbd/trait/promise',
-       'nbd/trait/pubsub',
-       'nbd/util/async',
-       'nbd/util/construct',
-       'nbd/util/curry',
-       'nbd/util/deparam',
-       'nbd/util/diff',
-       'nbd/util/extend',
-       'nbd/util/media',
-       'nbd/util/pipe',
-       'nbd/util/when'
+       './Class',
+       './Model',
+       './View',
+       './View/Entity',
+       './View/Element',
+       './Controller',
+       './Controller/Entity',
+       './Controller/Responsive',
+       './Promise',
+       './event',
+       './trait/promise',
+       './trait/pubsub',
+       './util/async',
+       './util/construct',
+       './util/curry',
+       './util/deparam',
+       './util/diff',
+       './util/extend',
+       './util/media',
+       './util/pipe',
+       './util/when'
 ], function(Class, Model, View, EntityView, ElementView, Controller, Entity, Responsive, Promise, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
   'use strict';
 

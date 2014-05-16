@@ -16,7 +16,7 @@
     "type": "git",
     "url": "git://github.com/behance/nbd.js.git"
   },
-  "main": "build/all",
+  "main": "index.js",
   "dependencies": {
     "amdefine": ">=0.0.2"
   },

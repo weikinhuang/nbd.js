@@ -6,7 +6,7 @@
   "authors": [
     "Alex Lee <axal@adobe.com>"
   ],
-  "main": "build/all",
+  "main": "index.js",
   "moduleType": [
     "amd"
   ],
@@ -24,7 +24,6 @@
     "node_modules",
     "test",
     "docs",
-    "dist",
-    "build"
+    "dist"
   ]
 }
