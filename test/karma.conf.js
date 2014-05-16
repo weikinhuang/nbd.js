@@ -22,7 +22,7 @@ module.exports = function(config) {
       'test/lib/jasmine-jquery.js',
 
       {pattern: 'test/lib/es5-shim.js', included: false},
-      {pattern: 'build/all.js', included: false},
+      {pattern: 'index.js', included: false},
       {pattern: '*.js', included: false},
       {pattern: 'Controller/**/*.js', included: false},
       {pattern: 'View/**/*.js', included: false},
