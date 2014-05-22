@@ -46,6 +46,8 @@ define([
         }
       }
     }
+  }, {
+    displayName: 'Controller/Responsive'
   });
 
   return constructor;

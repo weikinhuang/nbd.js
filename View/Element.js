@@ -32,6 +32,8 @@ define(['../View'], function(View) {
 
       return this.$view;
     }
+  }, {
+    displayName: 'View/Element'
   });
 
   return constructor;

@@ -104,6 +104,8 @@ define([
     toJSON: function() {
       return this._data;
     }
+  }, {
+    displayName: 'Model'
   })
   .mixin(pubsub);
 

@@ -28,6 +28,8 @@ define([
 
       existing.destroy();
     }
+  }, {
+    displayName: 'Controller'
   });
 
   return constructor;
