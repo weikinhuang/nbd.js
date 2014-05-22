@@ -34,7 +34,7 @@ define([
     },
 
     destroy: function() {
-      this._super();
+      this.off();
       this.container = null;
     },
 
@@ -82,7 +82,7 @@ define([
     },
 
     attach: function(handler) {
-      if (handler) {
+      if (typeof handler === 'function') {
         _logHandlers.push(handler);
       }
     },

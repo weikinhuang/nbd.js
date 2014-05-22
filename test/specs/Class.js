@@ -166,6 +166,25 @@ define(['real/Class'], function(Class) {
         expect(Klass.prototype.bigDeal).toBe('yes');
         expect(kInstance.bigDeal).toBe('yes');
       });
+
+      it('mixes in getters/setters', function() {
+        var spy = jasmine.createSpy().andCallFake(function self() {
+          return self.last = !self.last;
+        });
+
+        Klass.mixin({
+          get flipflop() {
+            return spy();
+          }
+        });
+
+        expect(spy).not.toHaveBeenCalled();
+        expect(kInstance.flipflop && kInstance.flipflop).toBe(false);
+        expect(spy.callCount).toBe(2);
+        expect(kInstance.flipflop || kInstance.flipflop).toBe(true);
+        // Lazy evaluation means second flipflop is not accessed
+        expect(spy.callCount).toBe(3);
+      });
     });
 
     describe('Class.inherits', function() {
