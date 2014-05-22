@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, runs, waitsFor */
 define(['real/util/async'], function(async) {
   'use strict';
 

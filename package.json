@@ -1,6 +1,6 @@
 {
   "name": "nbd",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "No Big Deal modular MVC and tools library",
   "keywords": [
     "mvc",

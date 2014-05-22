@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, runs, beforeEach, waits */
 define(['real/util/when', 'nbd/Promise'], function(when, Promise) {
   'use strict';
 
@@ -20,7 +19,7 @@ define(['real/util/when', 'nbd/Promise'], function(when, Promise) {
 
       waits(20);
       runs(function() {
-        expect(sentinel).toHaveBeenCalledWith([o,f,n,u]);
+        expect(sentinel).toHaveBeenCalledWith([o, f, n, u]);
       });
     });
 
@@ -86,7 +85,6 @@ define(['real/util/when', 'nbd/Promise'], function(when, Promise) {
         expect(sentinel).toHaveBeenCalledWith([]);
       });
     });
-
   });
 
   return when;

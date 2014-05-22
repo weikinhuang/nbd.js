@@ -1,16 +1,13 @@
-/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity, $, View, Model) {
   'use strict';
 
   describe('View/Entity', function() {
-
     it('is a View constructor', function() {
       expect(Entity).toEqual(jasmine.any(Function));
       expect(Entity.inherits(View)).toBe(true);
     });
 
     describe('.init()', function() {
-
       it('accepts a Model', function() {
         var id = Date.now(),
         model = new Model(id, {}),
@@ -29,11 +26,9 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect(instance.id()).toBe(id);
         expect(instance._model).not.toBeDefined();
       });
-
     });
 
     describe('.templateData()', function() {
-
       it('returns an object with the Model', function() {
         var model = new Model(0, {}),
         instance = new Entity(model);
@@ -46,11 +41,9 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         var instance = new Entity('not a model');
         expect(instance.templateData()).toBe('not a model');
       });
-
     });
 
     describe('.render()', function() {
-
       var id, item, $test, model, instance;
 
       beforeEach(function() {
@@ -60,7 +53,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         model = new Model(id, {item: item});
         instance = new Entity(model);
         instance.template = function(data) {
-          return $('<span>', {text: this.id()+" : "+data.item});
+          return $('<span>', {text: this.id() + " : " + data.item});
         };
       });
 
@@ -71,7 +64,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
         instance.render($test);
 
-        expect($test.text()).toEqual(id+' : '+item);
+        expect($test.text()).toEqual(id + ' : ' + item);
         expect(instance.rendered).toHaveBeenCalled();
         expect(instance.templateData).toHaveBeenCalled();
       });
@@ -90,7 +83,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         model.set('item', item);
         instance.render();
 
-        expect($test.text()).toEqual(id+' : '+item);
+        expect($test.text()).toEqual(id + ' : ' + item);
         expect(instance.rendered).toHaveBeenCalled();
         expect(instance.templateData).toHaveBeenCalled();
 
@@ -123,7 +116,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         model.set('item', null);
         instance.render($test);
 
-        expect($test.text()).toEqual(id+' : '+item);
+        expect($test.text()).toEqual(id + ' : ' + item);
         expect(instance.rendered).not.toHaveBeenCalled();
         expect(instance.templateData.callCount).toBe(1);
 
@@ -131,7 +124,6 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect(shun).toHaveBeenCalled();
         expect(shun.callCount).toBe(1);
       });
-
     });
 
     describe('.destroy()', function() {

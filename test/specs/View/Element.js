@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
   'use strict';
 
@@ -9,7 +8,7 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
       $parent = $('<div id="element-test"/>');
       instance = new Element($parent);
       instance.template = function(data) {
-        return $("<span>Hello "+data.item+"</span>");
+        return $("<span>Hello " + data.item + "</span>");
       };
     });
 
@@ -60,5 +59,4 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
   });
 
   return Element;
-
 });

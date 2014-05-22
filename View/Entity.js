@@ -52,6 +52,8 @@ define(['../View'], function(View) {
 
       return this.$view;
     }
+  }, {
+    displayName: 'View/Entity'
   });
 
   return constructor;

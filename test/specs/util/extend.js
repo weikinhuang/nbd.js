@@ -1,11 +1,10 @@
-/*global jasmine, describe, it, expect, spyOn, loadFixtures */
 define(['real/util/extend'], function(extend) {
   'use strict';
 
   describe('util/extend', function() {
-    var a = {one:true}, 
-    b = {two:true}, 
-    c = {one:false, three:true};
+    var a = {one: true},
+    b = {two: true},
+    c = {one: false, three: true};
 
     it('adds properties from subsequent arguments to first argument', function() {
       var result = extend(a, b);

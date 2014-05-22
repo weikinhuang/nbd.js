@@ -1,9 +1,7 @@
-/*global jasmine, describe, it, expect, spyOn */
 define(['real/util/media'], function(media) {
   'use strict';
 
   describe('util/media', function() {
-
     it('is a function', function() {
       expect(media).toEqual(jasmine.any(Function));
     });
@@ -19,7 +17,6 @@ define(['real/util/media'], function(media) {
     });
 
     if (window.matchMedia || window.msMatchMedia) {
-
       it('fires a breakpoint from media queries', function() {
         var spy = jasmine.createSpy('onepixel');
         media.on('onepx', spy);
@@ -31,8 +28,8 @@ define(['real/util/media'], function(media) {
       it('takes an object map of breakpoints to queries', function() {
         expect(function() {
           media({
-            'foo': '(min-width: 1px)',
-            'bar': '(max-width: 0px)'
+            foo: '(min-width: 1px)',
+            bar: '(max-width: 0px)'
           });
         }).not.toThrow();
       });
@@ -46,16 +43,13 @@ define(['real/util/media'], function(media) {
       });
 
       describe('is()', function() {
-
         it('reports breakpoint states', function() {
           expect(media.is('onepx')).toBe(true);
           expect(media.is('zeropx')).toBe(false);
         });
-
       });
 
       describe('getState()', function() {
-
         it('reports all currently active breakpoints', function() {
           var states = media.getState();
           expect(states).toEqual(jasmine.any(Array));
@@ -70,12 +64,9 @@ define(['real/util/media'], function(media) {
           expect(media.getState('onepx')).toBe(true);
           expect(media.getState('zeropx')).toBe(false);
         });
-
       });
     }
-
   });
 
   return media;
-
 });

@@ -36,6 +36,7 @@ define([
       this.off().stopListening();
     }
   }, {
+    displayName: 'View',
     domify: function(html) {
       var container;
       if (typeof html === 'string') {

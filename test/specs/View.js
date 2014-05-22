@@ -1,9 +1,7 @@
-/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
   'use strict';
 
   describe('View', function() {
-
     var instance;
 
     beforeEach(function() {

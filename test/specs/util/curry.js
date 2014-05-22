@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, beforeEach */
 define(['real/util/curry'], function(curry) {
   'use strict';
 

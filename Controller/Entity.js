@@ -36,6 +36,7 @@ define([
       return this._model.toJSON();
     }
   }, {
+    displayName: 'Controller/Entity',
     // Corresponding Entity View class
     VIEW_CLASS: View,
 

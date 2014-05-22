@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, spyOn, mostRecentAjaxRequest */
 define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View'], function(Controller, $, Class, View) {
   'use strict';
 
@@ -16,14 +15,12 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View'], function(Controll
     });
 
     describe('.destroy()', function() {
-
       it('is a function', function() {
         expect(inst.destroy).toEqual(jasmine.any(Function));
         expect(function() {
           inst.destroy();
         }).not.toThrow();
       });
-
     });
 
     describe('._initView()', function() {
@@ -65,7 +62,6 @@ define(['real/Controller', 'jquery', 'nbd/Class', 'nbd/View'], function(Controll
         expect(Klass.prototype.destroy).toHaveBeenCalled();
       });
     });
-
   });
 
   return Controller;

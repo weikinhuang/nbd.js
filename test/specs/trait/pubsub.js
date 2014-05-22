@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, beforeEach  */
 define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
   'use strict';
 
@@ -60,9 +59,9 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         expect(spy.callCount).toEqual(5);
       });
 
-      it("binds a callback with a supplied context", function () {
+      it("binds a callback with a supplied context", function() {
         var obj,
-        TestClass = function () {},
+        TestClass = function() {},
         instance = new TestClass();
 
         obj = extend({}, pubsub);
@@ -109,7 +108,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         expect(spy.callCount).toEqual(2);
       });
 
-      it("callback list is not altered during trigger", function () {
+      it("callback list is not altered during trigger", function() {
         var cb = jasmine.createSpy();
 
         obj.on('event', function() {
@@ -120,7 +119,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         expect(cb).not.toHaveBeenCalled();
 
         obj.off()
-        .on('event', function(){
+        .on('event', function() {
           obj.off('event', cb).off('all', cb);
         })
         .on('event', cb).on('all', cb)
@@ -215,14 +214,14 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         // With no events
         expect(obj.off()).toBe(obj);
         // When removing all events
-        obj.on('event', function(){}, obj);
+        obj.on('event', function() {}, obj);
         expect(obj.off()).toBe(obj);
         // When removing some events
-        obj.on('event', function(){}, obj);
+        obj.on('event', function() {}, obj);
         expect(obj.off()).toBe(obj);
       });
 
-      it("nested trigger with unbind", function () {
+      it("nested trigger with unbind", function() {
         var cb = jasmine.createSpy('secondary')
         .andCallFake(function() {
           obj.off('event', cb).trigger('event');
