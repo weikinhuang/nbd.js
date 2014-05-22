@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, runs, waitsFor */
 define(['real/util/construct'], function(construct) {
   'use strict';
 
@@ -25,7 +24,7 @@ define(['real/util/construct'], function(construct) {
         args = arguments;
       }
 
-      for (i=0; i < Math.random()*10; ++i) {
+      for (i=0; i < Math.random() * 10; ++i) {
         testArr.push(Math.random());
       }
 

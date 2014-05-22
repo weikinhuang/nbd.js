@@ -1,9 +1,7 @@
-/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity', 'nbd/Model'], function($, Entity, Controller, View, Model) {
   'use strict';
 
   describe('Controller/Entity', function() {
-
     var instance;
 
     it('is a Controller constructor', function() {
@@ -15,7 +13,7 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
       Entity.MODEL_CLASS = Model;
       Entity.VIEW_CLASS = View;
 
-      instance = new Entity(0,{});
+      instance = new Entity(0, {});
     });
 
     describe('.init()', function() {
@@ -27,7 +25,6 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         expect(instance._view).toBeDefined();
         expect(instance._view._controller).toBe(instance);
         expect(instance._view.id()).toBe(instance._model.id());
-
       });
     });
 

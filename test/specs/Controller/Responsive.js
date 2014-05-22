@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, media) {
   'use strict';
 
@@ -198,4 +197,3 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
 
   return Responsive;
 });
-

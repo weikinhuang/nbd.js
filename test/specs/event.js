@@ -1,16 +1,14 @@
-/*global jasmine, describe, it, expect, spyOn, beforeEach, afterEach */
 define(['real/event'], function(event) {
   'use strict';
 
   describe('event', function() {
-
     it('is an object', function() {
       expect(event).toEqual(jasmine.any(Object));
       expect(event.on).toEqual(jasmine.any(Function));
       expect(event.off).toEqual(jasmine.any(Function));
       expect(event.trigger).toEqual(jasmine.any(Function));
     });
-    
+
     it('has an alternate interface', function() {
       expect(event.bind).toEqual(jasmine.any(Function));
       expect(event.bind).toBe(event.on);
@@ -50,7 +48,6 @@ define(['real/event'], function(event) {
 
         expect(middle).not.toHaveBeenCalled();
       });
-
     });
 
     describe('.unbind()', function() {
@@ -62,7 +59,7 @@ define(['real/event'], function(event) {
       });
 
       it('should allow unbinding nonexistent events', function() {
-        expect(function(){ event.unbind('lalilulelo'); }).not.toThrow();
+        expect(function() { event.unbind('lalilulelo'); }).not.toThrow();
       });
 
       afterEach(function() {
@@ -88,9 +85,7 @@ define(['real/event'], function(event) {
         expect(first).not.toHaveBeenCalled();
         expect(last).not.toHaveBeenCalled();
       });
-
     });
-
   });
 
   return event;

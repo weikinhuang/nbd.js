@@ -1,9 +1,7 @@
-/*global jasmine, describe, it, expect, spyOn, beforeEach */
 define(['real/Class'], function(Class) {
   'use strict';
 
   describe('Class', function() {
-
     it('is a constructor', function() {
       expect(Class).toBeDefined();
       expect(Class).toEqual(jasmine.any(Function));
@@ -13,7 +11,6 @@ define(['real/Class'], function(Class) {
     });
 
     describe('Class.extend', function() {
-
       it('is non-enumerable', function() {
         expect(Class.extend().propertyIsEnumerable('extend')).toBe(false);
       });
@@ -36,8 +33,8 @@ define(['real/Class'], function(Class) {
       });
 
       it('can call its super implementation', function(){
-        var superproto = {impl: function(){}},
-        subproto = {impl: function() {this._super('z');}, _super: function(){}},
+        var superproto = {impl: function() {}},
+        subproto = {impl: function() {this._super('z');}, _super: function() {}},
         Superclass, Subclass, instance;
 
         spyOn(superproto, 'impl');
@@ -169,7 +166,7 @@ define(['real/Class'], function(Class) {
 
       it('mixes in getters/setters', function() {
         var spy = jasmine.createSpy().andCallFake(function self() {
-          return self.last = !self.last;
+          return (self.last = !self.last);
         });
 
         Klass.mixin({

@@ -1,16 +1,13 @@
-/*global jasmine, describe, it, expect, beforeEach, afterEach, runs, waits, waitsFor */
 define(['real/Model', 'nbd/Class'], function(Model, Class) {
   'use strict';
 
   describe('Model', function() {
-
     it('is a Class constructor', function() {
       expect(Model).toEqual(jasmine.any(Function));
       expect(Model.inherits(Class)).toBe(true);
     });
 
     describe('.init()', function() {
-
       it('initializes with data', function() {
         var rand = Math.random(),
         instance = new Model(1, {xyz: rand}),
@@ -72,7 +69,6 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
     });
 
     describe('.get()', function() {
-
       it('returns a value', function() {
         var rand = Math.random(), instance = new Model(1, {xyz: rand});
         expect(instance.get('xyz')).toBe(rand);
@@ -87,7 +83,6 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         var instance = new Model(1, {xyz: undefined});
         expect(instance.get('xyz')).not.toBeDefined();
       });
-
     });
 
     describe('.set()', function() {
@@ -99,12 +94,12 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
       });
 
       it('accepts an object map', function() {
-        expect(function(){ instance.set({xyz: 0}); }).not.toThrow();
+        expect(function() { instance.set({xyz: 0}); }).not.toThrow();
         expect(instance.get('xyz')).toBe(0);
       });
 
       it('accepts a key/value pair', function() {
-        expect(function(){ instance.set('xyz', rand); }).not.toThrow();
+        expect(function() { instance.set('xyz', rand); }).not.toThrow();
         expect(instance.get('xyz')).toBe(rand);
       });
 
@@ -290,9 +285,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
             expect(instance.get('foo')).toBe('goats');
           });
         });
-
       });
-
     });
 
     describe('.toJSON()', function() {
@@ -321,9 +314,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         expect(cb).not.toHaveBeenCalled();
       });
     });
-
   });
 
   return Model;
-
 });

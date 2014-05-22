@@ -1,0 +1,13 @@
+{
+  "globals": {
+    "jasmine": true,
+    "describe": true,
+    "xdescribe": true,
+    "it": true,
+    "xit": true,
+    "beforEach": true,
+    "afterEach": true,
+    "describe": true,
+    "spyOn": true
+  }
+}

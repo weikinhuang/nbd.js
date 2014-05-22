@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, runs, waits, beforeEach, spyOn */
 define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
   'use strict';
 

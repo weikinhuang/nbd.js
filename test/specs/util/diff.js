@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect */
 define(['real/util/diff'], function(diff) {
   'use strict';
 
@@ -213,5 +212,4 @@ define(['real/util/diff'], function(diff) {
   });
 
   return diff;
-
 });

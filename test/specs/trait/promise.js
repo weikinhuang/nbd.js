@@ -1,4 +1,3 @@
-/*global jasmine, describe, it, expect, beforeEach, waits, runs */
 define(['real/trait/promise', 'nbd/Class', 'jquery'], function(promise, Class, $) {
   'use strict';
   // Only ever test nbd related functionality here
