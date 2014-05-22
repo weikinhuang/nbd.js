@@ -6,7 +6,7 @@ define(function() {
   // The base Class implementation (does nothing)
   var Klass = function() {},
   extend, mixin, inherits,
-  fnTest = /xyz/.test(function(){/*global xyz*/ return xyz; }) ?
+  fnTest = /xyz/.test(function() {/*global xyz*/ return xyz; }) ?
     /\b_super\b/ :
     /.*/;
 
@@ -14,12 +14,7 @@ define(function() {
   mixin = function(abstract) {
     var descriptor = {};
     Object.keys(abstract).forEach(function(prop) {
-      descriptor[prop] = {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: abstract[prop]
-      };
+      descriptor[prop] = Object.getOwnPropertyDescriptor(abstract, prop);
     });
     Object.defineProperties(this.prototype, descriptor);
     return this;
@@ -38,9 +33,8 @@ define(function() {
         if (superclass.hasOwnProperty(prop) &&
             superclass[prop] !== this.prototype[prop]) {
           return false;
-        } else {
-          result = true;
         }
+        result = true;
       }
     }
     return result;
@@ -78,8 +72,12 @@ define(function() {
           throw e;
         }
         finally {
-          if (hadSuper) { this._super = tmp; }
-          else { delete this._super; }
+          if (hadSuper) {
+            this._super = tmp;
+          }
+          else {
+            delete this._super;
+          }
         }
       };
     }
