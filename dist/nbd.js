@@ -430,7 +430,7 @@ define('Class',[],function() {
   // The base Class implementation (does nothing)
   var Klass = function() {},
   extend, mixin, inherits,
-  fnTest = /xyz/.test(function(){/*global xyz*/ return xyz; }) ?
+  fnTest = /xyz/.test(function() {/*global xyz*/ return xyz; }) ?
     /\b_super\b/ :
     /.*/;
 
@@ -438,12 +438,7 @@ define('Class',[],function() {
   mixin = function(abstract) {
     var descriptor = {};
     Object.keys(abstract).forEach(function(prop) {
-      descriptor[prop] = {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: abstract[prop]
-      };
+      descriptor[prop] = Object.getOwnPropertyDescriptor(abstract, prop);
     });
     Object.defineProperties(this.prototype, descriptor);
     return this;
@@ -462,9 +457,8 @@ define('Class',[],function() {
         if (superclass.hasOwnProperty(prop) &&
             superclass[prop] !== this.prototype[prop]) {
           return false;
-        } else {
-          result = true;
         }
+        result = true;
       }
     }
     return result;
@@ -502,8 +496,12 @@ define('Class',[],function() {
           throw e;
         }
         finally {
-          if (hadSuper) { this._super = tmp; }
-          else { delete this._super; }
+          if (hadSuper) {
+            this._super = tmp;
+          }
+          else {
+            delete this._super;
+          }
         }
       };
     }
@@ -1162,6 +1160,8 @@ define('Model',[
     toJSON: function() {
       return this._data;
     }
+  }, {
+    displayName: 'Model'
   })
   .mixin(pubsub);
 
@@ -1206,6 +1206,7 @@ define('View',[
       this.off().stopListening();
     }
   }, {
+    displayName: 'View',
     domify: function(html) {
       var container;
       if (typeof html === 'string') {
@@ -1302,6 +1303,8 @@ define('View/Entity',['../View'], function(View) {
 
       return this.$view;
     }
+  }, {
+    displayName: 'View/Entity'
   });
 
   return constructor;
@@ -1341,6 +1344,8 @@ define('View/Element',['../View'], function(View) {
 
       return this.$view;
     }
+  }, {
+    displayName: 'View/Element'
   });
 
   return constructor;
@@ -1396,6 +1401,8 @@ define('Controller',[
 
       existing.destroy();
     }
+  }, {
+    displayName: 'Controller'
   });
 
   return constructor;
@@ -1439,6 +1446,7 @@ define('Controller/Entity',[
       return this._model.toJSON();
     }
   }, {
+    displayName: 'Controller/Entity',
     // Corresponding Entity View class
     VIEW_CLASS: View,
 
@@ -1566,6 +1574,8 @@ define('Controller/Responsive',[
         }
       }
     }
+  }, {
+    displayName: 'Controller/Responsive'
   });
 
   return constructor;
@@ -1760,6 +1770,113 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
 
 /* istanbul ignore if */
 
+define('Logger',[
+  './Class',
+  './trait/pubsub',
+  './util/construct',
+  './util/extend'
+], function(Class, pubsub, construct, extend) {
+  "use strict";
+
+  var _logHandlers = [],
+
+  Logger = Class.extend({
+    init: function(name) {
+      if (typeof name === 'string') {
+        this.name = name;
+      }
+      else if (name) {
+        this.container = name;
+      }
+
+      this.levels.forEach(function(level) {
+        this[level] = this._log.bind(this, level);
+      }, this);
+
+      Object.defineProperty(this, 'level', {
+        writable: true,
+        value: 0
+      });
+
+      if (!this.hasOwnProperty('log')) {
+        this.log = this[this.levels[0]];
+      }
+    },
+
+    destroy: function() {
+      this.off();
+      this.container = null;
+    },
+
+    levels: ['debug', 'log', 'info', 'warn', 'error'],
+
+    setLevel: function(level) {
+      var i;
+      if (~(i = this.levels.indexOf(level))) {
+        this.level = i;
+      }
+    },
+
+    attach: function(route) {
+      this.on('all', route);
+    },
+
+    remove: function(route) {
+      this.off(null, route);
+    },
+
+    _log: function(level) {
+      var i, params;
+
+      if ((i = this.levels.indexOf(level)) < this.level) { return; }
+
+      params = Array.prototype.slice.call(arguments, 1);
+      this.trigger(this.levels[i], {
+        context: this._name(),
+        params: params
+      });
+    },
+
+    _name: function() {
+      var local = this.container && Object.getPrototypeOf(this.container).constructor;
+      return this.name || local && (local.displayName || local.name);
+    }
+  }, {
+    displayName: 'Logger',
+
+    get: function(name) {
+      var logger = construct.call(this, name);
+      logger.attach(this.global);
+      this.attach(this.console);
+      return logger;
+    },
+
+    attach: function(handler) {
+      if (typeof handler === 'function') {
+        _logHandlers.push(handler);
+      }
+    },
+
+    global: function(level, message) {
+      _logHandlers.forEach(function(handler) {
+        handler(level, message);
+      });
+    },
+
+    console: function(level, message) {
+      if (message.context) {
+        message.params.unshift('%c' + message.context, 'color:gray');
+      }
+      console[level].apply(console, message.params);
+    }
+  })
+  .mixin(pubsub);
+
+  return Logger;
+});
+
+/* istanbul ignore if */
+
 define('event',[
   './util/extend',
   './trait/pubsub'
@@ -1774,6 +1891,34 @@ define('event',[
   exports.fire = exports.trigger;
 
   return exports;
+});
+
+/* istanbul ignore if */
+
+define('trait/log',['../Logger'], function(Logger) {
+  "use strict";
+  var trait;
+
+  try {
+    trait = {
+      get log() {
+        if (!this._logger) {
+          Object.defineProperty(this, '_logger', {
+            value: Logger.get()
+          });
+        }
+        this._logger.container = this;
+        return this._logger;
+      }
+    };
+  }
+  catch(noGetter) {
+    trait = {
+      log: Logger.get()
+    };
+  }
+
+  return trait;
 });
 
 /* istanbul ignore if */
@@ -1971,51 +2116,79 @@ define('util/when',['../Promise'], function(Promise) {
 
 
 define('index',[
-       './Class',
-       './Model',
-       './View',
-       './View/Entity',
-       './View/Element',
-       './Controller',
-       './Controller/Entity',
-       './Controller/Responsive',
-       './Promise',
-       './event',
-       './trait/promise',
-       './trait/pubsub',
-       './util/async',
-       './util/construct',
-       './util/curry',
-       './util/deparam',
-       './util/diff',
-       './util/extend',
-       './util/media',
-       './util/pipe',
-       './util/when'
-], function(Class, Model, View, EntityView, ElementView, Controller, Entity, Responsive, Promise, event, promise, pubsub, async, construct, curry, deparam, diff, extend, media, pipe, when) {
+  './Class',
+  './Model',
+  './View',
+  './View/Entity',
+  './View/Element',
+  './Controller',
+  './Controller/Entity',
+  './Controller/Responsive',
+  './Promise',
+  './Logger',
+  './event',
+  './trait/log',
+  './trait/promise',
+  './trait/pubsub',
+  './util/async',
+  './util/construct',
+  './util/curry',
+  './util/deparam',
+  './util/diff',
+  './util/extend',
+  './util/media',
+  './util/pipe',
+  './util/when'
+], function(
+  Class,
+  Model,
+  View,
+  EntityView,
+  ElementView,
+  Controller,
+  Entity,
+  Responsive,
+  Promise,
+  Logger,
+  event,
+  log,
+  promise,
+  pubsub,
+  async,
+  construct,
+  curry,
+  deparam,
+  diff,
+  extend,
+  media,
+  pipe,
+  when
+) {
   'use strict';
 
   var exports = {
-    Class : Class,
-    Model : Model,
-    View : View,
-    Controller : Controller,
-    Promise : Promise,
-    event : event,
-    trait : {
-      promise : promise,
-      pubsub : pubsub
+    Class: Class,
+    Model: Model,
+    View: View,
+    Controller: Controller,
+    Promise: Promise,
+    Logger: Logger,
+    event: event,
+    trait: {
+      log: log,
+      promise: promise,
+      pubsub: pubsub
     },
-    util : {
-      async : async,
-      construct : construct,
-      curry : curry,
-      deparam : deparam,
-      diff : diff,
-      extend : extend,
-      media : media,
-      pipe : pipe,
-      when : when
+    util: {
+      async: async,
+      construct: construct,
+      curry: curry,
+      deparam: deparam,
+      diff: diff,
+      extend: extend,
+      media: media,
+      pipe: pipe,
+      when: when
     }
   };
 
