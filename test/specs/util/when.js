@@ -13,77 +13,61 @@ define(['real/util/when', 'nbd/Promise'], function(when, Promise) {
       expect(when).toEqual(jasmine.any(Function));
     });
 
-    it('resolves immediate values', function() {
+    it('resolves immediate values', function(done) {
       var o = {}, f = function() {}, n = null, u;
-      when(o, f, n, u).then(sentinel);
-
-      waits(20);
-      runs(function() {
+      when(o, f, n, u).then(sentinel)
+      .then(function() {
         expect(sentinel).toHaveBeenCalledWith([o, f, n, u]);
-      });
+      })
+      .finally(done);
     });
 
-    it('resolves when promise resolves', function() {
-      when(promise).then(sentinel);
+    it('resolves when promise resolves', function(done) {
+      when(promise).then(sentinel)
+      .then(function() {
+        expect(sentinel).toHaveBeenCalledWith(['original']);
+      }).finally(done);
 
       promise.resolve('original');
-
-      waits(10);
-      runs(function() {
-        expect(sentinel).toHaveBeenCalledWith(['original']);
-      });
     });
 
-    it('resolves when last promise resolves', function() {
+    it('resolves when last promise resolves', function(done) {
       var last = new Promise();
 
-      when('a', last, promise).then(sentinel);
-
-      waits(10);
-      runs(function() {
-        expect(sentinel).not.toHaveBeenCalled();
-        promise.resolve('original');
-      });
-
-      waits(10);
-      runs(function() {
-        expect(sentinel).not.toHaveBeenCalled();
-        last.resolve('netflix');
-      });
-
-      waits(10);
-      runs(function() {
+      when('a', last, promise).then(sentinel)
+      .then(function() {
         expect(sentinel).toHaveBeenCalledWith(['a', 'netflix', 'original']);
-      });
+      })
+      .finally(done);
+
+      expect(sentinel).not.toHaveBeenCalled();
+      promise.resolve('original');
+
+      expect(sentinel).not.toHaveBeenCalled();
+      last.resolve('netflix');
     });
 
-    it('rejects when any promise rejects', function() {
+    it('rejects when any promise rejects', function(done) {
       var last = new Promise(),
       fail = jasmine.createSpy('then failback');
-      when(promise, last).then(sentinel, fail);
+      when(promise, last).then(sentinel, fail)
+      .then(function() {
+        expect(fail).toHaveBeenCalledWith('nok');
+      }).then(function() {
+        last.resolve('ok');
+        expect(sentinel).not.toHaveBeenCalled();
+      })
+      .finally(done);
 
       promise.reject('nok');
 
-      waits(10);
-      runs(function() {
-        expect(fail).toHaveBeenCalledWith('nok');
-        expect(sentinel).not.toHaveBeenCalled();
-        last.resolve('ok');
-      });
-
-      waits(10);
-      runs(function() {
-        expect(sentinel).not.toHaveBeenCalled();
-      });
     });
 
-    it('resolves empty calls immediately', function() {
-      when().then(sentinel);
-
-      waits(10);
-      runs(function() {
+    it('resolves empty calls immediately', function(done) {
+      when().then(sentinel)
+      .then(function() {
         expect(sentinel).toHaveBeenCalledWith([]);
-      });
+      }).finally(done);
     });
   });
 

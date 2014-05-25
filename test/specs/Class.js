@@ -165,7 +165,7 @@ define(['real/Class'], function(Class) {
       });
 
       it('mixes in getters/setters', function() {
-        var spy = jasmine.createSpy().andCallFake(function self() {
+        var spy = jasmine.createSpy().and.callFake(function self() {
           return (self.last = !self.last);
         });
 
@@ -177,10 +177,10 @@ define(['real/Class'], function(Class) {
 
         expect(spy).not.toHaveBeenCalled();
         expect(kInstance.flipflop && kInstance.flipflop).toBe(false);
-        expect(spy.callCount).toBe(2);
+        expect(spy.calls.count()).toBe(2);
         expect(kInstance.flipflop || kInstance.flipflop).toBe(true);
         // Lazy evaluation means second flipflop is not accessed
-        expect(spy.callCount).toBe(3);
+        expect(spy.calls.count()).toBe(3);
       });
     });
 

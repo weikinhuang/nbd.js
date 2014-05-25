@@ -18,24 +18,24 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('event');
         obj.trigger('event');
         obj.trigger('event');
-        expect(spy.callCount).toBe(5);
+        expect(spy.calls.count()).toBe(5);
       });
 
       it("binds and triggers multiple events", function() {
         obj.on('a b c', spy);
 
         obj.trigger('a');
-        expect(spy.callCount).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
 
         obj.trigger('a b');
-        expect(spy.callCount).toEqual(3);
+        expect(spy.calls.count()).toEqual(3);
 
         obj.trigger('c');
-        expect(spy.callCount).toEqual(4);
+        expect(spy.calls.count()).toEqual(4);
 
         obj.off('a c');
         obj.trigger('a b c');
-        expect(spy.callCount).toEqual(5);
+        expect(spy.calls.count()).toEqual(5);
       });
 
       it('binds an object hash of functions', function() {
@@ -46,17 +46,17 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         });
 
         obj.trigger('a');
-        expect(spy.callCount).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
 
         obj.trigger('a b');
-        expect(spy.callCount).toEqual(3);
+        expect(spy.calls.count()).toEqual(3);
 
         obj.trigger('c');
-        expect(spy.callCount).toEqual(4);
+        expect(spy.calls.count()).toEqual(4);
 
         obj.off('a c');
         obj.trigger('a b c');
-        expect(spy.callCount).toEqual(5);
+        expect(spy.calls.count()).toEqual(5);
       });
 
       it("binds a callback with a supplied context", function() {
@@ -80,7 +80,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
           obj.on('y', spy).on('all', spy);
         })
         .trigger('x y');
-        expect(spy.callCount).toEqual(2);
+        expect(spy.calls.count()).toEqual(2);
       });
     });
 
@@ -90,7 +90,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('event');
         obj.trigger('event');
         obj.trigger('event');
-        expect(spy.callCount).toBe(1);
+        expect(spy.calls.count()).toBe(1);
       });
 
       it("if no callback is provided, `one` is a noop", function() {
@@ -105,7 +105,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
 
         expect(spy).toHaveBeenCalledWith('a');
         expect(spy).toHaveBeenCalledWith('b');
-        expect(spy.callCount).toEqual(2);
+        expect(spy.calls.count()).toEqual(2);
       });
 
       it("callback list is not altered during trigger", function() {
@@ -124,17 +124,17 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         })
         .on('event', cb).on('all', cb)
         .trigger('event');
-        expect(cb.callCount).toEqual(2);
+        expect(cb.calls.count()).toEqual(2);
       });
 
       it("fires callbacks after an error is thrown", function() {
-        spy.andCallFake(function() { throw new Error(); });
+        spy.and.throwError();
         obj.on('event', spy);
 
         expect(function() { obj.trigger('event'); }).toThrow();
         expect(function() { obj.trigger('event'); }).toThrow();
         expect(spy).toHaveBeenCalled();
-        expect(spy.callCount).toBe(2);
+        expect(spy.calls.count()).toBe(2);
       });
     });
 
@@ -144,7 +144,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('event');
         obj.off('event');
         obj.trigger('event');
-        expect(spy.callCount).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
       });
 
       it("bind two callbacks, unbind only one", function() {
@@ -154,32 +154,32 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('event');
         obj.off('event', callback);
         obj.trigger('event');
-        expect(callback.callCount).toEqual(1);
-        expect(spy.callCount).toEqual(2);
+        expect(callback.calls.count()).toEqual(1);
+        expect(spy.calls.count()).toEqual(2);
       });
 
       it("unbind a callback in the midst of it firing", function() {
-        spy.andCallFake(function() {
+        spy.and.callFake(function() {
           obj.off('event', spy);
         });
         obj.on('event', spy);
         obj.trigger('event');
         obj.trigger('event');
         obj.trigger('event');
-        expect(spy.callCount).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
       });
 
       it("two binds that unbind themeselves", function() {
         var cb = jasmine.createSpy('secondary');
-        spy.andCallFake(function() { obj.off('event', spy); });
-        cb.andCallFake(function() { obj.off('event', cb); });
+        spy.and.callFake(function() { obj.off('event', spy); });
+        cb.and.callFake(function() { obj.off('event', cb); });
         obj.on('event', spy);
         obj.on('event', cb);
         obj.trigger('event');
         obj.trigger('event');
         obj.trigger('event');
-        expect(spy.callCount).toEqual(1);
-        expect(cb.callCount).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
+        expect(cb.calls.count()).toEqual(1);
       });
 
       it("remove all events for a specific context", function() {
@@ -223,14 +223,14 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
 
       it("nested trigger with unbind", function() {
         var cb = jasmine.createSpy('secondary')
-        .andCallFake(function() {
+        .and.callFake(function() {
           obj.off('event', cb).trigger('event');
         });
         obj.on('event', spy);
         obj.on('event', cb);
         obj.trigger('event');
-        expect(spy.callCount).toEqual(2);
-        expect(cb.callCount).toEqual(1);
+        expect(spy.calls.count()).toEqual(2);
+        expect(cb.calls.count()).toEqual(1);
       });
 
       it("does not skip consecutive events", function() {
@@ -257,7 +257,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         b.trigger('anything');
 
         expect(spyA).toHaveBeenCalled();
-        expect(spyA.callCount).toBe(1);
+        expect(spyA.calls.count()).toBe(1);
       });
 
       it("supports function as calling context", function() {
@@ -279,7 +279,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.stopListening(a);
         a.trigger('event');
         b.trigger('event');
-        expect(spy.callCount).toBe(1);
+        expect(spy.calls.count()).toBe(1);
       });
 
       it("selectively unbinds events", function() {
@@ -288,7 +288,7 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.listenTo(a, 'event horizon', spy);
         obj.stopListening(a, 'horizon');
         a.trigger('event');
-        expect(spy.callCount).toBe(1);
+        expect(spy.calls.count()).toBe(1);
       });
     });
   });

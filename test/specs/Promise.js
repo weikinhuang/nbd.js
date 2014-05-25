@@ -1,97 +1,86 @@
 define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
   'use strict';
 
+  var t = 20;
+
   // Only tests the additional functionality on top of Promises/A+
   describe('nbd/Promise', function() {
     describe('constructor', function() {
-      it('produces unresolved promise', function() {
+      it('produces unresolved promise', function(done) {
         var p = new Promise(),
         spy = jasmine.createSpy();
         p.then(spy);
 
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(spy).not.toHaveBeenCalled();
-        });
+          done();
+        }, t);
       });
 
-      it('resolves given a parameter', function() {
-        var p = new Promise('alpha'),
-        spy = jasmine.createSpy();
-        p.then(spy);
-
-        waits(10), runs(function() {
-          expect(spy).toHaveBeenCalledWith('alpha');
-        });
-      });
-
-      it('ignores all but first parameter', function() {
-        var p = new Promise('alpha', 'beta', 'gamma'),
-        spy = jasmine.createSpy();
-        p.then(spy);
-
-        waits(10), runs(function() {
-          expect(spy).toHaveBeenCalledWith('alpha');
-        });
-      });
-
-      it('can produce immediately rejected promise', function() {
-        var p = new Promise({ then: function() { throw 'reject'; } }),
+      it('can produce immediately rejected promise', function(done) {
+        var p = new Promise(),
         spy = jasmine.createSpy();
         p.then(null, spy);
+        p.reject('reject');
 
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(spy).toHaveBeenCalledWith('reject');
-        });
+          done();
+        }, t);
       });
 
-      it('can chain another resolved thenable', function() {
+      it('can chain another resolved thenable', function(done) {
         var o = new Promise(),
         p = new Promise(o.thenable()),
         spy = jasmine.createSpy();
         p.then(spy);
 
         o.resolve('accept');
-        waits(30), runs(function() {
+        setTimeout(function() {
           expect(spy).toHaveBeenCalledWith('accept');
-        });
+          done();
+        }, t);
       });
 
-      it('can chain another rejected thenable', function() {
+      it('can chain another rejected thenable', function(done) {
         var o = new Promise(),
         p = new Promise(o.thenable()),
         spy = jasmine.createSpy();
         p.then(null, spy);
 
         o.reject('accept');
-        waits(50), runs(function() {
+        setTimeout(function() {
           expect(spy).toHaveBeenCalledWith('accept');
+          done();
         });
       });
     });
 
     describe('resolved', function() {
-      it('creates a resolved promise', function() {
+      it('creates a resolved promise', function(done) {
         var p = Promise.resolved('alpha'),
         spy = jasmine.createSpy();
         p.then(spy);
 
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(spy).toHaveBeenCalledWith('alpha');
+          done();
         });
       });
     });
 
     describe('rejected', function() {
-      it('creates a rejected promise', function() {
+      it('creates a rejected promise', function(done) {
         var p = Promise.rejected('alpha'),
         goodSpy = jasmine.createSpy(),
         badSpy = jasmine.createSpy();
         p.then(goodSpy, badSpy);
 
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(goodSpy).not.toHaveBeenCalled();
           expect(badSpy).toHaveBeenCalledWith('alpha');
-        });
+          done();
+        }, t);
       });
     });
 
@@ -124,17 +113,16 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         expect(promise.reject).not.toBeDefined();
       });
 
-      it('can be controlled by original promise', function() {
+      it('can be controlled by original promise', function(done) {
         var sentinel = jasmine.createSpy('then callback');
 
         promise.then(sentinel);
         p.resolve('original');
 
-        waits(15);
-
-        runs(function() {
+        setTimeout(function() {
           expect(sentinel).toHaveBeenCalledWith('original');
-        });
+          done();
+        }, t);
       });
     });
 
@@ -157,33 +145,29 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         expect(promise.promise()).toBe(promise);
       });
 
-      it('conveniences all arguments to always', function() {
+      it('conveniences all arguments to always', function(done) {
         var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
 
         promise.always(spy1, spy2);
 
-        runs(function() {
-          inst.resolve('promise land');
-        });
-        waits(15);
-        runs(function() {
+        inst.resolve('promise land');
+        setTimeout(function() {
           expect(spy1).toHaveBeenCalledWith('promise land');
           expect(spy2).toHaveBeenCalledWith('promise land');
-        });
+          done();
+        }, t);
       });
 
-      it('is compatible with jQuery Deferreds', function() {
+      it('is compatible with jQuery Deferreds', function(done) {
         var onDone = jasmine.createSpy('jQuery onDone');
 
         $.when(promise, undefined).done(onDone);
 
-        runs(function() {
-          inst.resolve('promise land');
-        });
-        waits(15);
-        runs(function() {
+        inst.resolve('promise land');
+        setTimeout(function() {
           expect(onDone).toHaveBeenCalledWith('promise land', undefined);
-        });
+          done();
+        }, t);
       });
     });
 
@@ -198,25 +182,27 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         spyOn(promise, 'then');
         promise.catch(spy);
         expect(promise.then).toHaveBeenCalled();
-        expect(promise.then.argsForCall[0][1]).toBe(spy);
+        expect(promise.then.calls.argsFor(0)[1]).toBe(spy);
       });
 
-      it('does not call back on resolved', function() {
+      it('does not call back on resolved', function(done) {
         var spy = jasmine.createSpy();
         promise.catch(spy);
         promise.resolve(42);
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(spy).not.toHaveBeenCalled();
-        });
+          done();
+        }, t);
       });
 
-      it('calls back on rejected', function() {
+      it('calls back on rejected', function(done) {
         var spy = jasmine.createSpy();
         promise.catch(spy);
         promise.reject(Infinity);
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(spy).toHaveBeenCalledWith(Infinity);
-        });
+          done();
+        }, t);
       });
     });
 
@@ -233,22 +219,24 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         expect(promise.then).toHaveBeenCalledWith(spy, spy);
       });
 
-      it('calls back on resolved', function() {
+      it('calls back on resolved', function(done) {
         var spy = jasmine.createSpy();
         promise.finally(spy);
         promise.resolve(42);
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(spy).toHaveBeenCalledWith(42);
-        });
+          done();
+        }, t);
       });
 
-      it('calls back on rejected', function() {
+      it('calls back on rejected', function(done) {
         var spy = jasmine.createSpy();
         promise.finally(spy);
         promise.reject(Infinity);
-        waits(10), runs(function() {
+        setTimeout(function() {
           expect(spy).toHaveBeenCalledWith(Infinity);
-        });
+          done();
+        }, t);
       });
     });
   });

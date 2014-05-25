@@ -48,7 +48,7 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
 
     describe('.toJSON()', function() {
       it('returns the model data', function() {
-        spyOn(instance._model, 'toJSON').andCallThrough();
+        spyOn(instance._model, 'toJSON').and.callThrough();
 
         var json = JSON.stringify(instance);
         expect(instance._model.toJSON).toHaveBeenCalled();
@@ -71,8 +71,8 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
 
       it('resets references', function() {
         instance.destroy();
-        expect(instance._view).toEqual();
-        expect(instance._model).toEqual();
+        expect(instance._view).toEqual(null);
+        expect(instance._model).toEqual(null);
       });
     });
   });

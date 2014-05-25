@@ -3,26 +3,19 @@ define(['real/util/construct'], function(construct) {
 
   describe('util/construct', function() {
     it('calls `new` on its context', function() {
-      var flag, spy, inst;
+      var spy, inst;
 
-      spy = jasmine.createSpy('constructor').andCallFake(function() {
-        flag = true;
-      });
+      spy = jasmine.createSpy('constructor');
 
       inst = construct.call(spy);
 
       expect(spy).toHaveBeenCalled();
-      expect(flag).toBe(true);
       expect(inst).toEqual(jasmine.any(spy));
     });
 
     it('applies all arguments to its context', function() {
-      var args, inst, i,
+      var inst, i, Constructor = jasmine.createSpy(),
       testArr = [];
-
-      function Constructor() {
-        args = arguments;
-      }
 
       for (i=0; i < Math.random() * 10; ++i) {
         testArr.push(Math.random());
@@ -30,8 +23,7 @@ define(['real/util/construct'], function(construct) {
 
       inst = construct.apply(Constructor, testArr);
 
-      expect(args).not.toBe(testArr);
-      expect(args).toEqual(testArr);
+      expect(Constructor.calls.argsFor(0)).toEqual(testArr);
     });
 
     it('constructors with return values', function() {

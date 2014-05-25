@@ -105,7 +105,7 @@ define(['real/util/diff'], function(diff) {
       expect(cb).toHaveBeenCalledWith('simple', 'foobar', 'foobaz');
       expect(cb).toHaveBeenCalledWith('complex', o.complex, p.complex);
       expect(cb).toHaveBeenCalledWith('extra', undefined, 'credit');
-      expect(cb.callCount).toBe(3);
+      expect(cb.calls.count()).toBe(3);
     });
 
     it('does not infinitely recurse', function() {

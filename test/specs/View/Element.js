@@ -30,9 +30,7 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
       });
 
       it('renders using templateData() by default', function() {
-        spyOn(instance, 'templateData').andCallFake(function() {
-          return { item: 'foo' };
-        });
+        spyOn(instance, 'templateData').and.returnValue({ item: 'foo' });
         instance.render();
         expect(instance.templateData).toHaveBeenCalled();
         expect($parent.text()).toEqual('Hello foo');

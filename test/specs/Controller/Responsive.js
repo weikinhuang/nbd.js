@@ -109,13 +109,11 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
 
         expect(instance._view).toEqual(jasmine.any(View));
         instance.requestView(View);
-        expect(View.callCount).toBe(1);
+        expect(View.calls.count()).toBe(1);
       });
 
       it('matches a breakpoint to a view class', function() {
-        spyOn(media, 'getState').andCallFake(function() {
-          return ['test'];
-        });
+        spyOn(media, 'getState').and.returnValue(['test']);
         instance.requestView({ test: View });
 
         expect(instance._view).toEqual(jasmine.any(View));
@@ -124,9 +122,7 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
 
       it('only matches the first matching breakpoint', function() {
         var Bar = jasmine.createSpy('Bar');
-        spyOn(media, 'getState').andCallFake(function() {
-          return ['bar', 'foo', 'baz'];
-        });
+        spyOn(media, 'getState').and.returnValue(['bar', 'foo', 'baz']);
         instance.requestView({
           foo: View,
           baz: Bar
@@ -136,16 +132,14 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
       });
 
       it('expects non-classes', function() {
-        spyOn(media, 'getState').andCallFake(function() {
-          return ['test'];
-        });
+        spyOn(media, 'getState').and.returnValue(['test']);
         expect(function() {
           instance.requestView(true);
         }).not.toThrow();
       });
 
       it('expects non-matching view', function() {
-        spyOn(media, 'getState').andCallFake(Array);
+        spyOn(media, 'getState').and.returnValue([]);
         delete instance._view;
 
         instance.requestView({});

@@ -1,6 +1,8 @@
 define(['real/Model', 'nbd/Class'], function(Model, Class) {
   'use strict';
 
+  var t = 20;
+
   describe('Model', function() {
     it('is a Class constructor', function() {
       expect(Model).toEqual(jasmine.any(Function));
@@ -114,79 +116,62 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         var result = 0, cb;
 
         beforeEach(function() {
-          cb = jasmine.createSpy('change catcher')
-              .andCallFake(function() { result = 1; });
+          cb = jasmine.createSpy('change catcher');
         });
 
         afterEach(function() {
           result = 0;
         });
 
-        it('announces singular set() calls', function() {
-          runs(function() {
-            instance.on('foo', cb);
-            instance.set('foo', 'baq');
-          });
+        it('announces singular set() calls', function(done) {
+          instance.on('foo', cb);
+          instance.set('foo', 'baq');
 
-          waitsFor(function() {
-            return !!result;
-          }, "change notification", 10);
-
-          runs(function() {
+          setTimeout(function() {
             expect(cb).toHaveBeenCalledWith('baq', 'bar');
             expect(instance.get('foo')).toBe('baq');
-          });
+            done();
+          }, t);
         });
 
-        it('mutes singular identical set() calls', function() {
-          runs(function() {
-            instance.on('foo', cb);
-            instance.set('foo', 'baz');
-            instance.set('foo', 'bar');
-          });
+        it('mutes singular identical set() calls', function(done) {
+          instance.on('foo', cb);
+          instance.set('foo', 'baz');
+          instance.set('foo', 'bar');
 
-          waits(40);
-
-          runs(function() {
+          setTimeout(function() {
             expect(cb).not.toHaveBeenCalled();
             expect(instance.get('foo')).toBe('bar');
-          });
+            done();
+          }, t);
         });
 
-        it('announces mapped set() calls', function() {
-          runs(function() {
-            instance.on('foo', cb);
-            instance.on('xyz', cb);
-            instance.set({ foo: 'baz', xyz: 42 });
-          });
+        it('announces mapped set() calls', function(done) {
+          instance.on('foo', cb);
+          instance.on('xyz', cb);
+          instance.set({ foo: 'baz', xyz: 42 });
 
-          waitsFor(function() {
-            return !!result;
-          }, "change notification", 10);
-
-          runs(function() {
-            expect(cb.callCount).toBe(2);
-            expect(cb.argsForCall[1]).toEqual(['baz', 'bar']);
-            expect(cb.argsForCall[0]).toEqual([42, null]);
+          setTimeout(function() {
+            expect(cb.calls.count()).toBe(2);
+            expect(cb.calls.argsFor(1)).toEqual(['baz', 'bar']);
+            expect(cb.calls.argsFor(0)).toEqual([42, null]);
             expect(instance.get('foo')).toBe('baz');
             expect(instance.get('xyz')).toBe(42);
-          });
+            done();
+          }, t);
         });
 
-        it('mutes identical mapped set() calls', function() {
-          runs(function() {
-            instance.on('foo', cb);
-            instance.on('xyz', cb);
-            instance.set({ foo: 'bar', xyz: null });
-          });
+        it('mutes identical mapped set() calls', function(done) {
+          instance.on('foo', cb);
+          instance.on('xyz', cb);
+          instance.set({ foo: 'bar', xyz: null });
 
-          waits(40);
-
-          runs(function() {
+          setTimeout(function() {
             expect(cb).not.toHaveBeenCalled();
             expect(instance.get('foo')).toBe('bar');
             expect(instance.get('xyz')).toBe(null);
-          });
+            done();
+          }, t);
         });
       });
     });
@@ -207,83 +192,62 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         var result = 0, cb;
 
         beforeEach(function() {
-          cb = jasmine.createSpy('change catcher')
-              .andCallFake(function() { result = 1; });
+          cb = jasmine.createSpy('change catcher');
         });
 
         afterEach(function() {
           result = 0;
         });
 
-        it('announces property changes', function() {
-          runs(function() {
-            var d = instance.data();
-            instance.on('foo', cb);
-            d.foo = 'baz';
-          });
+        it('announces property changes', function(done) {
+          var d = instance.data();
+          instance.on('foo', cb);
+          d.foo = 'baz';
 
-          waitsFor(function() {
-            return !!result;
-          }, "change notification", 10);
-
-          runs(function() {
+          setTimeout(function() {
             expect(cb).toHaveBeenCalledWith('baz', 'bar');
             expect(instance.get('foo')).toBe('baz');
-          });
+            done();
+          }, t);
         });
 
-        it('announces array modifications', function() {
-          runs(function() {
+        it('announces array modifications', function(done) {
             var d = instance.data();
             instance.on('arr', cb);
             d.arr.push(1);
-          });
 
-          waitsFor(function() {
-            return !!result;
-          }, "change notification", 10);
-
-          runs(function() {
+          setTimeout(function() {
             expect(instance.get('arr').length).not.toBe(0);
-          });
+            done();
+          }, t);
         });
 
-        it('can mix calls to .set() before', function() {
-          runs(function() {
-            instance.on('foo', cb);
-            instance.set('foo', 'goats');
-            var d = instance.data();
-            d.foo = 'baz';
-          });
+        it('can mix calls to .set() before', function(done) {
+          instance.on('foo', cb);
+          instance.set('foo', 'goats');
+          var d = instance.data();
+          d.foo = 'baz';
 
-          waitsFor(function() {
-            return !!result;
-          }, "change notification", 10);
-
-          runs(function() {
-            expect(cb.callCount).toBe(1);
+          setTimeout(function() {
+            expect(cb.calls.count()).toBe(1);
             expect(cb).toHaveBeenCalledWith('baz', 'bar');
             expect(instance.get('foo')).toBe('baz');
-          });
+            done();
+          }, t);
         });
 
-        it('can mix calls to .set() after', function() {
-          runs(function() {
-            var d = instance.data();
-            instance.on('foo', cb);
-            d.foo = 'baz';
-            instance.set('foo', 'goats');
-          });
+        it('can mix calls to .set() after', function(done) {
+          var d = instance.data();
+          instance.on('foo', cb);
+          d.foo = 'baz';
+          instance.set('foo', 'goats');
 
-          waitsFor(function() {
-            return !!result;
-          }, "change notification", 10);
-
-          runs(function() {
-            expect(cb.callCount).toBe(1);
+          setTimeout(function() {
+            expect(cb.calls.count()).toBe(1);
             expect(cb).toHaveBeenCalledWith('goats', 'bar');
             expect(instance.get('foo')).toBe('goats');
-          });
+            done();
+          }, t);
         });
       });
     });

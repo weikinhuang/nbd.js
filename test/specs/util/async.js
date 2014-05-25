@@ -2,25 +2,15 @@ define(['real/util/async'], function(async) {
   'use strict';
 
   describe('util/async', function() {
-    it('runs the callback in a different callstack', function() {
-      var flag, spy;
+    it('runs the callback in a different callstack', function(done) {
+      var spy = jasmine.createSpy('asyncspy');
 
-      spy = jasmine.createSpy('asyncspy').andCallFake(function() {
-        flag = true;
-      });
+      async(spy);
 
-      runs(function() {
-        flag = false;
-        async(spy);
-      });
-
-      waitsFor(function() {
-        return flag;
-      }, "The function should have been run", 100);
-
-      runs(function() {
+      setTimeout(function() {
         expect(spy).toHaveBeenCalled();
-      });
+        done();
+      }, 20);
     });
   });
 
