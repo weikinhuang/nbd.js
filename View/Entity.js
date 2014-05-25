@@ -5,6 +5,7 @@ define(['../View'], function(View) {
 
   var constructor = View.extend({
     init: function(model) {
+      this._super();
       if (typeof model === 'object') {
         this._model = model;
       }

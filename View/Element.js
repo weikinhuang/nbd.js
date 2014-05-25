@@ -7,6 +7,7 @@ define(['../View'], function(View) {
     $parent: null,
 
     init: function($parent) {
+      this._super();
       this.$parent = $parent;
     },
 
