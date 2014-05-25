@@ -1,7 +1,7 @@
 define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
   'use strict';
 
-  var t = 20;
+  var t = 50;
 
   // Only tests the additional functionality on top of Promises/A+
   describe('nbd/Promise', function() {
