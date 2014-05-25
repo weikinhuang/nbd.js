@@ -1,7 +1,7 @@
 /* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
-  "use strict";
+  'use strict';
 
   // The base Class implementation (does nothing)
   var Klass = function() {},
@@ -85,7 +85,7 @@ define(function() {
     // The dummy class constructor
     function Class() {
       // All construction is actually done in the init method
-      if (typeof this.init === "function") {
+      if (typeof this.init === 'function') {
         this.init.apply(this, arguments);
       }
     }
@@ -95,8 +95,8 @@ define(function() {
       var p = prop[name];
       // Check if we're overwriting an existing function
       prototype[name] =
-        typeof p === "function" &&
-        typeof _super[name] === "function" &&
+        typeof p === 'function' &&
+        typeof _super[name] === 'function' &&
         fnTest.test(p) ?
         protochain(name, p) :
         p;
@@ -112,7 +112,7 @@ define(function() {
     Class.prototype = prototype;
 
     // Enforce the constructor to be what we expect
-    Object.defineProperty(Class.prototype, "constructor", { value: Class });
+    Object.defineProperty(Class.prototype, 'constructor', { value: Class });
 
     // Class guaranteed methods
     Object.defineProperties(Class, {
