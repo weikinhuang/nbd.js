@@ -45,10 +45,6 @@ define(['../View'], function(View) {
 
       if (fresh) {
         this.trigger('postrender', this.$view);
-
-        if (typeof this.rendered === 'function') {
-          this.rendered(this.$view);
-        }
       }
 
       return this.$view;

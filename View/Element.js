@@ -27,10 +27,6 @@ define(['../View'], function(View) {
 
       this.trigger('postrender', this.$view);
 
-      if (typeof this.rendered === 'function') {
-        this.rendered(this.$view);
-      }
-
       return this.$view;
     }
   }, {
