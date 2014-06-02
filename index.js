@@ -21,7 +21,8 @@ define([
   './util/diff',
   './util/extend',
   './util/media',
-  './util/pipe'
+  './util/pipe',
+  './util/throttle'
 ], function(
   Class,
   Model,
@@ -43,7 +44,8 @@ define([
   diff,
   extend,
   media,
-  pipe
+  pipe,
+  throttle
 ) {
   'use strict';
 
@@ -67,7 +69,8 @@ define([
       diff: diff,
       extend: extend,
       media: media,
-      pipe: pipe
+      pipe: pipe,
+      throttle: throttle
     }
   };
 
