@@ -255,9 +255,16 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
       });
     },
 
+    race: function() {
+      var r, p = new this(function(resolver) { r = resolver; });
+      Array.prototype.map.call(arguments, function(value) {
+        this.from(value).then(r.resolve, r.reject);
+      }, this);
+      return p;
+    },
+
     every: function() {
-      var resolver,
-      p = new Promise(function(r) { resolver = r; }),
+      var r, p = new Promise(function(resolver) { r = resolver; }),
       results = [];
 
       function collect(index, retval) {
@@ -269,9 +276,9 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
           return Promise.from(value).then(collect.bind(null, i));
         })
         .reduce(Promise.join)
-        .then(resolver.resolve.bind(null, results), resolver.reject);
+        .then(r.resolve.bind(null, results), r.reject);
       } else {
-        resolver.resolve(results);
+        r.resolve(results);
       }
 
       return p;

@@ -219,6 +219,22 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       });
     });
 
+    describe('.race()', function(done) {
+      it('resolves when the first promise resolves', function() {
+        var o = new Promise(),
+        p = new Promise(),
+        q = Promise.race(o, p);
+
+        q.then(function(value) {
+          expect(value).toBe('foo');
+        })
+        .finally(done);
+
+        p.resolve('foo');
+        o.reject();
+      });
+    });
+
     describe('.every()', function() {
       var promise, sentinel;
 
