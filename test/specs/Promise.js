@@ -17,48 +17,27 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         }, t);
       });
 
-      it('can produce immediately rejected promise', function(done) {
-        var p = new Promise(),
-        spy = jasmine.createSpy();
-        p.then(null, spy);
-        p.reject('reject');
+      it('calls back with a promise resolver', function() {
+        var spy = jasmine.createSpy('resolver'),
+        p = new Promise(spy);
 
-        setTimeout(function() {
-          expect(spy).toHaveBeenCalledWith('reject');
-          done();
-        }, t);
+        expect(spy).toHaveBeenCalled();
+        expect(spy.calls.argsFor(0)[0].resolve).toBeDefined();
+        expect(spy.calls.argsFor(0)[0].fulfill).toBeDefined();
+        expect(spy.calls.argsFor(0)[0].reject).toBeDefined();
       });
 
-      it('can chain another resolved thenable', function(done) {
-        var o = new Promise(),
-        p = new Promise(o.thenable()),
-        spy = jasmine.createSpy();
-        p.then(spy);
+      it('makes the promise its own resolver without a callback', function() {
+        var p = new Promise();
 
-        o.resolve('accept');
-        setTimeout(function() {
-          expect(spy).toHaveBeenCalledWith('accept');
-          done();
-        }, t);
-      });
-
-      it('can chain another rejected thenable', function(done) {
-        var o = new Promise(),
-        p = new Promise(o.thenable()),
-        spy = jasmine.createSpy();
-        p.then(null, spy);
-
-        o.reject('accept');
-        setTimeout(function() {
-          expect(spy).toHaveBeenCalledWith('accept');
-          done();
-        });
+        expect(p.resolve).toBeDefined();
+        expect(p.reject).toBeDefined();
       });
     });
 
-    describe('resolved', function() {
+    describe('resolve', function() {
       it('creates a resolved promise', function(done) {
-        var p = Promise.resolved('alpha'),
+        var p = Promise.resolve('alpha'),
         spy = jasmine.createSpy();
         p.then(spy);
 
@@ -69,9 +48,9 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       });
     });
 
-    describe('rejected', function() {
+    describe('reject', function() {
       it('creates a rejected promise', function(done) {
-        var p = Promise.rejected('alpha'),
+        var p = Promise.reject('alpha'),
         goodSpy = jasmine.createSpy(),
         badSpy = jasmine.createSpy();
         p.then(goodSpy, badSpy);
@@ -237,6 +216,76 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
           expect(spy).toHaveBeenCalledWith(Infinity);
           done();
         }, t);
+      });
+    });
+
+    describe('.every()', function() {
+      var promise, sentinel;
+
+      beforeEach(function() {
+        promise = new Promise();
+        sentinel = jasmine.createSpy('then callback');
+      });
+
+      it('is a function', function() {
+        expect(Promise.every).toEqual(jasmine.any(Function));
+      });
+
+      it('resolves immediate values', function(done) {
+        var o = {}, f = function() {}, n = null, u;
+        Promise.every(o, f, n, u).then(sentinel)
+        .then(function() {
+          expect(sentinel).toHaveBeenCalledWith([o, f, n, u]);
+        })
+        .finally(done);
+      });
+
+      it('resolves when promise resolves', function(done) {
+        Promise.every(promise).then(sentinel)
+        .then(function() {
+          expect(sentinel).toHaveBeenCalledWith(['original']);
+        }).finally(done);
+
+        promise.resolve('original');
+      });
+
+      it('resolves when last promise resolves', function(done) {
+        var last = new Promise();
+
+        Promise.every('a', last, promise).then(sentinel)
+        .then(function() {
+          expect(sentinel).toHaveBeenCalledWith(['a', 'netflix', 'original']);
+        })
+        .finally(done);
+
+        expect(sentinel).not.toHaveBeenCalled();
+        promise.resolve('original');
+
+        expect(sentinel).not.toHaveBeenCalled();
+        last.resolve('netflix');
+      });
+
+      it('rejects when any promise rejects', function(done) {
+        var last = new Promise(),
+        fail = jasmine.createSpy('then failback');
+        Promise.every(promise, last).then(sentinel, fail)
+        .then(function() {
+          expect(fail).toHaveBeenCalledWith('nok');
+        }).then(function() {
+          last.resolve('ok');
+          expect(sentinel).not.toHaveBeenCalled();
+        })
+        .finally(done);
+
+        promise.reject('nok');
+
+      });
+
+      it('resolves empty calls immediately', function(done) {
+        Promise.every().then(sentinel)
+        .then(function() {
+          expect(sentinel).toHaveBeenCalledWith([]);
+        }).finally(done);
       });
     });
   });
