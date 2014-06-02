@@ -7,7 +7,13 @@ define([
   "use strict";
 
   var constructor = Class.extend({
-    $view: null,
+    init: function() {
+      this.on('postrender', function($view) {
+        if (typeof this.rendered === 'function') {
+          this.rendered($view);
+        }
+      });
+    },
 
     render: function(data) {
       var $existing = this.$view;
@@ -18,11 +24,6 @@ define([
       this.constructor.replace($existing, this.$view);
 
       this.trigger('postrender', this.$view);
-
-      // Prefer the postrender event over this method
-      if (this.rendered) {
-        this.rendered(this.$view);
-      }
 
       return this.$view;
     },

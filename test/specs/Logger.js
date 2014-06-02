@@ -85,7 +85,7 @@ define(['real/Logger'], function(Logger) {
         logger.setLevel('warn');
         logger.warn('warning');
         logger.error('error');
-        expect(spy.callCount).toBe(2);
+        expect(spy.calls.count()).toBe(2);
       });
 
       it('does nothing when no such level', function() {

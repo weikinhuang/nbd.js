@@ -31,7 +31,7 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
       it('uses data when given', function() {
         var data = { rand: Math.random() };
 
-        spyOn(instance, 'template').andCallThrough();
+        spyOn(instance, 'template').and.callThrough();
         spyOn(instance, 'templateData');
 
         instance.render(data);
@@ -42,9 +42,7 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
 
       it('replaces view if existing', function() {
         var replace = jasmine.createSpy('replaceWith');
-        spyOn(instance, 'template').andCallFake(function() {
-          return { length: 1, replaceWith: replace, 1: null };
-        });
+        spyOn(instance, 'template').and.returnValue({ length: 1, replaceWith: replace, 1: null });
 
         instance.render();
         expect(replace).not.toHaveBeenCalled();
@@ -58,17 +56,17 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
         instance.rendered = function() {
           expect(this).toBe(instance);
         };
-        spyOn(instance, 'rendered').andCallThrough();
+        spyOn(instance, 'rendered').and.callThrough();
         instance.render();
         expect(instance.rendered).toHaveBeenCalled();
       });
 
       it('fires prerender event', function() {
         var prerender = jasmine.createSpy('prerender')
-        .andCallFake(function() {
+        .and.callFake(function() {
           expect(instance.template).not.toHaveBeenCalled();
         });
-        spyOn(instance, 'template').andCallThrough();
+        spyOn(instance, 'template').and.callThrough();
 
         instance.on('prerender', prerender);
         instance.render();
@@ -78,10 +76,10 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
 
       it('fires postrender event', function() {
         var postrender = jasmine.createSpy('postrender')
-        .andCallFake(function() {
+        .and.callFake(function() {
           expect(instance.template).toHaveBeenCalled();
         });
-        spyOn(instance, 'template').andCallThrough();
+        spyOn(instance, 'template').and.callThrough();
 
         instance.on('postrender', postrender);
         instance.render();

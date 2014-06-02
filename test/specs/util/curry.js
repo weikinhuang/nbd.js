@@ -52,7 +52,7 @@ define(['real/util/curry'], function(curry) {
         var originalContext,
         ctxt = { ret: curried() };
 
-        spy.andCallFake(function() {
+        spy.and.callFake(function() {
           originalContext = this;
         });
 
@@ -73,7 +73,7 @@ define(['real/util/curry'], function(curry) {
 
       it('returns curried function\'s return value', function() {
         var obj = {};
-        spy.andReturn(obj);
+        spy.and.returnValue(obj);
         expect(curried()()).toBe(obj);
       });
     });

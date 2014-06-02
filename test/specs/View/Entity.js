@@ -60,7 +60,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
       it('renders a template into the parent element', function() {
         instance.rendered = $.noop;
         spyOn(instance, 'rendered');
-        spyOn(instance, 'templateData').andCallThrough();
+        spyOn(instance, 'templateData').and.callThrough();
 
         instance.render($test);
 
@@ -72,7 +72,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
       it('re-renders without a parent element', function() {
         instance.rendered = $.noop;
         spyOn(instance, 'rendered');
-        spyOn(instance, 'templateData').andCallThrough();
+        spyOn(instance, 'templateData').and.callThrough();
 
         instance.render($test);
 
@@ -94,11 +94,11 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
       it('renders when there\'s no parent and has not already been rendered', function() {
         instance.rendered = $.noop;
         spyOn(instance, 'rendered');
-        spyOn(instance, 'templateData').andCallThrough();
+        spyOn(instance, 'templateData').and.callThrough();
 
         var $view = instance.render();
 
-        expect($test).toBeEmpty();
+        expect($test.children().length).toBe(0);
         expect($view).not.toBeNull();
         expect(instance.rendered).toHaveBeenCalled();
         expect(instance.templateData).toHaveBeenCalled();
@@ -106,7 +106,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
       it('does not re-render, only reattach, when it has been rendered and there is a parent', function() {
         instance.rendered = $.noop;
-        spyOn(instance, 'templateData').andCallThrough();
+        spyOn(instance, 'templateData').and.callThrough();
         instance.render($test);
 
         var shun = jasmine.createSpy('binding');
@@ -118,11 +118,11 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
 
         expect($test.text()).toEqual(id + ' : ' + item);
         expect(instance.rendered).not.toHaveBeenCalled();
-        expect(instance.templateData.callCount).toBe(1);
+        expect(instance.templateData.calls.count()).toBe(1);
 
         instance.$view.trigger('click');
         expect(shun).toHaveBeenCalled();
-        expect(shun.callCount).toBe(1);
+        expect(shun.calls.count()).toBe(1);
       });
     });
 
@@ -132,7 +132,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         instance = new Entity(model);
 
         instance.destroy();
-        expect(instance._model).toEqual();
+        expect(instance._model).toEqual(null);
       });
 
       it('can retain reference to its model', function() {

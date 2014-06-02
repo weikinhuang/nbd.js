@@ -33,63 +33,58 @@ define(['real/trait/promise', 'nbd/Class', 'jquery'], function(promise, Class, $
       });
     });
 
-    describe('.resolve()', function() {
+    describe('.resolve()', function(done) {
       it('resolves the promise', function() {
         var sentinel = jasmine.createSpy('then callback');
 
-        inst.then(sentinel);
-        inst.resolve('original');
-
-        waits(15);
-
-        runs(function() {
+        inst.then(sentinel)
+        .then(function() {
           expect(sentinel).toHaveBeenCalledWith('original');
-        });
+        })
+        .finally(done);
+
+        inst.resolve('original');
       });
 
-      it('callsback when the promise has already resolved', function() {
+      it('callsback when the promise has already resolved', function(done) {
         var sentinel = jasmine.createSpy('then callback');
 
         inst.resolve('original');
-        inst.then(sentinel);
-
-        waits(15);
-
-        runs(function() {
+        inst.then(sentinel)
+        .then(function() {
           expect(sentinel).toHaveBeenCalledWith('original');
-        });
+        })
+        .finally(done);
       });
     });
 
     describe('.reject()', function() {
-      it('rejects the promise', function() {
+      it('rejects the promise', function(done) {
         var fake = jasmine.createSpy(),
         sentinel = jasmine.createSpy('then callback');
 
         inst.then(fake, sentinel);
         inst.reject('original');
 
-        waits(15);
-
-        runs(function() {
+        inst.then(function() {
           expect(fake).not.toHaveBeenCalled();
           expect(sentinel).toHaveBeenCalledWith('original');
-        });
+        })
+        .finally(done);
       });
 
-      it('callsback when the promise has already rejected', function() {
+      it('callsback when the promise has already rejected', function(done) {
         var fake = jasmine.createSpy(),
         sentinel = jasmine.createSpy('then callback');
 
         inst.reject('original');
         inst.then(fake, sentinel);
 
-        waits(15);
-
-        runs(function() {
+        inst.then(function() {
           expect(fake).not.toHaveBeenCalled();
           expect(sentinel).toHaveBeenCalledWith('original');
-        });
+        })
+        .finally(done);
       });
     });
 

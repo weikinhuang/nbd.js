@@ -6,16 +6,23 @@ define([
   './util/construct',
   './util/extend'
 ], function(Class, pubsub, construct, extend) {
-  "use strict";
+  'use strict';
 
   var _logHandlers = [],
+  _levels = {
+    debug: true,
+    log:  true,
+    info: true,
+    warn: true,
+    error: true
+  },
 
   Logger = Class.extend({
     init: function(name) {
       if (typeof name === 'string') {
         this.name = name;
       }
-      else if (name) {
+      else {
         this.container = name;
       }
 
@@ -68,7 +75,8 @@ define([
     },
 
     _name: function() {
-      var local = this.container && Object.getPrototypeOf(this.container).constructor;
+      var local = this.container &&
+        Object.getPrototypeOf(this.container).constructor;
       return this.name || local && (local.displayName || local.name);
     }
   }, {
@@ -77,7 +85,6 @@ define([
     get: function(name) {
       var logger = construct.call(this, name);
       logger.attach(this.global);
-      this.attach(this.console);
       return logger;
     },
 
@@ -87,8 +94,22 @@ define([
       }
     },
 
+    setLevel: function splat(level, handler) {
+      var key;
+      if (typeof level === 'string') {
+        _levels[level] = typeof handler === 'function' ?  handler : !!handler;
+      }
+      else if (typeof level === 'object') {
+        for (key in level) {
+          splat(key, level[key]);
+        }
+      }
+    },
+
     global: function(level, message) {
-      _logHandlers.forEach(function(handler) {
+      var allowed = _levels[level];
+      allowed = typeof allowed === 'function' ? !!allowed(message) : !!allowed;
+      return allowed && _logHandlers.forEach(function(handler) {
         handler(level, message);
       });
     },
@@ -97,10 +118,12 @@ define([
       if (message.context) {
         message.params.unshift('%c' + message.context, 'color:gray');
       }
-      console[level].apply(console, message.params);
+      return console[level] && console[level].apply(console, message.params);
     }
   })
   .mixin(pubsub);
+
+  Logger.attach(Logger.console);
 
   return Logger;
 });

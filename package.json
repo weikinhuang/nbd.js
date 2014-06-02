@@ -29,7 +29,7 @@
     "grunt-contrib-uglify": "",
     "grunt-contrib-clean": "",
     "grunt-karma": "",
-    "karma-jasmine": "",
+    "karma-jasmine": "^0.2",
     "karma-requirejs": "",
     "karma-coverage": "",
     "karma-firefox-launcher": "",

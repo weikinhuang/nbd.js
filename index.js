@@ -22,8 +22,7 @@ define([
   './util/diff',
   './util/extend',
   './util/media',
-  './util/pipe',
-  './util/when'
+  './util/pipe'
 ], function(
   Class,
   Model,
@@ -46,8 +45,7 @@ define([
   diff,
   extend,
   media,
-  pipe,
-  when
+  pipe
 ) {
   'use strict';
 
@@ -72,8 +70,7 @@ define([
       diff: diff,
       extend: extend,
       media: media,
-      pipe: pipe,
-      when: when
+      pipe: pipe
     }
   };
 

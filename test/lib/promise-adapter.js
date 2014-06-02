@@ -5,23 +5,19 @@ var Promise = require('../../Promise');
 
 module.exports = {
 	resolved: function(value) {
-		return Promise.resolved(value);
+		return Promise.of(value);
 	},
 
 	rejected: function(reason) {
-		return Promise.rejected(reason);
+		return Promise.reject(reason);
 	},
 
 	deferred: function() {
-		var promise = new Promise();
-		return {
-			promise : promise,
-			resolve : function(value) {
-				promise.resolve(value);
-			},
-			reject : function(reason) {
-				promise.reject(reason);
-			}
-		};
+		var deferred,
+        promise = new Promise(function(resolver) {
+          deferred = resolver;
+        });
+        deferred.promise = promise;
+        return deferred;
 	}
 };

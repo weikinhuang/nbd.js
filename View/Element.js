@@ -7,6 +7,7 @@ define(['../View'], function(View) {
     $parent: null,
 
     init: function($parent) {
+      this._super();
       this.$parent = $parent;
     },
 
@@ -25,10 +26,6 @@ define(['../View'], function(View) {
       }
 
       this.trigger('postrender', this.$view);
-
-      if (typeof this.rendered === 'function') {
-        this.rendered(this.$view);
-      }
 
       return this.$view;
     }

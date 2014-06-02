@@ -17,9 +17,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files : [
-      'test/lib/mock-ajax.js',
       'test/lib/jquery.js',
-      'test/lib/jasmine-jquery.js',
 
       {pattern: 'test/lib/es5-shim.js', included: false},
       {pattern: 'index.js', included: false},

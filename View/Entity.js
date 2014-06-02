@@ -5,6 +5,7 @@ define(['../View'], function(View) {
 
   var constructor = View.extend({
     init: function(model) {
+      this._super();
       if (typeof model === 'object') {
         this._model = model;
       }
@@ -44,10 +45,6 @@ define(['../View'], function(View) {
 
       if (fresh) {
         this.trigger('postrender', this.$view);
-
-        if (typeof this.rendered === 'function') {
-          this.rendered(this.$view);
-        }
       }
 
       return this.$view;

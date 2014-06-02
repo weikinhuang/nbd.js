@@ -27,9 +27,7 @@ define(['real/util/pipe'], function(pipe) {
       rand1 = Math.random(),
       rand2 = Math.random();
 
-      args.first.andCallFake(function() {
-        return rand2;
-      });
+      args.first.and.returnValue(rand2);
 
       piped(rand1);
 

@@ -39,18 +39,23 @@ define([
       this.set = this.set.bind(this);
 
       try {
-        Object.defineProperty(this, '_dirty', { value: 0, writable: true });
-        Object.defineProperty(this, '_data', {
-          enumerable: false,
-          configurable: true,
-          value: data || {},
-          writable: true
+        Object.defineProperties(this, {
+          _dirty: {
+            value: 0,
+            writable: true
+          },
+          _data: {
+            enumerable: false,
+            configurable: true,
+            value: data || {},
+            writable: true
+          }
         });
       }
       catch (noDefineProperty) {
         // Can't use ES5 Object.defineProperty, fallback
         this._dirty = 0;
-        this._data = data;
+        this._data = data || {};
       }
     },
 
