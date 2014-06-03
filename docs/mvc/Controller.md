@@ -1,5 +1,5 @@
 # nbd/Controller
-  *extends* [nbd/Class](Class.md)
+  *extends* [nbd/Class](../Class.md)
 
 * [.\_initView()](#initview-viewclass--)
 * [.swapView()](#swapview-viewclass-)
@@ -17,9 +17,8 @@ the more useful controller class.
 
 This method is the default implementation for creating an instance of
 `ViewClass` such that the instance is attached to the controller instance as
-`this._view` (and `this.View` for legacy compatibility). In addition, the
-controller instance is attached onto the view instance as `._controller`
-(and `.Controller` for legacy).
+`this._view`. In addition, the controller instance is attached onto the view
+instance as `._controller`.
 
 All subsequent arguments after `ViewClass` are passed to the `ViewClass`
 constructor as arguments.

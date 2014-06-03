@@ -1,5 +1,5 @@
 # nbd/View
-  *extends* [nbd/Class](Class.md)
+  *extends* [nbd/Class](../Class.md)
   *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
 
 * [new View()](#constructor)
