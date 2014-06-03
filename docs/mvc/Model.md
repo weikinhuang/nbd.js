@@ -3,10 +3,10 @@
   *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
 
 * [new Model()](#constructor-id-data-)
-* [.data()](#data-)
+* [.data()](#data)
 * [.get()](#get-key-)
 * [.set()](#set-key-value-)
-* [.destroy()](#destroy-)
+* [.destroy()](#destroy)
 
 Events:
 * *Name of any property of the model* : `(currentValue, previousValue)`

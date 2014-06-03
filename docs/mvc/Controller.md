@@ -1,7 +1,7 @@
 # nbd/Controller
   *extends* [nbd/Class](Class.md)
 
-* [.\_initView()](#initview-viewclass-)
+* [.\_initView()](#initview-viewclass--)
 * [.swapView()](#swapview-viewclass-)
 
 `Controller` is a class that provides the conceptual binding of all three parts
@@ -24,9 +24,7 @@ controller instance is attached onto the view instance as `._controller`
 All subsequent arguments after `ViewClass` are passed to the `ViewClass`
 constructor as arguments.
 
-**returns** *nothing*
-
-# `.switchView()`
+# `.switchView( ViewClass )`
 
 The public-facing method that calls `._initView()` and swaps out the existing
 view instance, if one exists.
@@ -36,5 +34,3 @@ the new view instance. The previous view instance, if it exists, is
 `.destroy()`ed. In addition, the old view's `.$view` will be the new view's
 `.$view`. Finally, `.render()` is called on the new view such that the new view
 is re-rendered in place of the old view.
-
-**returns** *nothing*

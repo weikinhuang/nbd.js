@@ -2,9 +2,10 @@
   *extends* [nbd/Class](Class.md)
   *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
 
-* [new View()](#constructor-)
+* [new View()](#constructor)
 * [.render()](#render-data-)
-* [.destroy()](#destroy-)
+* [.template()](#template-templatedata-)
+* [.destroy()](#destroy)
 
 Events:
 * __prerender__
@@ -30,7 +31,7 @@ In addition, there are also two render events fired. **prerender** is fired befo
 
 **returns** *nothing*
 
-## `.template()`
+## `.template( templateData )`
 
 The templating function. This function by default is a stub. Subclasses should override it with a function that returns the jQuery-compatible object to be assigned to `this.$view`. Essentially, this function serves as the point of transformation from the results of `.templateData()` into the DOM elements to be available as `this.$view`.
 
@@ -38,7 +39,7 @@ If you have a templating function that simply returns HTML as a string, you can 
 
 ```js
 define(['jquery', 'nbd/util/pipe', 'nbd/View'], function($, pipe, View) {
-  
+
   function templater(data) {
     return '<div><a href="'+data.url+'">'+data.label+'</a></div>';
   }
