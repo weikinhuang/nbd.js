@@ -37,7 +37,7 @@ fulfilled/rejected state and value of the return values of `onFulfilled` or
 
 Primary method for resolving a promise's state. If no errors occur, the promise
 will be fulfilled with the value of `x`. Otherwise, the promise will be
-rejected. 
+rejected.
 
 If `x` is another promise or a then-able pseudo-promise (has the method
 `.then()` with the same signature), then the current promise will resolve with
@@ -68,7 +68,7 @@ resolve.
 This `then()` method is context-independent: it can be called from any context
 and the promise it applies to remains the same.
 
-**returns** *Object* Then-able pseudo-promise
+**returns** *Object* Then-able promise-like object
 
 ## `.promise()`
 
