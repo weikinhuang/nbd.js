@@ -2,18 +2,17 @@ define(function() {
   'use strict';
 
   return function throttle(fn) {
-    if (throttle._blocking) { return; }
-    throttle._blocking = true;
+    if (fn._blocking) { return; }
+    fn._blocking = true;
 
-    var retval = fn.apply(this, arguments);
+    var retval = fn.call(this);
 
+    function unblock() { delete fn._blocking; }
     if (retval && typeof retval.then === 'function') {
-      retval.then(function() {
-        throttle._blocking = false;
-      });
+      retval.then(unblock, unblock);
     }
     else {
-      throttle._blocking = false;
+      delete fn._blocking;
     }
 
     return retval;

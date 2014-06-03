@@ -37,6 +37,21 @@ define(['real/util/throttle', 'nbd/Promise'], function(throttle, Promise) {
       expect(spy.calls.count()).toBe(1);
       p.resolve();
     });
+
+    it('throttles based on the callback', function(done) {
+      var p = new Promise(),
+      call = jasmine.createSpy();
+
+      spy.and.returnValue(p);
+      throttle(spy);
+      throttle(call);
+      throttle(call);
+
+      expect(call.calls.count()).toBe(2);
+      expect(spy).toHaveBeenCalled();
+      p.finally(done);
+      p.resolve();
+    });
   });
 
   return throttle;
