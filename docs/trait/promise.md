@@ -6,13 +6,9 @@
 * [.promise()](#promise-)
 * [Implementation Notes](#implementation-notes)
 
-Promises are one of the most useful patterns in JavaScript for dealing with the
-asynchronous nature of the language. It helps separate concerns and gives the
-generic JavaScript callback more context.
-
-**nbd.js** implements [Promise/A+][1] specifications with the `promise` trait.
-Therefore, any `Class` that `.mixin()`s the trait can be used with any other
-Promise/A+ implementation.
+The `promise` trait is the trait form of [`nbd/Promise`](../Promise.md). This
+allows [`nbd/Class`](../Class.md) subclasses to `.mixin()` the trait, to make
+instances of those classes to become Promise-like objects.
 
 The trait itself is also a promise class. This means it can be instanciated
 with `new` to produce a promise.
