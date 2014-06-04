@@ -3,8 +3,6 @@ define(['real/Class'], function(Class) {
 
   describe('Class', function() {
     it('is a constructor', function() {
-      expect(Class).toBeDefined();
-      expect(Class).toEqual(jasmine.any(Function));
       expect(function() {
         return new Class();
       }).not.toThrow();
@@ -20,6 +18,11 @@ define(['real/Class'], function(Class) {
         expect(Subclass.prototype.constructor).toBe(Subclass);
         expect(new Subclass()).toEqual(jasmine.any(Subclass));
         expect(new Subclass()).toEqual(jasmine.any(Class));
+      });
+
+      it('can be constructed from direct call', function() {
+        var Subclass = Class.extend();
+        expect(Subclass()).toEqual(jasmine.any(Subclass));
       });
 
       it('inherits from prototype', function() {

@@ -84,10 +84,16 @@ define(function() {
 
     // The dummy class constructor
     function Class() {
+      var ret,
+      instance = this instanceof Class ?
+        this :
+        Object.create(prototype);
       // All construction is actually done in the init method
-      if (typeof this.init === 'function') {
-        this.init.apply(this, arguments);
+      if (typeof instance.init === 'function') {
+        ret = instance.init.apply(instance, arguments);
+        return Object(ret) === ret ? ret : instance;
       }
+      return instance;
     }
 
     // Copy the properties over onto the new prototype
