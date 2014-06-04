@@ -2,7 +2,7 @@
   *extends* [nbd/Class](../Class.md)
 
 * [.\_initView()](#initview-viewclass--)
-* [.swapView()](#swapview-viewclass-)
+* [.switchView()](#switchview-viewclass-)
 
 `Controller` is a class that provides the conceptual binding of all three parts
 of MVC: Model, View, and Controller. An instance of the controller is meant to
