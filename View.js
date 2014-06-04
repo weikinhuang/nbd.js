@@ -57,6 +57,11 @@ define([
       return ($parent.append || $parent.appendChild).call($parent, $child);
     },
 
+    find: function($root, selector) {
+      if (!$root) { return; }
+      return ($root.find || $root.querySelector).call($root, selector);
+    },
+
     replace: function($old, $new) {
       if (!$old) { return; }
       if ($old.replaceWith) {

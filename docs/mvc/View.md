@@ -9,6 +9,7 @@
 * [.destroy()](#destroy)
 * [View.domify()](#viewdomify-html-)
 * [View.appendTo()](#viewappendto-child-parent-)
+* [View.find()](#viewfind-root-selector-)
 * [View.replace()](#viewreplace-old-new-)
 * [View.remove()](#viewremove-element-)
 
@@ -97,6 +98,12 @@ parsed HTML.
 Appends `child` element to `parent` as the last member of `parent.childNodes`.
 
 **returns** *Element* A reference to `child`
+
+## `View.find( root, selector )`
+
+Finds the first child element of `root` by a CSS `selector`.
+
+**returns** *Element* or ***undefined***
 
 ## `View.replace( old, new )`
 
