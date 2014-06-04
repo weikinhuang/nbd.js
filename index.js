@@ -11,7 +11,6 @@ define([
   './Controller/Responsive',
   './Promise',
   './Logger',
-  './event',
   './trait/log',
   './trait/promise',
   './trait/pubsub',
@@ -35,7 +34,6 @@ define([
   Responsive,
   Promise,
   Logger,
-  event,
   log,
   promise,
   pubsub,
@@ -58,7 +56,6 @@ define([
     Controller: Controller,
     Promise: Promise,
     Logger: Logger,
-    event: event,
     trait: {
       log: log,
       promise: promise,

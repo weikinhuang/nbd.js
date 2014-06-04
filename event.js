@@ -6,6 +6,9 @@ define([
 ], function(extend, pubsub) {
   'use strict';
 
+  /**
+   * @deprecated
+   */
   var exports = extend({}, pubsub);
 
   // Aliases
