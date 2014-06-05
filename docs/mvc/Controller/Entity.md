@@ -36,7 +36,7 @@ Checks if the current `._view` is an instance of `ViewClass`, and if not,
 replaces it with a new instance of `ViewClass` using
 [`.switchView()`](../Controller.md#switchview-viewclass-).
 
-## `.render( [$parent], [ViewClass] )
+## `.render( [$parent], [ViewClass] )`
 
 Coerces the current `._view` to be an instance of `ViewClass` if provided,
 `Entity.VIEW_CLASS` otherwise. Then renders the view with `$parent`.
