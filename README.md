@@ -10,60 +10,45 @@ much or as little of **nbd.js** as you like, because it is designed to provide
 modular functionality.
 
 The best way to use **nbd.js** is through an [AMD module loader][amd] like
-[RequireJS][]. Since each file is a one-to-one mapping to a module, the
-fastest way to use **nbd.js** inside your JavaScript project is to check it out as
+[RequireJS][]. Each file is a one-to-one mapping to a module.
+
+### Getting it ###
+
+#### Using Bower ####
+
+If your project uses bower, simply install using bower
+
+    bower install --save nbd
+
+#### Submodule ####
+If you don't use any package management, you can always check out **nbd.js** as
 a git submodule. From the root of your own project's git repository:
 
     git submodule add https://github.com/behance/nbd.js.git path/to/modules/nbd
 
-Then `require()` the modules you want into your project, and you're ready to
-go! 
+#### Global ####
+If your project doesn't make use of a module loader, no big deal. Packaged
+versions of the library live under `dist/` directory
 
-If your project doesn't make use of a module loader, no big deal. A packaged
-version is available at **build/nbd.js**, and the minified version at
-**build/nbd.min.js**. Including it will make all the modules avaible under the
-`nbd` global namespace.
+* [dist/nbd.js](dist/nbd.js)
+* [dist/nbd.min.js](dist/nbd.min.js) _Minified_
+
+Including either will make all the modules available under the `nbd` global
+namespace.
 
 [amd]: https://github.com/amdjs/amdjs-api/wiki/AMD
 [requirejs]: http://requirejs.org/
 
-### [`require()` All the Modules!](docs/index.md)
+### Documentation ###
 
-## Contribute
-Wish JavaScript frameworks provided a feature or solved a problem more
-elegantly? Open up an issue! We'd love to hear from you and adding features is
-no big deal.
+All documentation are under the `docs/` subdirectory as markdown files
 
-### Coding Standard
-**nbd.js** uses softtabstop=2, unix line endings. All modules are written
-expecting an ES5 conformant engine, in ES5 Strict Mode. Compatibility with
-older browsers is expected to be provided by a polyfill like [es5-shim][shim].
+[Documentation](docs/index.md)
 
-In addition, all code is expected to pass [JSLint][] with the following rules,
-with reasonable exceptions.
-
-    {
-      bitwise: true,
-      browser: true,
-      continue: true,
-      debug: true,
-      devel: true,
-      eqeq: true,
-      forin: true,
-      nomen: true,
-      plusplus: true,
-      regexp: true,
-      undef: true,
-      white: true
-    }
+### Assumptions ###
+**nbd.js** is authored with minimal assumptions of the environment it runs
+under. However, it does expect an ES5 conformant engine, in ES5 Strict Mode.
+Compatibility with older runtimes is expected to be provided by a polyfill
+like [es5-shim][shim].
 
 [shim]: https://github.com/kriskowal/es5-shim
-[jslint]: http://www.jslint.com/lint.html
-
-## Todos
-
-1. Documentation of all the modules, especially utilities
-2. Views require something to handle existant DOM structures, i.e. not
-   templated by JS
-3. Templates registry for sane templates handling, engine-agnostic
-4. HTML5 Worker controllers

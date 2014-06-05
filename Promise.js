@@ -38,7 +38,7 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
       }
 
       // If handed another promise
-      if (x instanceof Promise) {
+      if (Promise.isPromise(x)) {
         x.then(resolve, reject);
         return;
       }
@@ -263,7 +263,7 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
       return p;
     },
 
-    every: function() {
+    all: function() {
       var r, p = new Promise(function(resolver) { r = resolver; }),
       results = [];
 

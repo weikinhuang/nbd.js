@@ -11,7 +11,6 @@ define([
   './Controller/Responsive',
   './Promise',
   './Logger',
-  './event',
   './trait/log',
   './trait/promise',
   './trait/pubsub',
@@ -22,7 +21,8 @@ define([
   './util/diff',
   './util/extend',
   './util/media',
-  './util/pipe'
+  './util/pipe',
+  './util/throttle'
 ], function(
   Class,
   Model,
@@ -34,7 +34,6 @@ define([
   Responsive,
   Promise,
   Logger,
-  event,
   log,
   promise,
   pubsub,
@@ -45,7 +44,8 @@ define([
   diff,
   extend,
   media,
-  pipe
+  pipe,
+  throttle
 ) {
   'use strict';
 
@@ -56,7 +56,6 @@ define([
     Controller: Controller,
     Promise: Promise,
     Logger: Logger,
-    event: event,
     trait: {
       log: log,
       promise: promise,
@@ -70,7 +69,8 @@ define([
       diff: diff,
       extend: extend,
       media: media,
-      pipe: pipe
+      pipe: pipe,
+      throttle: throttle
     }
   };
 

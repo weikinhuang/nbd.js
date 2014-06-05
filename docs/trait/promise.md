@@ -6,13 +6,9 @@
 * [.promise()](#promise-)
 * [Implementation Notes](#implementation-notes)
 
-Promises are one of the most useful patterns in JavaScript for dealing with the
-asynchronous nature of the language. It helps separate concerns and gives the
-generic JavaScript callback more context.
-
-**nbd.js** implements [Promise/A+][1] specifications with the `promise` trait.
-Therefore, any `Class` that `.mixin()`s the trait can be used with any other
-Promise/A+ implementation.
+The `promise` trait is the trait form of [`nbd/Promise`](../Promise.md). This
+allows [`nbd/Class`](../Class.md) subclasses to `.mixin()` the trait, to make
+instances of those classes to become Promise-like objects.
 
 The trait itself is also a promise class. This means it can be instanciated
 with `new` to produce a promise.
@@ -37,7 +33,7 @@ fulfilled/rejected state and value of the return values of `onFulfilled` or
 
 Primary method for resolving a promise's state. If no errors occur, the promise
 will be fulfilled with the value of `x`. Otherwise, the promise will be
-rejected. 
+rejected.
 
 If `x` is another promise or a then-able pseudo-promise (has the method
 `.then()` with the same signature), then the current promise will resolve with
@@ -68,7 +64,7 @@ resolve.
 This `then()` method is context-independent: it can be called from any context
 and the promise it applies to remains the same.
 
-**returns** *Object* Then-able pseudo-promise
+**returns** *Object* Then-able promise-like object
 
 ## `.promise()`
 
