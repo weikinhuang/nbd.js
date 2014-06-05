@@ -425,7 +425,7 @@ define("node_modules/almond/almond", function(){});
 /* istanbul ignore if */
 
 define('Class',[],function() {
-  "use strict";
+  'use strict';
 
   // The base Class implementation (does nothing)
   var Klass = function() {},
@@ -508,10 +508,16 @@ define('Class',[],function() {
 
     // The dummy class constructor
     function Class() {
+      var ret,
+      instance = this instanceof Class ?
+        this :
+        Object.create(prototype);
       // All construction is actually done in the init method
-      if (typeof this.init === "function") {
-        this.init.apply(this, arguments);
+      if (typeof instance.init === 'function') {
+        ret = instance.init.apply(instance, arguments);
+        return Object(ret) === ret ? ret : instance;
       }
+      return instance;
     }
 
     // Copy the properties over onto the new prototype
@@ -519,8 +525,8 @@ define('Class',[],function() {
       var p = prop[name];
       // Check if we're overwriting an existing function
       prototype[name] =
-        typeof p === "function" &&
-        typeof _super[name] === "function" &&
+        typeof p === 'function' &&
+        typeof _super[name] === 'function' &&
         fnTest.test(p) ?
         protochain(name, p) :
         p;
@@ -536,7 +542,7 @@ define('Class',[],function() {
     Class.prototype = prototype;
 
     // Enforce the constructor to be what we expect
-    Object.defineProperty(Class.prototype, "constructor", { value: Class });
+    Object.defineProperty(Class.prototype, 'constructor', { value: Class });
 
     // Class guaranteed methods
     Object.defineProperties(Class, {
@@ -1095,18 +1101,23 @@ define('Model',[
       this.set = this.set.bind(this);
 
       try {
-        Object.defineProperty(this, '_dirty', { value: 0, writable: true });
-        Object.defineProperty(this, '_data', {
-          enumerable: false,
-          configurable: true,
-          value: data || {},
-          writable: true
+        Object.defineProperties(this, {
+          _dirty: {
+            value: 0,
+            writable: true
+          },
+          _data: {
+            enumerable: false,
+            configurable: true,
+            value: data || {},
+            writable: true
+          }
         });
       }
       catch (noDefineProperty) {
         // Can't use ES5 Object.defineProperty, fallback
         this._dirty = 0;
-        this._data = data;
+        this._data = data || {};
       }
     },
 
@@ -1177,7 +1188,13 @@ define('View',[
   "use strict";
 
   var constructor = Class.extend({
-    $view: null,
+    init: function() {
+      this.on('postrender', function($view) {
+        if (typeof this.rendered === 'function') {
+          this.rendered($view);
+        }
+      });
+    },
 
     render: function(data) {
       var $existing = this.$view;
@@ -1188,11 +1205,6 @@ define('View',[
       this.constructor.replace($existing, this.$view);
 
       this.trigger('postrender', this.$view);
-
-      // Prefer the postrender event over this method
-      if (this.rendered) {
-        this.rendered(this.$view);
-      }
 
       return this.$view;
     },
@@ -1226,6 +1238,11 @@ define('View',[
       return ($parent.append || $parent.appendChild).call($parent, $child);
     },
 
+    find: function($root, selector) {
+      if (!$root) { return; }
+      return ($root.find || $root.querySelector).call($root, selector);
+    },
+
     replace: function($old, $new) {
       if (!$old) { return; }
       if ($old.replaceWith) {
@@ -1256,6 +1273,7 @@ define('View/Entity',['../View'], function(View) {
 
   var constructor = View.extend({
     init: function(model) {
+      this._super();
       if (typeof model === 'object') {
         this._model = model;
       }
@@ -1295,10 +1313,6 @@ define('View/Entity',['../View'], function(View) {
 
       if (fresh) {
         this.trigger('postrender', this.$view);
-
-        if (typeof this.rendered === 'function') {
-          this.rendered(this.$view);
-        }
       }
 
       return this.$view;
@@ -1319,6 +1333,7 @@ define('View/Element',['../View'], function(View) {
     $parent: null,
 
     init: function($parent) {
+      this._super();
       this.$parent = $parent;
     },
 
@@ -1337,10 +1352,6 @@ define('View/Element',['../View'], function(View) {
       }
 
       this.trigger('postrender', this.$view);
-
-      if (typeof this.rendered === 'function') {
-        this.rendered(this.$view);
-      }
 
       return this.$view;
     }
@@ -1586,51 +1597,49 @@ define('Controller/Responsive',[
 define('Promise',['./util/async', './util/construct', './util/extend'], function(async, construct, extend) {
   'use strict';
 
-  function Promise(starting) {
-    var self = this,
-    onResolve = [],
-    onReject = [],
-    state = 0,
-    value;
+  function PromiseResolver(promise) {
+    var fulfills = [],
+        rejects = [],
+        state = 0,
+        value;
 
-    function call(fns) {
+    function call(fns, value) {
       if (fns.length) {
         async(function() {
           for (var i = 0; i < fns.length; ++i) { fns[i](value); }
+          fulfills.length = rejects.length = 0;
         });
       }
-      // Reset callbacks
-      onResolve = onReject = [];
     }
 
     function fulfill(x) {
       if (state) { return; }
       state = 1;
       value = x;
-      call(onResolve);
+      call(fulfills, value);
     }
 
     function reject(reason) {
       if (state) { return; }
       state = -1;
       value = reason;
-      call(onReject);
+      call(rejects, value);
     }
 
     function resolve(x) {
-      if (x === self) {
+      if (x === promise) {
         reject(new TypeError('Cannot resolve with self'));
       }
 
       // If handed another promise
-      if (x instanceof Promise) {
+      if (Promise.isPromise(x)) {
         x.then(resolve, reject);
         return;
       }
 
       // If handed another then-able
       if ((typeof x === 'object' || typeof x === 'function') && x !== null) {
-        var then;
+        var then, mutex = false;
 
         try {
           then = x.then;
@@ -1641,29 +1650,26 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
         }
 
         if (typeof then === 'function') {
-          return (function thenAble() {
-            var mutex = false;
-
-            try {
-              then.call(x, function resolvePromise(y) {
-                if (mutex) { return; }
-                (y === x ? fulfill : resolve)(y);
-                mutex = true;
-              }, function rejectPromise(r) {
-                if (mutex) { return; }
-                reject(r);
-                mutex = true;
-              });
-            }
-            catch (e) { if (!mutex) { reject(e); } }
-          }());
+          try {
+            then.call(x, function resolvePromise(y) {
+              if (mutex) { return; }
+              (y === x ? fulfill : resolve)(y);
+              mutex = true;
+            }, function rejectPromise(r) {
+              if (mutex) { return; }
+              reject(r);
+              mutex = true;
+            });
+          }
+          catch (e) { if (!mutex) { reject(e); } }
+          return;
         }
       }
 
       fulfill(x);
     }
 
-    function then(onFulfilled, onRejected) {
+    promise.then = function then(onFulfill, onReject) {
       var next = new Promise();
 
       function wrap(fn) {
@@ -1681,17 +1687,17 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
 
       // Promise pending
       if (!state) {
-        onResolve.push(typeof onFulfilled === 'function' ?
-                       wrap(onFulfilled) :
+        fulfills.push(typeof onFulfill === 'function' ?
+                       wrap(onFulfill) :
                        next.resolve);
 
-        onReject.push(typeof onRejected === 'function' ?
-                      wrap(onRejected) :
+        rejects.push(typeof onReject === 'function' ?
+                      wrap(onReject) :
                       next.reject);
       }
       // Promise fulfilled/rejected
       else {
-        var toCall = ~state ? onFulfilled : onRejected;
+        var toCall = ~state ? onFulfill : onReject;
         if (typeof toCall === 'function') {
           toCall = wrap(toCall);
           async(function() { toCall(value); });
@@ -1702,29 +1708,92 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
       }
 
       return next;
-    }
+    };
 
     Object.defineProperties(this, {
-      reject: {value: reject},
-      resolve: {value: resolve}
+      fulfill: { enumerable: true, value: fulfill },
+      reject: { enumerable: true, value: reject },
+      resolve: { enumerable: true, value: resolve }
     });
+  }
 
-    this.then = then;
+  function Promise(callback) {
+    if (!(this instanceof Promise)) {
+      return new Promise(callback);
+    }
 
-    if (arguments.length) {
-      resolve(starting);
+    var resolver = new PromiseResolver(this);
+
+    if (typeof callback === 'function') {
+      try { callback(resolver); }
+      catch(failure) {
+        resolver.reject(failure);
+      }
+    }
+    else {
+      this.resolve = resolver.resolve;
+      this.reject = resolver.reject;
     }
   }
 
   var forEach = Array.prototype.forEach;
 
   extend(Promise.prototype, {
-    catch: function(onRejected) {
-      return this.then(undefined, onRejected);
+    catch: function(onReject) {
+      return this.then(undefined, onReject);
     },
 
     finally: function(onAny) {
       return this.then(onAny, onAny);
+    },
+
+    done: function(onFulfill, onReject) {
+      return this.then(onFulfill, onReject)
+      .catch(function(reason) {
+        async(function() {
+          throw reason;
+        });
+      });
+    },
+
+    spread: function(onFulfill, onReject) {
+      return this.then(function(arr) {
+        onFulfill.apply(this, arr);
+      }, onReject);
+    },
+
+    get: function(name) {
+      return this.then(function(x) {
+        return x[name];
+      });
+    },
+
+    set: function(name, value) {
+      return this.then(function(x) {
+        x[name] = value;
+        return x;
+      });
+    },
+
+    delete: function(name) {
+      return this.then(function(x) {
+        delete x[name];
+        return x;
+      });
+    },
+
+    send: function(name) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      return this.then(function(x) {
+        return x[name].apply(x, args);
+      });
+    },
+
+    fcall: function() {
+      var args = arguments;
+      return this.then(function(fn) {
+        return fn.apply(undefined, args);
+      });
     },
 
     thenable: function() {
@@ -1757,11 +1826,72 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
   });
 
   extend(Promise, {
-    resolved: construct,
-    rejected: function(reason) {
-      var p = new this();
-      p.reject(reason);
+    of: function(value) {
+      return new this(function(resolver) {
+        resolver.fulfill(value);
+      });
+    },
+
+    from: function(value) {
+      if (Promise.isPromise(value)) { return value; }
+      return Promise.resolve(value);
+    },
+
+    resolve: function(value) {
+      return new this(function(resolver) {
+        resolver.resolve(value);
+      });
+    },
+
+    reject: function(reason) {
+      return new this(function(resolver) {
+        resolver.reject(reason);
+      });
+    },
+
+    race: function() {
+      var r, p = new this(function(resolver) { r = resolver; });
+      Array.prototype.map.call(arguments, function(value) {
+        this.from(value).then(r.resolve, r.reject);
+      }, this);
       return p;
+    },
+
+    all: function() {
+      var r, p = new Promise(function(resolver) { r = resolver; }),
+      results = [];
+
+      function collect(index, retval) {
+        results[index] = retval;
+      }
+
+      if (arguments.length) {
+        results.map.call(arguments, function(value, i) {
+          return Promise.from(value).then(collect.bind(null, i));
+        })
+        .reduce(Promise.join)
+        .then(r.resolve.bind(null, results), r.reject);
+      } else {
+        r.resolve(results);
+      }
+
+      return p;
+    },
+
+    join: function(p1, p2) {
+      return p1.then(function() { return p2; });
+    },
+
+    isPromise: function(x) {
+      return x instanceof Promise;
+    },
+
+    isThenable: function(x) {
+      if ((typeof x === 'object' || typeof x === 'function') && x !== null) {
+        var then = x.then;
+        return typeof then === 'function';
+      }
+      return false;
     }
   });
 
@@ -1776,16 +1906,23 @@ define('Logger',[
   './util/construct',
   './util/extend'
 ], function(Class, pubsub, construct, extend) {
-  "use strict";
+  'use strict';
 
   var _logHandlers = [],
+  _levels = {
+    debug: true,
+    log:  true,
+    info: true,
+    warn: true,
+    error: true
+  },
 
   Logger = Class.extend({
     init: function(name) {
       if (typeof name === 'string') {
         this.name = name;
       }
-      else if (name) {
+      else {
         this.container = name;
       }
 
@@ -1838,7 +1975,8 @@ define('Logger',[
     },
 
     _name: function() {
-      var local = this.container && Object.getPrototypeOf(this.container).constructor;
+      var local = this.container &&
+        Object.getPrototypeOf(this.container).constructor;
       return this.name || local && (local.displayName || local.name);
     }
   }, {
@@ -1847,7 +1985,6 @@ define('Logger',[
     get: function(name) {
       var logger = construct.call(this, name);
       logger.attach(this.global);
-      this.attach(this.console);
       return logger;
     },
 
@@ -1857,8 +1994,22 @@ define('Logger',[
       }
     },
 
+    setLevel: function splat(level, handler) {
+      var key;
+      if (typeof level === 'string') {
+        _levels[level] = typeof handler === 'function' ?  handler : !!handler;
+      }
+      else if (typeof level === 'object') {
+        for (key in level) {
+          splat(key, level[key]);
+        }
+      }
+    },
+
     global: function(level, message) {
-      _logHandlers.forEach(function(handler) {
+      var allowed = _levels[level];
+      allowed = typeof allowed === 'function' ? !!allowed(message) : !!allowed;
+      return allowed && _logHandlers.forEach(function(handler) {
         handler(level, message);
       });
     },
@@ -1867,30 +2018,14 @@ define('Logger',[
       if (message.context) {
         message.params.unshift('%c' + message.context, 'color:gray');
       }
-      console[level].apply(console, message.params);
+      return console[level] && console[level].apply(console, message.params);
     }
   })
   .mixin(pubsub);
 
+  Logger.attach(Logger.console);
+
   return Logger;
-});
-
-/* istanbul ignore if */
-
-define('event',[
-  './util/extend',
-  './trait/pubsub'
-], function(extend, pubsub) {
-  'use strict';
-
-  var exports = extend({}, pubsub);
-
-  // Aliases
-  exports.bind = exports.on;
-  exports.unbind = exports.off;
-  exports.fire = exports.trigger;
-
-  return exports;
 });
 
 /* istanbul ignore if */
@@ -2076,40 +2211,24 @@ define('util/pipe',[],function() {
   };
 });
 
-/* istanbul ignore if */
-
-define('util/when',['../Promise'], function(Promise) {
+define('util/throttle',[],function() {
   'use strict';
 
-  var ret = function() { return this; };
+  return function throttle(fn) {
+    if (fn._blocking) { return; }
+    fn._blocking = true;
 
-  return function when() {
-    var x, i, chain,
-    p = new Promise(),
-    results = [];
+    var retval = fn.call(this);
 
-    function collect(index, retval) {
-      results[index] = retval;
+    function unblock() { delete fn._blocking; }
+    if (retval && typeof retval.then === 'function') {
+      retval.then(unblock, unblock);
+    }
+    else {
+      delete fn._blocking;
     }
 
-    for (i = 0; i < arguments.length; ++i) {
-      if (arguments[i] instanceof Promise) {
-        x = arguments[i];
-      } else {
-        x = new Promise();
-        x.resolve(arguments[i]);
-      }
-      x.then(collect.bind(null, i));
-      chain = chain ? chain.then(ret.bind(x)) : x;
-    }
-
-    if (arguments.length) {
-      chain.then(p.resolve.bind(null, results), p.reject);
-    } else {
-      p.resolve(results);
-    }
-
-    return p;
+    return retval;
   };
 });
 
@@ -2126,7 +2245,6 @@ define('index',[
   './Controller/Responsive',
   './Promise',
   './Logger',
-  './event',
   './trait/log',
   './trait/promise',
   './trait/pubsub',
@@ -2138,7 +2256,7 @@ define('index',[
   './util/extend',
   './util/media',
   './util/pipe',
-  './util/when'
+  './util/throttle'
 ], function(
   Class,
   Model,
@@ -2150,7 +2268,6 @@ define('index',[
   Responsive,
   Promise,
   Logger,
-  event,
   log,
   promise,
   pubsub,
@@ -2162,7 +2279,7 @@ define('index',[
   extend,
   media,
   pipe,
-  when
+  throttle
 ) {
   'use strict';
 
@@ -2173,7 +2290,6 @@ define('index',[
     Controller: Controller,
     Promise: Promise,
     Logger: Logger,
-    event: event,
     trait: {
       log: log,
       promise: promise,
@@ -2188,7 +2304,7 @@ define('index',[
       extend: extend,
       media: media,
       pipe: pipe,
-      when: when
+      throttle: throttle
     }
   };
 
