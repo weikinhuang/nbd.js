@@ -11,9 +11,9 @@ define([
 
   function copy(a) {
     if (a != null && typeof a === 'object') {
-      return Array.isArray(a) ?
-        Array.prototype.slice.call(a) :
-        extend({}, a);
+      return Array.isArray(a) ? Array.prototype.slice.call(a) :
+        a.constructor === Object ? extend({}, a) :
+        a;
     }
     return a;
   }
