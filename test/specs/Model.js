@@ -212,12 +212,30 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         });
 
         it('announces array modifications', function(done) {
-            var d = instance.data();
-            instance.on('arr', cb);
-            d.arr.push(1);
+          var d = instance.data();
+          instance.on('arr', cb);
+          d.arr.push(1);
 
           setTimeout(function() {
             expect(instance.get('arr').length).not.toBe(0);
+            done();
+          }, t);
+        });
+
+        it('announces originals when using complex objects', function(done) {
+          function A() {}
+          function B() {}
+
+          var a = new A(),
+          b = new B(),
+          instance = new Model({ a: a }),
+          spy = jasmine.createSpy('complex spy');
+
+          instance.on('a', spy);
+          instance.set('a', b);
+
+          setTimeout(function() {
+            expect(spy).toHaveBeenCalledWith(b, a);
             done();
           }, t);
         });
