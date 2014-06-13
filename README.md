@@ -1,4 +1,4 @@
-![nbd.js](http://i.imgur.com/qstw3.png) [![Build Status](https://travis-ci.org/behance/nbd.js.png?branch=master)](https://travis-ci.org/behance/nbd.js)
+![nbd.js](http://i.imgur.com/qstw3.png) [![Build Status](https://travis-ci.org/behance/nbd.js.svg?branch=master)](https://travis-ci.org/behance/nbd.js)
 ---
 
 **No Big Deal, Just Saying**
