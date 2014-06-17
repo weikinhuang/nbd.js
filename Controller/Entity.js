@@ -4,8 +4,9 @@ define([
   '../util/construct',
   '../Controller',
   '../View/Entity',
-  '../Model'
-], function(construct, Controller, View, Model) {
+  '../Model',
+  '../trait/pubsub'
+], function(construct, Controller, View, Model, pubsub) {
   'use strict';
 
   var constructor = Controller.extend({
@@ -25,6 +26,7 @@ define([
       this._view.destroy();
       this._model.destroy();
       this._model = this._view = null;
+      this.trigger('destroy').stopListening().off();
     },
 
     requestView: function(ViewClass) {
@@ -42,7 +44,8 @@ define([
 
     // Corresponding Entity Model class
     MODEL_CLASS: Model
-  });
+  })
+  .mixin(pubsub);
 
   return constructor;
 });
