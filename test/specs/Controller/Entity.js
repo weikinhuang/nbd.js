@@ -74,6 +74,13 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         expect(instance._view).toEqual(null);
         expect(instance._model).toEqual(null);
       });
+
+      it('fires destroy event', function() {
+        var spy = jasmine.createSpy('destroy');
+        instance.on('destroy', spy);
+        instance.destroy();
+        expect(spy).toHaveBeenCalled();
+      });
     });
   });
 
