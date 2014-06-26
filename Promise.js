@@ -156,9 +156,9 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
     done: function(onFulfill, onReject) {
       return this.then(onFulfill, onReject)
       .catch(function(reason) {
-        async(function() {
+        setTimeout(function() {
           throw reason;
-        });
+        }, 0);
       });
     },
 
