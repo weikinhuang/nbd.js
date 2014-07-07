@@ -1425,8 +1425,9 @@ define('Controller/Entity',[
   '../util/construct',
   '../Controller',
   '../View/Entity',
-  '../Model'
-], function(construct, Controller, View, Model) {
+  '../Model',
+  '../trait/pubsub'
+], function(construct, Controller, View, Model, pubsub) {
   'use strict';
 
   var constructor = Controller.extend({
@@ -1446,6 +1447,7 @@ define('Controller/Entity',[
       this._view.destroy();
       this._model.destroy();
       this._model = this._view = null;
+      this.trigger('destroy').stopListening().off();
     },
 
     requestView: function(ViewClass) {
@@ -1463,7 +1465,8 @@ define('Controller/Entity',[
 
     // Corresponding Entity Model class
     MODEL_CLASS: Model
-  });
+  })
+  .mixin(pubsub);
 
   return constructor;
 });
@@ -1750,9 +1753,9 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
     done: function(onFulfill, onReject) {
       return this.then(onFulfill, onReject)
       .catch(function(reason) {
-        async(function() {
+        setTimeout(function() {
           throw reason;
-        });
+        }, 0);
       });
     },
 
@@ -2210,6 +2213,8 @@ define('util/pipe',[],function() {
     };
   };
 });
+
+/* istanbul ignore if */
 
 define('util/throttle',[],function() {
   'use strict';
