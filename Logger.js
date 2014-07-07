@@ -97,7 +97,7 @@ define([
     setLevel: function splat(level, handler) {
       var key;
       if (typeof level === 'string') {
-        _levels[level] = typeof handler === 'function' ?  handler : !!handler;
+        _levels[level] = typeof handler === 'function' ? handler : !!handler;
       }
       else if (typeof level === 'object') {
         for (key in level) {
@@ -108,17 +108,18 @@ define([
 
     global: function(level, message) {
       var allowed = _levels[level];
-      allowed = typeof allowed === 'function' ? !!allowed(message) : !!allowed;
+      allowed = !!(typeof allowed === 'function' ? allowed(message) : allowed);
       return allowed && _logHandlers.forEach(function(handler) {
         handler(level, message);
       });
     },
 
     console: function(level, message) {
+      var params = message.params;
       if (message.context) {
-        message.params.unshift('%c' + message.context, 'color:gray');
+        params = ['%c' + message.context, 'color:gray'].concat(params);
       }
-      return console[level] && console[level].apply(console, message.params);
+      return console[level] && console[level].apply(console, params);
     }
   })
   .mixin(pubsub);
