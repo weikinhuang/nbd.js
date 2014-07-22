@@ -22,9 +22,9 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         p = new Promise(spy);
 
         expect(spy).toHaveBeenCalled();
-        expect(spy.calls.argsFor(0)[0].resolve).toBeDefined();
-        expect(spy.calls.argsFor(0)[0].fulfill).toBeDefined();
-        expect(spy.calls.argsFor(0)[0].reject).toBeDefined();
+        expect(spy.calls.argsFor(0).length).toBe(2);
+        expect(spy.calls.argsFor(0)[0]).toEqual(jasmine.any(Function));
+        expect(spy.calls.argsFor(0)[1]).toEqual(jasmine.any(Function));
       });
 
       it('makes the promise its own resolver without a callback', function() {

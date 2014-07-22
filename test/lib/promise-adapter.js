@@ -5,7 +5,7 @@ var Promise = require('../../Promise');
 
 module.exports = {
 	resolved: function(value) {
-		return Promise.of(value);
+		return Promise.resolve(value);
 	},
 
 	rejected: function(reason) {
@@ -13,9 +13,10 @@ module.exports = {
 	},
 
 	deferred: function() {
-		var deferred,
-        promise = new Promise(function(resolver) {
-          deferred = resolver;
+		var deferred = {},
+        promise = new Promise(function(resolve, reject) {
+          deferred.resolve = resolve;
+          deferred.reject = reject;
         });
         deferred.promise = promise;
         return deferred;
