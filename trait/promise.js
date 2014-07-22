@@ -16,6 +16,14 @@ define(['../Promise', '../util/extend'], function(Promise, extend) {
       return promiseMe.call(this).then(onFulfilled, onRejected);
     },
 
+    catch: function(onReject) {
+      return promiseMe.call(this).catch(onReject);
+    },
+
+    finally: function(onAny) {
+      return promiseMe.call(this).finally(onAny);
+    },
+
     resolve: function(value) {
       promiseMe.call(this).resolve(value);
       return this;
