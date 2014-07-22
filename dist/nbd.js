@@ -1728,7 +1728,7 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
     var resolver = new PromiseResolver(this);
 
     if (typeof callback === 'function') {
-      try { callback(resolver); }
+      try { callback(resolver.resolve, resolver.reject); }
       catch(failure) {
         resolver.reject(failure);
       }
@@ -1829,39 +1829,33 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
   });
 
   extend(Promise, {
-    of: function(value) {
-      return new this(function(resolver) {
-        resolver.fulfill(value);
-      });
-    },
-
     from: function(value) {
       if (Promise.isPromise(value)) { return value; }
       return Promise.resolve(value);
     },
 
     resolve: function(value) {
-      return new this(function(resolver) {
-        resolver.resolve(value);
+      return new this(function(resolve) {
+        resolve(value);
       });
     },
 
     reject: function(reason) {
-      return new this(function(resolver) {
-        resolver.reject(reason);
+      return new this(function(resolve, reject) {
+        reject(reason);
       });
     },
 
     race: function() {
-      var r, p = new this(function(resolver) { r = resolver; });
+      var r, j, p = new this(function(resolve, reject) { r = resolve; j = reject; });
       Array.prototype.map.call(arguments, function(value) {
-        this.from(value).then(r.resolve, r.reject);
+        this.from(value).then(r, j);
       }, this);
       return p;
     },
 
     all: function() {
-      var r, p = new Promise(function(resolver) { r = resolver; }),
+      var r, j, p = new this(function(resolve, reject) { r = resolve; j = reject; }),
       results = [];
 
       function collect(index, retval) {
@@ -1873,9 +1867,9 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
           return Promise.from(value).then(collect.bind(null, i));
         })
         .reduce(Promise.join)
-        .then(r.resolve.bind(null, results), r.reject);
+        .then(r.bind(null, results), j);
       } else {
-        r.resolve(results);
+        r(results);
       }
 
       return p;
@@ -2000,7 +1994,7 @@ define('Logger',[
     setLevel: function splat(level, handler) {
       var key;
       if (typeof level === 'string') {
-        _levels[level] = typeof handler === 'function' ?  handler : !!handler;
+        _levels[level] = typeof handler === 'function' ? handler : !!handler;
       }
       else if (typeof level === 'object') {
         for (key in level) {
@@ -2011,17 +2005,18 @@ define('Logger',[
 
     global: function(level, message) {
       var allowed = _levels[level];
-      allowed = typeof allowed === 'function' ? !!allowed(message) : !!allowed;
+      allowed = !!(typeof allowed === 'function' ? allowed(message) : allowed);
       return allowed && _logHandlers.forEach(function(handler) {
         handler(level, message);
       });
     },
 
     console: function(level, message) {
+      var params = message.params;
       if (message.context) {
-        message.params.unshift('%c' + message.context, 'color:gray');
+        params = ['%c' + message.context, 'color:gray'].concat(params);
       }
-      return console[level] && console[level].apply(console, message.params);
+      return console[level] && console[level].apply(console, params);
     }
   })
   .mixin(pubsub);
@@ -2075,6 +2070,14 @@ define('trait/promise',['../Promise', '../util/extend'], function(Promise, exten
   return extend(promiseMe, {
     then: function(onFulfilled, onRejected) {
       return promiseMe.call(this).then(onFulfilled, onRejected);
+    },
+
+    catch: function(onReject) {
+      return promiseMe.call(this).catch(onReject);
+    },
+
+    finally: function(onAny) {
+      return promiseMe.call(this).finally(onAny);
     },
 
     resolve: function(value) {
