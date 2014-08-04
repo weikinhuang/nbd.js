@@ -61,18 +61,18 @@ define([
 
     destroy: function() {
       this.off();
+      async.clearImmediate(this._dirty);
       this._data = null;
     },
 
     data: function() {
       var orig = this._data, clone;
 
-      if (this._dirty !== true) {
+      if (!this._dirty) {
         clone = Object.keys(orig).reduce(function(obj, key) {
           return obj[key] = copy(orig[key]), obj;
         }, {});
-        async(dirtyCheck.bind(this, clone));
-        this._dirty = true;
+        this._dirty = async(dirtyCheck.bind(this, clone));
       }
       return this._data;
     },
@@ -90,7 +90,6 @@ define([
       var key, data = this.data();
 
       if (typeof values === "string") {
-        this._dirty = true;
         data[values] = copy(value);
         return this;
       }
@@ -98,7 +97,6 @@ define([
       if (typeof values === "object") {
         for (key in values) {
           if (values.hasOwnProperty(key)) {
-            this._dirty = true;
             data[key] = copy(values[key]);
           }
         }
