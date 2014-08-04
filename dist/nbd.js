@@ -1123,18 +1123,18 @@ define('Model',[
 
     destroy: function() {
       this.off();
+      async.clearImmediate(this._dirty);
       this._data = null;
     },
 
     data: function() {
       var orig = this._data, clone;
 
-      if (this._dirty !== true) {
+      if (!this._dirty) {
         clone = Object.keys(orig).reduce(function(obj, key) {
           return obj[key] = copy(orig[key]), obj;
         }, {});
-        async(dirtyCheck.bind(this, clone));
-        this._dirty = true;
+        this._dirty = async(dirtyCheck.bind(this, clone));
       }
       return this._data;
     },
@@ -1152,7 +1152,6 @@ define('Model',[
       var key, data = this.data();
 
       if (typeof values === "string") {
-        this._dirty = true;
         data[values] = copy(value);
         return this;
       }
@@ -1160,7 +1159,6 @@ define('Model',[
       if (typeof values === "object") {
         for (key in values) {
           if (values.hasOwnProperty(key)) {
-            this._dirty = true;
             data[key] = copy(values[key]);
           }
         }
@@ -1846,15 +1844,19 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
       });
     },
 
-    race: function() {
+    race: function(iterable) {
       var r, j, p = new this(function(resolve, reject) { r = resolve; j = reject; });
-      Array.prototype.map.call(arguments, function(value) {
+      if (!arguments.length) {
+        throw new Error('Not enough arguments to Promise.race');
+      }
+
+      Array.prototype.map.call(iterable, function(value) {
         this.from(value).then(r, j);
       }, this);
       return p;
     },
 
-    all: function() {
+    all: function(iterable) {
       var r, j, p = new this(function(resolve, reject) { r = resolve; j = reject; }),
       results = [];
 
@@ -1862,15 +1864,15 @@ define('Promise',['./util/async', './util/construct', './util/extend'], function
         results[index] = retval;
       }
 
-      if (arguments.length) {
-        results.map.call(arguments, function(value, i) {
-          return Promise.from(value).then(collect.bind(null, i));
-        })
-        .reduce(Promise.join)
-        .then(r.bind(null, results), j);
-      } else {
-        r(results);
+      if (!arguments.length) {
+        throw new Error('Not enough arguments to Promise.all');
       }
+
+      results.map.call(iterable, function(value, i) {
+        return Promise.from(value).then(collect.bind(null, i));
+      })
+      .reduce(Promise.join)
+      .then(r.bind(null, results), j);
 
       return p;
     },
