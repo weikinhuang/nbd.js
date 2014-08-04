@@ -223,7 +223,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       it('resolves when the first promise resolves', function() {
         var o = new Promise(),
         p = new Promise(),
-        q = Promise.race(o, p);
+        q = Promise.race([o, p]);
 
         q.then(function(value) {
           expect(value).toBe('foo');
@@ -249,15 +249,15 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
 
       it('resolves immediate values', function(done) {
         var o = {}, f = function() {}, n = null, u;
-        Promise.all(o, f, n, u).then(sentinel)
+        Promise.all([o, f, n, u]).then(sentinel)
         .then(function() {
           expect(sentinel).toHaveBeenCalledWith([o, f, n, u]);
         })
         .finally(done);
       });
 
-      it('resolves when promise resolves', function(done) {
-        Promise.all(promise).then(sentinel)
+      it('resolves when a single promise resolves', function(done) {
+        Promise.all([promise]).then(sentinel)
         .then(function() {
           expect(sentinel).toHaveBeenCalledWith(['original']);
         }).finally(done);
@@ -268,7 +268,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       it('resolves when last promise resolves', function(done) {
         var last = new Promise();
 
-        Promise.all('a', last, promise).then(sentinel)
+        Promise.all(['a', last, promise]).then(sentinel)
         .then(function() {
           expect(sentinel).toHaveBeenCalledWith(['a', 'netflix', 'original']);
         })
@@ -284,7 +284,7 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
       it('rejects when any promise rejects', function(done) {
         var last = new Promise(),
         fail = jasmine.createSpy('then failback');
-        Promise.all(promise, last).then(sentinel, fail)
+        Promise.all([promise, last]).then(sentinel, fail)
         .then(function() {
           expect(fail).toHaveBeenCalledWith('nok');
         }).then(function() {
@@ -297,11 +297,10 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
 
       });
 
-      it('resolves empty calls immediately', function(done) {
-        Promise.all().then(sentinel)
-        .then(function() {
-          expect(sentinel).toHaveBeenCalledWith([]);
-        }).finally(done);
+      it('throws on empty calls', function() {
+        expect(function() {
+          Promise.all();
+        }).toThrow();
       });
     });
   });

@@ -249,15 +249,19 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
       });
     },
 
-    race: function() {
+    race: function(iterable) {
       var r, j, p = new this(function(resolve, reject) { r = resolve; j = reject; });
-      Array.prototype.map.call(arguments, function(value) {
+      if (!arguments.length) {
+        throw new Error('Not enough arguments to Promise.race');
+      }
+
+      Array.prototype.map.call(iterable, function(value) {
         this.from(value).then(r, j);
       }, this);
       return p;
     },
 
-    all: function() {
+    all: function(iterable) {
       var r, j, p = new this(function(resolve, reject) { r = resolve; j = reject; }),
       results = [];
 
@@ -265,15 +269,15 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
         results[index] = retval;
       }
 
-      if (arguments.length) {
-        results.map.call(arguments, function(value, i) {
-          return Promise.from(value).then(collect.bind(null, i));
-        })
-        .reduce(Promise.join)
-        .then(r.bind(null, results), j);
-      } else {
-        r(results);
+      if (!arguments.length) {
+        throw new Error('Not enough arguments to Promise.all');
       }
+
+      results.map.call(iterable, function(value, i) {
+        return Promise.from(value).then(collect.bind(null, i));
+      })
+      .reduce(Promise.join)
+      .then(r.bind(null, results), j);
 
       return p;
     },
