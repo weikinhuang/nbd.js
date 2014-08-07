@@ -302,6 +302,18 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
           Promise.all();
         }).toThrow();
       });
+
+      it('immediately resolves on an empty array', function(done) {
+        expect(function() {
+          Promise.all([]);
+        }).not.toThrow();
+
+        Promise.all([]).then(sentinel)
+        .then(function() {
+          expect(sentinel).toHaveBeenCalled();
+        })
+        .finally(done);
+      });
     });
   });
 

@@ -273,6 +273,11 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
         throw new Error('Not enough arguments to Promise.all');
       }
 
+      if (!iterable.length) {
+        r();
+        return p;
+      }
+
       results.map.call(iterable, function(value, i) {
         return Promise.from(value).then(collect.bind(null, i));
       })
