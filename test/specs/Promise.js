@@ -233,6 +233,18 @@ define(['real/Promise', 'nbd/Class', 'jquery'], function(Promise, Class, $) {
         p.resolve('foo');
         o.reject();
       });
+
+      it('resolves when empty', function(done) {
+        expect(function() {
+          Promise.race([]);
+        }).not.toThrow();
+        var spy = jasmine.createSpy();
+        Promise.race([]).then(spy)
+        .then(function() {
+          expect(spy).toHaveBeenCalled();
+        })
+        .finally(done);
+      });
     });
 
     describe('.all()', function() {
