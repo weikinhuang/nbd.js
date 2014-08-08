@@ -1,6 +1,6 @@
 {
   "name": "nbd",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "No Big Deal modular MVC and tools library",
   "homepage": "https://github.com/behance/nbd.js",
   "authors": [
