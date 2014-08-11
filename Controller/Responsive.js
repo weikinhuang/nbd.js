@@ -14,10 +14,7 @@ define([
 
     destroy: function() {
       media.off(null, null, this);
-      if (this._view) {
-        this._view.destroy();
-      }
-      this._model.destroy();
+      this._super();
     },
 
     render: function() {
