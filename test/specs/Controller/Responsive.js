@@ -63,6 +63,12 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
           instance.destroy();
         }).not.toThrow();
       });
+
+      it('fires the destroy event', function(done) {
+        instance = new Controller();
+        instance.on('destroy', done);
+        instance.destroy();
+      });
     });
 
     describe('.render', function() {

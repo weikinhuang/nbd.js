@@ -23,7 +23,7 @@ define([
     },
 
     destroy: function() {
-      this._view.destroy();
+      if (this._view) { this._view.destroy(); }
       this._model.destroy();
       this._model = this._view = null;
       this.trigger('destroy').stopListening().off();
