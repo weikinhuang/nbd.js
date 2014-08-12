@@ -24,8 +24,9 @@ define(function() {
         // Choice of `thisArg` is not in the setImmediate spec; `undefined` is in the setTimeout spec though:
         // http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html
         this.handler.apply(undefined, this.args);
-      } else {
-        var scriptSource = "" + this.handler;
+      }
+      else {
+        var scriptSource = String(this.handler);
         /*jshint evil: true */
         eval(scriptSource);
       }
@@ -59,7 +60,8 @@ define(function() {
               currentlyRunningATask = false;
             }
           }
-        } else {
+        }
+        else {
           // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
           // "too much recursion" error.
           global.setTimeout(function () {
@@ -157,7 +159,8 @@ define(function() {
     }
     if (global.addEventListener) {
       global.addEventListener("message", onGlobalMessage, false);
-    } else {
+    }
+    else {
       global.attachEvent("onmessage", onGlobalMessage);
     }
 
@@ -209,16 +212,20 @@ define(function() {
     if (canUseNextTick()) {
       // For Node.js before 0.9
       async = nextTickImplementation();
-    } else if (canUsePostMessage()) {
+    }
+    else if (canUsePostMessage()) {
       // For non-IE10 modern browsers
       async = postMessageImplementation();
-    } else if (canUseMessageChannel()) {
+    }
+    else if (canUseMessageChannel()) {
       // For web workers, where supported
       async = messageChannelImplementation();
-    } else if (canUseReadyStateChange()) {
+    }
+    else if (canUseReadyStateChange()) {
       // For IE 6–8
       async = readyStateChangeImplementation();
-    } else {
+    }
+    else {
       // For older browsers
       async = setTimeoutImplementation();
     }
@@ -227,6 +234,7 @@ define(function() {
   }
   else {
     async = global.setImmediate;
+    async.clearImmediate = global.clearImmediate.bind(null);
   }
 
   return async;
