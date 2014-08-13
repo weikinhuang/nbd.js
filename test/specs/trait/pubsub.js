@@ -291,6 +291,36 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         expect(spy.calls.count()).toBe(1);
       });
     });
+
+    describe('.relay()', function() {
+      var other;
+      beforeEach(function() {
+        other = extend({}, pubsub);
+      });
+
+      it('retriggers a named event', function() {
+        obj.relay(other, 'event');
+        obj.on('event', spy);
+        other.trigger('event', 'foobar');
+        expect(spy).toHaveBeenCalledWith('foobar');
+      });
+
+      it('retriggers multiple named events', function() {
+        obj.relay(other, 'foo bar baz boss');
+        obj.on('bar', spy);
+        other.trigger('bar', 'foobar');
+        expect(spy).toHaveBeenCalledWith('foobar');
+      });
+
+      it('retriggers the all event', function() {
+        obj.relay(other, 'all');
+        obj.on('fun', spy);
+        other.trigger('sad');
+        expect(spy).not.toHaveBeenCalled();
+        other.trigger('fun');
+        expect(spy).toHaveBeenCalled();
+      });
+    });
   });
 
   return pubsub;
