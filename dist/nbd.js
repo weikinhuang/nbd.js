@@ -585,8 +585,9 @@ define('util/async',[],function() {
         // Choice of `thisArg` is not in the setImmediate spec; `undefined` is in the setTimeout spec though:
         // http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html
         this.handler.apply(undefined, this.args);
-      } else {
-        var scriptSource = "" + this.handler;
+      }
+      else {
+        var scriptSource = String(this.handler);
         /*jshint evil: true */
         eval(scriptSource);
       }
@@ -620,7 +621,8 @@ define('util/async',[],function() {
               currentlyRunningATask = false;
             }
           }
-        } else {
+        }
+        else {
           // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
           // "too much recursion" error.
           global.setTimeout(function () {
@@ -718,7 +720,8 @@ define('util/async',[],function() {
     }
     if (global.addEventListener) {
       global.addEventListener("message", onGlobalMessage, false);
-    } else {
+    }
+    else {
       global.attachEvent("onmessage", onGlobalMessage);
     }
 
@@ -770,16 +773,20 @@ define('util/async',[],function() {
     if (canUseNextTick()) {
       // For Node.js before 0.9
       async = nextTickImplementation();
-    } else if (canUsePostMessage()) {
+    }
+    else if (canUsePostMessage()) {
       // For non-IE10 modern browsers
       async = postMessageImplementation();
-    } else if (canUseMessageChannel()) {
+    }
+    else if (canUseMessageChannel()) {
       // For web workers, where supported
       async = messageChannelImplementation();
-    } else if (canUseReadyStateChange()) {
+    }
+    else if (canUseReadyStateChange()) {
       // For IE 6–8
       async = readyStateChangeImplementation();
-    } else {
+    }
+    else {
       // For older browsers
       async = setTimeoutImplementation();
     }
@@ -788,6 +795,7 @@ define('util/async',[],function() {
   }
   else {
     async = global.setImmediate;
+    async.clearImmediate = global.clearImmediate.bind(null);
   }
 
   return async;
@@ -1056,6 +1064,17 @@ define('trait/pubsub',['../util/curry'], function(curry) {
         this._listeners = {};
       }
       return this;
+    },
+
+    relay: function(object, events) {
+      events = events.split(eventSplitter);
+      var i;
+      for (i = 0; i < events.length; ++i) {
+        if (events[i] === 'all') {
+          this.listenTo(object, events[i], this.trigger);
+        }
+        this.listenTo(object, events[i], this.trigger.bind(this, events[i]));
+      }
     }
   };
 });
@@ -1442,7 +1461,7 @@ define('Controller/Entity',[
     },
 
     destroy: function() {
-      this._view.destroy();
+      if (this._view) { this._view.destroy(); }
       this._model.destroy();
       this._model = this._view = null;
       this.trigger('destroy').stopListening().off();
@@ -1554,10 +1573,7 @@ define('Controller/Responsive',[
 
     destroy: function() {
       media.off(null, null, this);
-      if (this._view) {
-        this._view.destroy();
-      }
-      this._model.destroy();
+      this._super();
     },
 
     render: function() {
