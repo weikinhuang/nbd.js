@@ -133,6 +133,17 @@ define(['../util/curry'], function(curry) {
         this._listeners = {};
       }
       return this;
+    },
+
+    relay: function(object, events) {
+      events = events.split(eventSplitter);
+      var i;
+      for (i = 0; i < events.length; ++i) {
+        if (events[i] === 'all') {
+          this.listenTo(object, events[i], this.trigger);
+        }
+        this.listenTo(object, events[i], this.trigger.bind(this, events[i]));
+      }
     }
   };
 });
