@@ -19,7 +19,7 @@ define([
       ViewClass = ViewClass || this.constructor.VIEW_CLASS;
 
       this.requestView(ViewClass);
-      this._view.render($parent);
+      return this._view.render($parent);
     },
 
     destroy: function() {
