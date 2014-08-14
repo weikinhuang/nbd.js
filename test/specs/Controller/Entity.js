@@ -44,6 +44,14 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         instance.render($parent, NewViewClass);
         expect(instance._view).toEqual(jasmine.any(NewViewClass));
       });
+
+      it('returns View render\'s return value', function() {
+        var $parent = $(), retval = 'foobar';
+
+        spyOn(instance._view, 'render').and.returnValue(retval);
+        var output = instance.render($parent);
+        expect(output).toBe(retval);
+      });
     });
 
     describe('.toJSON()', function() {
