@@ -93,6 +93,15 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         expect(spy.calls.count()).toBe(1);
       });
 
+      it('does not stop other bound callbacks from firing', function() {
+        var spy2 = jasmine.createSpy();
+        obj.one('event', spy);
+        obj.on('event', spy2);
+        obj.trigger('event');
+        expect(spy.calls.count()).toBe(1);
+        expect(spy2.calls.count()).toBe(1);
+      });
+
       it("if no callback is provided, `one` is a noop", function() {
         obj.one('test').trigger('test');
       });
