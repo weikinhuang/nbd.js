@@ -51,7 +51,10 @@ define(['../util/curry'], function(curry) {
 
   triggerEntry = function(entry, index, array) {
     entry.fn.apply(entry.ctxt || entry.self, this);
-    if (entry.once) { array.splice(index, 1); }
+  },
+
+  once = function(entry) {
+    return !entry.once;
   },
 
   uId = function uid(prefix) {
@@ -101,8 +104,16 @@ define(['../util/curry'], function(curry) {
       var events = this._events[event],
           all = this._events.all;
 
-      if (events) { events.forEach(triggerEntry, slice.call(arguments, 1)); }
-      if (all) { all.forEach(triggerEntry, arguments); }
+      if (events) {
+        events.forEach(triggerEntry, slice.call(arguments, 1));
+        this._events[event] = this._events[event] &&
+          this._events[event].filter(once);
+      }
+      if (all) {
+        all.forEach(triggerEntry, arguments);
+        this._events.all = this._events.all &&
+          this._events.all.filter(once);
+      }
 
       return this;
     }),
