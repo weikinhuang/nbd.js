@@ -982,10 +982,9 @@ define('trait/pubsub',['../util/curry'], function(curry) {
 
   triggerEntry = function(entry, index, array) {
     entry.fn.apply(entry.ctxt || entry.self, this);
-  },
-
-  once = function(entry) {
-    return !entry.once;
+    if (entry.once) {
+      array[index] = null;
+    }
   },
 
   uId = function uid(prefix) {
@@ -1038,12 +1037,12 @@ define('trait/pubsub',['../util/curry'], function(curry) {
       if (events) {
         events.forEach(triggerEntry, slice.call(arguments, 1));
         this._events[event] = this._events[event] &&
-          this._events[event].filter(once);
+          this._events[event].filter(Boolean);
       }
       if (all) {
         all.forEach(triggerEntry, arguments);
         this._events.all = this._events.all &&
-          this._events.all.filter(once);
+          this._events.all.filter(Boolean);
       }
 
       return this;
