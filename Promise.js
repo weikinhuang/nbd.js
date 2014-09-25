@@ -164,7 +164,7 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
 
     spread: function(onFulfill, onReject) {
       return this.then(function(arr) {
-        onFulfill.apply(this, arr);
+        return onFulfill.apply(this, arr);
       }, onReject);
     },
 
