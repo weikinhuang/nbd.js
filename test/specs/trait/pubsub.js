@@ -101,6 +101,14 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('fool');
       });
 
+      it('triggers when bound inside a callback', function(done) {
+        obj.one('fool', function() {
+          obj.one('fool', done);
+          obj.trigger('fool');
+        });
+        obj.trigger('fool');
+      });
+
       it('does not stop other bound callbacks from firing', function() {
         var spy2 = jasmine.createSpy();
         obj.one('event', spy);
