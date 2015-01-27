@@ -39,7 +39,7 @@ define(['../util/curry'], function(curry) {
       });
     }
 
-    (this._events[event] || (this._events[event] = [])).push({
+    this._events[event] = (this._events[event] || []).concat({
       fn: callback,
       ctxt: context,
       self: this,
@@ -47,13 +47,6 @@ define(['../util/curry'], function(curry) {
     });
 
     return this;
-  },
-
-  triggerEntry = function(entry, index, array) {
-    entry.fn.apply(entry.ctxt || entry.self, this);
-    if (entry.once) {
-      array[index] = null;
-    }
   },
 
   uId = function uid(prefix) {
@@ -101,17 +94,25 @@ define(['../util/curry'], function(curry) {
     trigger: splitCaller(function(event) {
       if (!this._events) { return this; }
       var events = this._events[event],
-          all = this._events.all;
+          all = this._events.all,
+          args = slice.call(arguments, 1),
+          entry, index;
 
       if (events) {
-        events.forEach(triggerEntry, slice.call(arguments, 1));
-        this._events[event] = this._events[event] &&
-          this._events[event].filter(Boolean);
+        for (index = 0; entry = events[index]; ++index) {
+          if (entry.once) {
+            events.splice(index--, 1);
+          }
+          entry.fn.apply(entry.ctxt || entry.self, args);
+        }
       }
       if (all) {
-        all.forEach(triggerEntry, arguments);
-        this._events.all = this._events.all &&
-          this._events.all.filter(Boolean);
+        for (index = 0; entry = all[index]; ++index) {
+          if (entry.once) {
+            events.splice(index--, 1);
+          }
+          entry.fn.apply(entry.ctxt || entry.self, arguments);
+        }
       }
 
       return this;

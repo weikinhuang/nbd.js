@@ -101,6 +101,14 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('fool');
       });
 
+      it('triggers when bound inside a callback', function(done) {
+        obj.one('fool', function() {
+          obj.one('fool', done);
+          obj.trigger('fool');
+        });
+        obj.trigger('fool');
+      });
+
       it('does not stop other bound callbacks from firing', function() {
         var spy2 = jasmine.createSpy();
         obj.one('event', spy);
@@ -248,6 +256,20 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('event');
         expect(spy.calls.count()).toEqual(2);
         expect(cb.calls.count()).toEqual(1);
+      });
+
+      it("removes all events mid-fire", function() {
+        spy.and.callFake(function() {
+          obj.off();
+        });
+        obj.on('event', spy);
+
+        expect(function() {
+          obj.trigger('event');
+          obj.trigger('event');
+        }).not.toThrow();
+
+        expect(spy.calls.count()).toEqual(1);
       });
 
       it("does not skip consecutive events", function() {
