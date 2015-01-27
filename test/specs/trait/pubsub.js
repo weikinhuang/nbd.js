@@ -258,6 +258,20 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         expect(cb.calls.count()).toEqual(1);
       });
 
+      it("removes all events mid-fire", function() {
+        spy.and.callFake(function() {
+          obj.off();
+        });
+        obj.on('event', spy);
+
+        expect(function() {
+          obj.trigger('event');
+          obj.trigger('event');
+        }).not.toThrow();
+
+        expect(spy.calls.count()).toEqual(1);
+      });
+
       it("does not skip consecutive events", function() {
         obj.on('event', function() { throw new Error(); }, obj);
         obj.on('event', function() { throw new Error(); }, obj);
