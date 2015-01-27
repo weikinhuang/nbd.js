@@ -1,5 +1,5 @@
 (function(root) {/**
- * @license almond 0.2.9 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
+ * @license almond 0.3.0 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -150,7 +150,15 @@ var requirejs, require, define;
             //A version of a require function that passes a moduleName
             //value for items that may need to
             //look up paths relative to the moduleName
-            return req.apply(undef, aps.call(arguments, 0).concat([relName, forceSync]));
+            var args = aps.call(arguments, 0);
+
+            //If first arg is not require('string'), and there is only
+            //one arg, it is the array form without a callback. Insert
+            //a null so that the following concat is correct.
+            if (typeof args[0] !== 'string' && args.length === 1) {
+                args.push(null);
+            }
+            return req.apply(undef, args.concat([relName, forceSync]));
         };
     }
 
@@ -970,7 +978,7 @@ define('trait/pubsub',['../util/curry'], function(curry) {
       });
     }
 
-    (this._events[event] || (this._events[event] = [])).push({
+    this._events[event] = (this._events[event] || []).concat({
       fn: callback,
       ctxt: context,
       self: this,
@@ -978,13 +986,6 @@ define('trait/pubsub',['../util/curry'], function(curry) {
     });
 
     return this;
-  },
-
-  triggerEntry = function(entry, index, array) {
-    entry.fn.apply(entry.ctxt || entry.self, this);
-    if (entry.once) {
-      array[index] = null;
-    }
   },
 
   uId = function uid(prefix) {
@@ -1032,17 +1033,25 @@ define('trait/pubsub',['../util/curry'], function(curry) {
     trigger: splitCaller(function(event) {
       if (!this._events) { return this; }
       var events = this._events[event],
-          all = this._events.all;
+          all = this._events.all,
+          args = slice.call(arguments, 1),
+          entry, index;
 
       if (events) {
-        events.forEach(triggerEntry, slice.call(arguments, 1));
-        this._events[event] = this._events[event] &&
-          this._events[event].filter(Boolean);
+        for (index = 0; entry = events[index]; ++index) {
+          if (entry.once) {
+            events.splice(index--, 1);
+          }
+          entry.fn.apply(entry.ctxt || entry.self, args);
+        }
       }
       if (all) {
-        all.forEach(triggerEntry, arguments);
-        this._events.all = this._events.all &&
-          this._events.all.filter(Boolean);
+        for (index = 0; entry = all[index]; ++index) {
+          if (entry.once) {
+            all.splice(index--, 1);
+          }
+          entry.fn.apply(entry.ctxt || entry.self, arguments);
+        }
       }
 
       return this;
