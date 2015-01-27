@@ -109,7 +109,7 @@ define(['../util/curry'], function(curry) {
       if (all) {
         for (index = 0; entry = all[index]; ++index) {
           if (entry.once) {
-            events.splice(index--, 1);
+            all.splice(index--, 1);
           }
           entry.fn.apply(entry.ctxt || entry.self, arguments);
         }

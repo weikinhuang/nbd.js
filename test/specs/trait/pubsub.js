@@ -118,6 +118,13 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         expect(spy2.calls.count()).toBe(1);
       });
 
+      it('unbinds from the `all` special event', function() {
+        obj.one('all', spy);
+        obj.trigger('event');
+        obj.trigger('event');
+        expect(spy.calls.count()).toBe(1);
+      });
+
       it("if no callback is provided, `one` is a noop", function() {
         obj.one('test').trigger('test');
       });
