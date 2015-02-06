@@ -18,6 +18,10 @@ define([
     return a;
   }
 
+  function isNumeric(n) {
+    return !(isNaN(n) || n !== 0 && !n);
+  }
+
   var dirtyCheck = function(old, novel) {
     this._dirty = 0;
     diff.call(this, novel || this._data, old, this.trigger);
@@ -25,7 +29,7 @@ define([
 
   constructor = Class.extend({
     init: function(id, data) {
-      if (typeof id === 'string' && id.match(/^\d+$/)) {
+      if (isNumeric(id)) {
         id = +id;
       }
 
@@ -34,12 +38,14 @@ define([
         id = undefined;
       }
 
-      this.id = function() { return id; };
       this.get = this.get.bind(this);
       this.set = this.set.bind(this);
 
       try {
         Object.defineProperties(this, {
+          _id: {
+            value: id
+          },
           _dirty: {
             value: 0,
             writable: true
@@ -63,6 +69,10 @@ define([
       this.off();
       async.clearImmediate(this._dirty);
       this._data = null;
+    },
+
+    id: function() {
+      return this._id;
     },
 
     data: function() {
