@@ -1,6 +1,6 @@
 /* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
+define(['./util/mixin'], function(mix) {
   'use strict';
 
   // The base Class implementation (does nothing)
@@ -11,12 +11,10 @@ define(function() {
     /.*/;
 
   // allows adding any object's properties into the class
-  mixin = function(abstract) {
-    var descriptor = {};
-    Object.keys(abstract).forEach(function(prop) {
-      descriptor[prop] = Object.getOwnPropertyDescriptor(abstract, prop);
-    });
-    Object.defineProperties(this.prototype, descriptor);
+  mixin = function() {
+    for (var i = 0; i < arguments.length; ++i) {
+      mix(this.prototype, arguments[i]);
+    }
     return this;
   };
 
