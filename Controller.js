@@ -1,13 +1,36 @@
 /* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
+  './util/construct',
   './Class',
-  './util/construct'
-],  function(Class, construct) {
-  "use strict";
+  './View',
+  './Model',
+  './trait/pubsub'
+], function(construct, Class, View, Model, pubsub) {
+  'use strict';
 
   var constructor = Class.extend({
-    destroy: function() {},
+    init: function() {
+      this._initModel.apply(this, arguments);
+      this.requestView();
+    },
+
+    render: function($parent, ViewClass) {
+      this.requestView(ViewClass);
+      return this._view.render($parent);
+    },
+
+    destroy: function() {
+      if (this._view) { this._view.destroy(); }
+      this._model.destroy();
+      this._model = this._view = null;
+      this.trigger('destroy').stopListening().off();
+    },
+
+    _initModel: function() {
+      var ModelClass = this.Model || this.constructor.MODEL_CLASS;
+      this._model = construct.apply(ModelClass, arguments);
+    },
 
     _initView: function() {
       var ViewClass = Array.prototype.shift.call(arguments);
@@ -27,10 +50,32 @@ define([
       }
 
       existing.destroy();
+    },
+
+    requestView: function(ViewClass) {
+      ViewClass = ViewClass || this.View || this.constructor.VIEW_CLASS;
+
+      if (typeof ViewClass === 'string') {
+        ViewClass = this.constructor.VIEW_CLASS[ViewClass];
+      }
+      if (typeof ViewClass !== 'function' || this._view instanceof ViewClass) {
+        return;
+      }
+      this.switchView(ViewClass, this._model);
+    },
+
+    toJSON: function() {
+      return this._model.toJSON();
     }
   }, {
-    displayName: 'Controller'
-  });
+    displayName: 'Controller',
+    // Corresponding Entity View class
+    VIEW_CLASS: View,
+
+    // Corresponding Entity Model class
+    MODEL_CLASS: Model
+  })
+  .mixin(pubsub);
 
   return constructor;
 });
