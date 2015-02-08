@@ -6,6 +6,19 @@ define([
 ], function(Class, pubsub) {
   "use strict";
 
+  var shadow = document.createDocumentFragment(),
+  renderMatching = function(key) {
+    if (!this.$view) { return; }
+    var selector = this.nests[key],
+    contained = this._model.get ? this._model.get(key) : this._model[key],
+    $context = selector ? this.constructor.find(this.$view, selector) : this.$view;
+
+    if (!$context) { return; }
+    if (contained && contained.render) {
+      contained.render($context);
+    }
+  };
+
   var constructor = Class.extend({
     init: function(model) {
       this._model = model;
@@ -16,6 +29,9 @@ define([
         };
       }
 
+      if (model && model.on) {
+        this.listenTo(this._model, 'all', this._switchNested);
+      }
       this.on({
         prerender: function() {
           if (typeof this.prerender === 'function') {
@@ -68,6 +84,18 @@ define([
       }
 
       return this.$view;
+    },
+
+    _renderNested: function() {
+      if (!this.nests) { return; }
+      Object.keys(this.nests).forEach(renderMatching, this);
+    },
+
+    _switchNested: function(key, val, old) {
+      if (this.nests != null && key in this.nests) {
+        if (old && old.render) { old.render(shadow); }
+        renderMatching.call(this, key);
+      }
     }
   }, {
     displayName: 'View',
