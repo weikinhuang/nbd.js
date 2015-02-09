@@ -53,7 +53,7 @@ define([
           _data: {
             enumerable: false,
             configurable: true,
-            value: data || {},
+            value: extend(Object.create(this.default), data),
             writable: true
           }
         });
@@ -64,6 +64,8 @@ define([
         this._data = data || {};
       }
     },
+
+    default: null,
 
     destroy: function() {
       this.off();
