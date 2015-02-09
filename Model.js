@@ -53,7 +53,7 @@ define([
           _data: {
             enumerable: false,
             configurable: true,
-            value: data || {},
+            value: extend({}, this.default, data),
             writable: true
           }
         });
