@@ -267,6 +267,24 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
             done();
           }, t);
         });
+
+        it('can mix calls to .set() during event callback', function(done) {
+          instance.on('foo', cb.and.callFake(function() {
+            instance.set('id', 24601);
+          }));
+
+          var spy = jasmine.createSpy('chained spy');
+          instance.on('id', spy);
+
+          instance.set('foo', 'baz');
+
+          setTimeout(function() {
+            expect(cb.calls.count()).toBe(1);
+            expect(cb).toHaveBeenCalledWith('baz', 'bar');
+            expect(spy).toHaveBeenCalledWith(24601, undefined);
+            done();
+          }, t);
+        });
       });
     });
 
