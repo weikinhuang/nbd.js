@@ -19,8 +19,8 @@ define([
   }
 
   var dirtyCheck = function(old, novel) {
-    diff.call(this, novel || this._data, old, this.trigger);
     this._dirty = 0;
+    diff.call(this, novel || this._data, old, this.trigger);
   },
 
   constructor = Class.extend({
