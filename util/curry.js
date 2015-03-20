@@ -1,18 +1,12 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
-  'use strict';
+const toStr = Object.prototype.toString;
 
-  var toStr = Object.prototype.toString;
-
+export default function curry() {
+  var fn = this,
+      rest = arguments,
+      type = toStr.call(fn);
+  if (type !== '[object Function]') { throw new TypeError("curry called on incompatible "+type); }
   return function() {
-    var fn = this,
-        rest = arguments,
-        type = toStr.call(fn);
-    if (type !== '[object Function]') { throw new TypeError("curry called on incompatible "+type); }
-    return function() {
-      Array.prototype.unshift.apply(arguments, rest);
-      return fn.apply(this, arguments);
-    };
+    Array.prototype.unshift.apply(arguments, rest);
+    return fn.apply(this, arguments);
   };
-});
+}

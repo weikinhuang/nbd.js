@@ -1,16 +1,8 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
-  'use strict';
-
-  return function(obj) {
-    var i, prop, source;
-    for (i = 1; i < arguments.length; ++i) {
-      source = arguments[i];
-      for (prop in source) {
-        obj[prop] = source[prop];
-      }
+export default function extend(target, ...sources) {
+  for (let one of sources) {
+    for (let prop in one) {
+      target[prop] = one[prop];
     }
-    return obj;
-  };
-});
+  }
+  return target;
+}

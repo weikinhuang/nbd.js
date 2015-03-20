@@ -1,16 +1,13 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(function() {
-  'use strict';
-
-  return function chain() {
-    var chainArgs = arguments;
-    return function() {
-      var i, retval;
-      for (i = 0; i < chainArgs.length; ++i) {
-        retval = chainArgs[i].apply(this, i === 0 ? arguments : [retval]);
+export default function chain(...fns) {
+  return function() {
+    let retval, fn = fns.shift(), args = arguments;
+    do {
+      try {
+        retval = fn.apply(this, args);
       }
-      return retval;
-    };
+      catch(ignored) {}
+    }
+    while (args = [retval], fn = fns.shift());
+    return retval;
   };
-});
+}

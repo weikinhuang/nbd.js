@@ -1,128 +1,108 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define([
-  './Class',
-  './util/async',
-  './util/extend',
-  './util/diff',
-  './trait/pubsub'
-], function(Class, async, extend, diff, pubsub) {
-  "use strict";
+import Base from './Class';
+import async from './util/async';
+import diff from './util/diff';
+import extend from './util/extend';
+import pubsub from './trait/pubsub';
 
-  function copy(a) {
-    if (a != null && typeof a === 'object') {
-      return Array.isArray(a) ? Array.prototype.slice.call(a) :
-        a.constructor === Object ? extend({}, a) :
-        a;
+function copy(a) {
+  if (a != null && typeof a === 'object') {
+    return Array.isArray(a) ? Array.prototype.slice.call(a) :
+      a.constructor === Object ? extend({}, a) :
+      a;
+  }
+  return a;
+}
+
+function isNumeric(n) {
+  return !(isNaN(n) || n !== 0 && !n);
+}
+
+const dirtyCheck = function(old, novel) {
+  this._dirty = 0;
+  diff.call(this, novel || this._data, old, this.trigger);
+};
+
+export default class Model extends Base.with(pubsub) {
+  constructor(id, data) {
+    if (isNumeric(id)) {
+      id = +id;
     }
-    return a;
+
+    if (data === undefined && typeof id === 'object') {
+      data = id;
+      id = undefined;
+    }
+
+    this.get = this.get.bind(this);
+    this.set = this.set.bind(this);
+
+    Object.defineProperties(this, {
+      _id: {
+        value: id
+      },
+      _dirty: {
+        value: 0,
+        writable: true
+      },
+      _data: {
+        enumerable: false,
+        configurable: true,
+        value: extend(Object.create(this.default || null), data),
+        writable: true
+      }
+    });
   }
 
-  function isNumeric(n) {
-    return !(isNaN(n) || n !== 0 && !n);
+  destroy() {
+    this.off();
+    async.clearImmediate(this._dirty);
+    this._data = null;
   }
 
-  var dirtyCheck = function(old, novel) {
-    this._dirty = 0;
-    diff.call(this, novel || this._data, old, this.trigger);
-  },
+  get id() {
+    return this._id;
+  }
 
-  constructor = Class.extend({
-    init: function(id, data) {
-      if (isNumeric(id)) {
-        id = +id;
-      }
+  data() {
+    var orig = this._data, clone;
 
-      if (data === undefined && typeof id === 'object') {
-        data = id;
-        id = undefined;
-      }
+    if (!this._dirty) {
+      clone = Object.keys(orig).reduce(function(obj, key) {
+        return obj[key] = copy(orig[key]), obj;
+      }, {});
+      this._dirty = async(dirtyCheck.bind(this, clone));
+    }
+    return this._data;
+  }
 
-      this.get = this.get.bind(this);
-      this.set = this.set.bind(this);
+  get(prop) {
+    var value = this._data[prop];
+    // If getting an array, we must watch for array mutators
+    if (Array.isArray(value)) {
+      return this.data()[prop];
+    }
+    return value;
+  }
 
-      try {
-        Object.defineProperties(this, {
-          _id: {
-            value: id
-          },
-          _dirty: {
-            value: 0,
-            writable: true
-          },
-          _data: {
-            enumerable: false,
-            configurable: true,
-            value: extend(Object.create(this.default), data),
-            writable: true
-          }
-        });
-      }
-      catch (noDefineProperty) {
-        // Can't use ES5 Object.defineProperty, fallback
-        this._dirty = 0;
-        this._data = data || {};
-      }
-    },
+  set(values, value) {
+    var key, data = this.data();
 
-    default: null,
+    if (typeof values === "string") {
+      data[values] = copy(value);
+      return this;
+    }
 
-    destroy: function() {
-      this.off();
-      async.clearImmediate(this._dirty);
-      this._data = null;
-    },
-
-    id: function() {
-      return this._id;
-    },
-
-    data: function() {
-      var orig = this._data, clone;
-
-      if (!this._dirty) {
-        clone = Object.keys(orig).reduce(function(obj, key) {
-          return obj[key] = copy(orig[key]), obj;
-        }, {});
-        this._dirty = async(dirtyCheck.bind(this, clone));
-      }
-      return this._data;
-    },
-
-    get: function(prop) {
-      var value = this._data[prop];
-      // If getting an array, we must watch for array mutators
-      if (Array.isArray(value)) {
-        return this.data()[prop];
-      }
-      return value;
-    },
-
-    set: function(values, value) {
-      var key, data = this.data();
-
-      if (typeof values === "string") {
-        data[values] = copy(value);
-        return this;
-      }
-
-      if (typeof values === "object") {
-        for (key in values) {
-          if (values.hasOwnProperty(key)) {
-            data[key] = copy(values[key]);
-          }
+    if (typeof values === "object") {
+      for (key in values) {
+        if (values.hasOwnProperty(key)) {
+          data[key] = copy(values[key]);
         }
-        return this;
       }
-    },
-
-    toJSON: function() {
-      return this._data;
+      return this;
     }
-  }, {
-    displayName: 'Model'
-  })
-  .mixin(pubsub);
+  }
 
-  return constructor;
-});
+  toJSON() {
+    return this._data;
+  }
+}
