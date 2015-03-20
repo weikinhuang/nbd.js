@@ -5,6 +5,7 @@
   "browser": true,
   "curly": true,
   "eqeqeq": true,
+  "esnext": true,
   "eqnull": true,
   "expr": true,
   "immed": true,
