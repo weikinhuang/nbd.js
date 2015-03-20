@@ -34,6 +34,10 @@ class View extends Base.with(pubsub) {
         if (typeof this.postrender === 'function') {
           this.postrender(...args);
         }
+        // Backward compatibility
+        if (typeof this.rendered === 'function') {
+          this.rendered(...args);
+        }
       }
     });
   }
