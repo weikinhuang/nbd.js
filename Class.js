@@ -15,14 +15,18 @@ export default class Base {
   // Backward compatibility API
   static extend(proto, stat) {
     // replace proto methods with the chain-calling wrapper
+    const klass = this;
     const _super = this.prototype;
     const fnTest = /xyz/.test(function() {/*global xyz*/ return xyz; }) ?
       /\b_super\b/ :
       /.*/;
     function protochain(name, fn) {
-      var applySuper = function() {
+      var applySuper = name === 'init' ? function() {
+        return (_super[name] || klass).apply(this, arguments);
+      } : function() {
         return _super[name].apply(this, arguments);
       };
+
       return function() {
         var hadSuper = this.hasOwnProperty('_super'), tmp = this._super;
 
@@ -46,27 +50,30 @@ export default class Base {
       };
     }
     for (let method of Object.keys(proto)) {
-      if (typeof _super[method] === 'function' &&
-          typeof proto[method] === 'function' &&
-          fnTest.test(proto[method])) {
+      if (typeof proto[method] === 'function' && fnTest.test(proto[method])) {
         proto[method] = protochain(method, proto[method]);
       }
     }
 
     let Subclass = this.with(proto);
     // merge static properties
-    mixin(Subclass, stat);
+    if (stat) {
+      mixin(Subclass, stat);
+    }
 
     // Need to proxy constructor to call .init()
     Subclass = new Proxy(Subclass, {
       construct(target, args) {
         // This is the safest without Reflect.construct()
-        let instance = Object.create(target.prototype);
+        let ret, instance = Object.create(target.prototype);
         if (typeof instance.init === 'function') {
-          let ret = instance.init.apply(instance, args);
-          return Object(ret) === ret ? ret : instance;
+          ret = instance.init.apply(instance, args);
         }
-        return instance;
+        else {
+          // Call the real super constructor
+          ret = target.apply(instance, args);
+        }
+        return Object(ret) === ret ? ret : instance;
       },
       apply(target, context, args) {
         return this.construct(target, args);
