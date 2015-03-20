@@ -1,81 +1,87 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define([
-  './util/construct',
-  './Class',
-  './View',
-  './Model',
-  './trait/pubsub'
-], function(construct, Class, View, Model, pubsub) {
-  'use strict';
+import Base from './Class';
+import View from './View';
+import Model from './Model';
+import pubsub from './trait/pubsub';
 
-  var constructor = Class.extend({
-    init: function() {
-      this._initModel.apply(this, arguments);
-      this.requestView();
-    },
+const ModelClassSymbol = Symbol("Model");
+const ViewClassSymbol = Symbol("View");
+export { ModelClassSymbol, ViewClassSymbol };
 
-    render: function($parent, ViewClass) {
-      this.requestView(ViewClass);
-      return this._view.render($parent);
-    },
+class Controller extends Base.with(pubsub, {
+  [ViewClassSymbol]: View,
+  [ModelClassSymbol]: Model
+}) {
+  constructor(...args) {
+    this._initModel(this[ModelClassSymbol], ...args);
+    this.requestView();
+  }
 
-    destroy: function() {
-      if (this._view) { this._view.destroy(); }
-      this._model.destroy();
-      this._model = this._view = null;
-      this.trigger('destroy').stopListening().off();
-    },
+  render($parent, ViewClass) {
+    this.requestView(ViewClass);
+    return new Promise(resolve => resolve(this._view.render($parent)));
+  }
 
-    _initModel: function() {
-      var ModelClass = this.Model || this.constructor.MODEL_CLASS;
-      this._model = construct.apply(ModelClass, arguments);
-    },
+  destroy() {
+    try { this._view.destroy(); }
+    finally { delete this._view; }
 
-    _initView: function() {
-      var ViewClass = Array.prototype.shift.call(arguments);
-      this._view = construct.apply(ViewClass, arguments);
-      this._view._controller = this;
-    },
+    try { this._model.destroy(); }
+    finally { delete this._model; }
 
-    switchView: function() {
-      var existing = this._view;
-      this._initView.apply(this, arguments);
+    this.trigger('destroy').stopListening().off();
+  }
 
-      if (!existing) { return; }
+  _initModel(ModelClass, ...args) {
+    return this._model = new ModelClass(...args);
+  }
 
-      if (existing.$view) {
-        this._view.$view = existing.$view;
-        this._view.render();
-      }
+  _initView(ViewClass, ...args) {
+    this._view = new ViewClass(...args);
+    this._view._controller = this;
+    return this._view;
+  }
 
-      existing.destroy();
-    },
+  switchView(ViewClass, ...args) {
+    var existing = this._view;
+    this._initView(ViewClass, ...args);
 
-    requestView: function(ViewClass) {
-      ViewClass = ViewClass || this.View || this.constructor.VIEW_CLASS;
+    if (!existing) { return; }
 
-      if (typeof ViewClass === 'string') {
-        ViewClass = this.constructor.VIEW_CLASS[ViewClass];
-      }
-      if (typeof ViewClass !== 'function' || this._view instanceof ViewClass) {
-        return;
-      }
-      this.switchView(ViewClass, this._model);
-    },
-
-    toJSON: function() {
-      return this._model.toJSON();
+    if (existing.$view) {
+      this._view.$view = existing.$view;
+      this._view.render();
     }
-  }, {
-    displayName: 'Controller',
-    // Corresponding Entity View class
-    VIEW_CLASS: View,
 
-    // Corresponding Entity Model class
-    MODEL_CLASS: Model
-  })
-  .mixin(pubsub);
+    existing.destroy();
+  }
 
-  return constructor;
-});
+  requestView(ViewClass = this[ViewClassSymbol]) {
+    if (typeof ViewClass === 'string') {
+      ViewClass = this[ViewClassSymbol][ViewClass];
+    }
+    if (typeof ViewClass !== 'function' || this._view instanceof ViewClass) {
+      return;
+    }
+    this.switchView(ViewClass, this._model);
+  }
+
+  toJSON() {
+    return this._model.toJSON();
+  }
+
+  static with(...mixins) {
+    for (let one of mixins) {
+      if (one.hasOwnProperty('Model')) {
+        one[ModelClassSymbol] = one.Model;
+        delete one.Model;
+      }
+      if (one.hasOwnProperty('View')) {
+        one[ViewClassSymbol] = one.View;
+        delete one.View;
+      }
+    }
+    return super.with(...mixins);
+  }
+}
+
+export default Controller;
