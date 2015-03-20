@@ -132,3 +132,18 @@ define(['./util/mixin'], function(mix) {
 
   return Klass;
 });
+
+import mixin from './util/mixin';
+
+export default class Base {
+  static with(...mixins) {
+    class Intermediate extends this {}
+    for (let one of mixins) {
+      mixin(Intermediate.prototype, one);
+      for (let symbol of Object.getOwnPropertySymbols(one)) {
+        Intermediate.prototype[symbol] = one[symbol];
+      }
+    }
+    return Intermediate;
+  }
+}
