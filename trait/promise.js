@@ -1,45 +1,53 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['../Promise', '../util/extend'], function(Promise, extend) {
-  'use strict';
+import Promise from '../Promise';
+import extend from '../util/extend';
 
-  var promiseMe = function promise() {
-    // Ensure there is a promise instance
-    if (!this._promise) {
-      Object.defineProperty(this, '_promise', {value: new Promise()});
-    }
-    return this._promise;
-  };
+const privatePromise = Symbol('promise');
+const privatePromiseResolve = Symbol('promiseResolve');
+const privatePromiseReject = Symbol('promiseReject');
 
-  return extend(promiseMe, {
-    then: function(onFulfilled, onRejected) {
-      return promiseMe.call(this).then(onFulfilled, onRejected);
-    },
+const promiseMe = function promiseMe() {
+  // Ensure there is a promise instance
+  if (!this[privatePromise]) {
+    Object.defineProperty(this, privatePromise, {
+      value: new Promise((resolve, reject) => {
+        this[privatePromiseResolve] = resolve;
+        this[privatePromiseReject] = reject;
+      })
+    });
+  }
+  return this[privatePromise];
+};
 
-    catch: function(onReject) {
-      return promiseMe.call(this).catch(onReject);
-    },
+export default extend(promiseMe, {
+  then(onFulfilled, onRejected) {
+    return promiseMe.call(this).then(onFulfilled, onRejected);
+  },
 
-    finally: function(onAny) {
-      return promiseMe.call(this).finally(onAny);
-    },
+  catch(onReject) {
+    return promiseMe.call(this).catch(onReject);
+  },
 
-    resolve: function(value) {
-      promiseMe.call(this).resolve(value);
-      return this;
-    },
+  finally(onAny) {
+    return promiseMe.call(this).finally(onAny);
+  },
 
-    reject: function(value) {
-      promiseMe.call(this).reject(value);
-      return this;
-    },
+  resolve(value) {
+    promiseMe.call(this);
+    this[privatePromiseResolve](value);
+    return this;
+  },
 
-    thenable: function() {
-      return promiseMe.call(this).thenable();
-    },
+  reject(value) {
+    promiseMe.call(this);
+    this[privatePromiseReject](value);
+    return this;
+  },
 
-    promise: function() {
-      return promiseMe.call(this).promise();
-    }
-  });
+  thenable() {
+    return promiseMe.call(this).thenable();
+  },
+
+  promise() {
+    return promiseMe.call(this).promise();
+  }
 });
