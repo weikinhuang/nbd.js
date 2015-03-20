@@ -1,54 +1,24 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['./util/mixin'], function(mix) {
-  'use strict';
+import mixin from './util/mixin';
 
-  // The base Class implementation (does nothing)
-  var Klass = function() {},
-  extend, mixin, inherits,
-  fnTest = /xyz/.test(function() {/*global xyz*/ return xyz; }) ?
-    /\b_super\b/ :
-    /.*/;
-
-  // allows adding any object's properties into the class
-  mixin = function() {
-    for (var i = 0; i < arguments.length; ++i) {
-      mix(this.prototype, arguments[i]);
-    }
-    return this;
-  };
-
-  // determines if current class inherits from superclass
-  inherits = function(superclass) {
-    var prop, result = false;
-    if (typeof superclass === 'function') {
-      // Testing linear inheritance
-      return superclass.prototype.isPrototypeOf(this.prototype);
-    }
-    if (typeof superclass === 'object') {
-      // Testing horizontal inheritance
-      for (prop in superclass) {
-        if (superclass.hasOwnProperty(prop) &&
-            superclass[prop] !== this.prototype[prop]) {
-          return false;
-        }
-        result = true;
+export default class Base {
+  static with(...mixins) {
+    class Intermediate extends this {}
+    for (let one of mixins) {
+      mixin(Intermediate.prototype, one);
+      for (let symbol of Object.getOwnPropertySymbols(one)) {
+        Intermediate.prototype[symbol] = one[symbol];
       }
     }
-    return result;
-  };
+    return Intermediate;
+  }
 
-  // Create a new Class that inherits from this class
-  extend = function(prop, stat) {
-    var _super = this.prototype,
-    copy = function(name) { Class[name] = this[name]; },
-
-    // Instantiate a base class (but only create the instance,
-    // don't run the init constructor)
-    prototype = Object.create(_super);
-    prop = prop || {};
-    stat = stat || {};
-
+  // Backward compatibility API
+  static extend(proto, stat) {
+    // replace proto methods with the chain-calling wrapper
+    const _super = this.prototype;
+    const fnTest = /xyz/.test(function() {/*global xyz*/ return xyz; }) ?
+      /\b_super\b/ :
+      /.*/;
     function protochain(name, fn) {
       var applySuper = function() {
         return _super[name].apply(this, arguments);
@@ -65,10 +35,6 @@ define(['./util/mixin'], function(mix) {
         try {
           return fn.apply(this, arguments);
         }
-        catch(e) {
-          // Rethrow catch for IE 8
-          throw e;
-        }
         finally {
           if (hadSuper) {
             this._super = tmp;
@@ -79,71 +45,41 @@ define(['./util/mixin'], function(mix) {
         }
       };
     }
-
-    // The dummy class constructor
-    function Class() {
-      var ret,
-      instance = this instanceof Class ?
-        this :
-        Object.create(prototype);
-      // All construction is actually done in the init method
-      if (typeof instance.init === 'function') {
-        ret = instance.init.apply(instance, arguments);
-        return Object(ret) === ret ? ret : instance;
+    for (let method of Object.keys(proto)) {
+      if (typeof _super[method] === 'function' &&
+          typeof proto[method] === 'function' &&
+          fnTest.test(proto[method])) {
+        proto[method] = protochain(method, proto[method]);
       }
-      return instance;
     }
 
-    // Copy the properties over onto the new prototype
-    Object.keys(prop).forEach(function(name) {
-      var p = prop[name];
-      // Check if we're overwriting an existing function
-      prototype[name] =
-        typeof p === 'function' &&
-        typeof _super[name] === 'function' &&
-        fnTest.test(p) ?
-        protochain(name, p) :
-        p;
+    let Subclass = this.with(proto);
+    // merge static properties
+    mixin(Subclass, stat);
+
+    // Need to proxy constructor to call .init()
+    Subclass = new Proxy(Subclass, {
+      construct(target, args) {
+        // This is the safest without Reflect.construct()
+        let instance = Object.create(target.prototype);
+        if (typeof instance.init === 'function') {
+          let ret = instance.init.apply(instance, args);
+          return Object(ret) === ret ? ret : instance;
+        }
+        return instance;
+      },
+      apply(target, context, args) {
+        return this.construct(target, args);
+      }
     });
 
-    // Copy the superclass's static properties
-    Object.keys(this).forEach(copy, this);
+    return Subclass;
+  }
 
-    // Override the provided static properties
-    Object.keys(stat).forEach(copy, stat);
-
-    // Populate our constructed prototype object
-    Class.prototype = prototype;
-
-    // Enforce the constructor to be what we expect
-    Object.defineProperty(Class.prototype, 'constructor', { value: Class });
-
-    // Class guaranteed methods
-    Object.defineProperties(Class, {
-      extend: { value: extend, enumerable: false },
-      mixin: { value: mixin },
-      inherits: { value: inherits }
-    });
-
-    return Class;
-  };
-
-  Klass.extend = extend;
-
-  return Klass;
-});
-
-import mixin from './util/mixin';
-
-export default class Base {
-  static with(...mixins) {
-    class Intermediate extends this {}
+  static mixin(...mixins) {
     for (let one of mixins) {
-      mixin(Intermediate.prototype, one);
-      for (let symbol of Object.getOwnPropertySymbols(one)) {
-        Intermediate.prototype[symbol] = one[symbol];
-      }
+      mixin(this.prototype, one);
     }
-    return Intermediate;
+    return this;
   }
 }
