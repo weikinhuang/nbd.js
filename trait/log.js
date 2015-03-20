@@ -1,27 +1,15 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['../Logger'], function(Logger) {
-  "use strict";
-  var trait;
+import Logger from '../Logger';
 
-  try {
-    trait = {
-      get log() {
-        if (!this._logger) {
-          Object.defineProperty(this, '_logger', {
-            value: Logger.get()
-          });
-        }
-        this._logger.container = this;
-        return this._logger;
-      }
-    };
-  }
-  catch(noGetter) {
-    trait = {
-      log: Logger.get()
-    };
-  }
+const privateLogger = Symbol('logger');
 
-  return trait;
-});
+export default {
+  get log() {
+    if (!this[privateLogger]) {
+      Object.defineProperty(this, privateLogger, {
+        value: Logger.get()
+      });
+    }
+    this[privateLogger].container = this;
+    return this[privateLogger];
+  }
+};
