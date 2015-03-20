@@ -12,9 +12,6 @@ module.exports = function(grunt) {
       },
       test: [
         '*.js',
-        'Model/**/*.js',
-        'View/**/*.js',
-        'Controller/**/*.js',
         'trait/**/*.js',
         'util/**/*.js'
       ],
@@ -43,6 +40,19 @@ module.exports = function(grunt) {
         files: {
           'dist/nbd.min.js': ['dist/nbd.js']
         }
+      }
+    },
+    babel: {
+      options: {
+        sourceMap: true,
+        modules: 'amd'
+      },
+      dist: {
+        files: [{
+          expand: true,
+          src: ['*.js', 'trait/*.js', 'util/*.js', '!index.js', '!Gruntfile.js'],
+          dest: 'dist/'
+        }]
       }
     },
     karma: {
@@ -78,6 +88,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-babel');
 
   grunt.registerTask('build', ['clean:build', 'requirejs:build', 'uglify:build']);
   grunt.registerTask('test', ['karma:persistent']);

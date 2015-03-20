@@ -22,18 +22,19 @@
   },
   "devDependencies": {
     "almond": "",
-    "promises-aplus-tests": "",
     "grunt": "",
+    "grunt-babel": "^4.0.0",
+    "grunt-contrib-clean": "",
     "grunt-contrib-jshint": "",
     "grunt-contrib-requirejs": "",
     "grunt-contrib-uglify": "",
-    "grunt-contrib-clean": "",
     "grunt-karma": "",
-    "karma-jasmine": "^0.2",
-    "karma-requirejs": "",
     "karma-coverage": "",
     "karma-firefox-launcher": "",
-    "karma-phantomjs-launcher": ""
+    "karma-jasmine": "^0.2",
+    "karma-phantomjs-launcher": "",
+    "karma-requirejs": "",
+    "promises-aplus-tests": ""
   },
   "scripts": {
     "test": "grunt travis"
