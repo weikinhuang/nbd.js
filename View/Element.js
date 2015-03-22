@@ -1,37 +1,27 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['../View'], function(View) {
-  "use strict";
+import View from '../View';
 
-  var constructor = View.extend({
-    $parent: null,
+export default class Element extends View {
+  constructor($parent) {
+    super();
+    this.$parent = $parent;
+  }
 
-    init: function($parent) {
-      this._super();
-      this.$parent = $parent;
-    },
+  render(data) {
+    const $existing = this.$view;
 
-    render: function(data) {
-      var $existing = this.$view;
+    this.trigger('prerender', $existing);
 
-      this.trigger('prerender', $existing);
+    this.$view = this.constructor.domify(this.template(data || this.templateData()));
 
-      this.$view = this.constructor.domify(this.template(data || this.templateData()));
-
-      if ($existing) {
-        this.constructor.replace($existing, this.$view);
-      }
-      else {
-        this.constructor.appendTo(this.$view, this.$parent);
-      }
-
-      this.trigger('postrender', this.$view);
-
-      return this.$view;
+    if ($existing) {
+      this.constructor.replace($existing, this.$view);
     }
-  }, {
-    displayName: 'View/Element'
-  });
+    else {
+      this.constructor.appendTo(this.$view, this.$parent);
+    }
 
-  return constructor;
-});
+    this.trigger('postrender', this.$view);
+
+    return this.$view;
+  }
+}
