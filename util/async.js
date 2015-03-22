@@ -4,12 +4,12 @@
  * @module util/async
  */
 
-var global = typeof global !== 'undefined' ? global :
+let global = typeof global !== 'undefined' ? global :
              typeof window !== 'undefined' ? window :
-             this,
-    async;
+             this;
+let async;
 
-var tasks = (function () {
+const tasks = (function () {
   function Task(handler, args) {
     this.handler = handler;
     this.args = args;
