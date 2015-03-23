@@ -47,7 +47,7 @@ export default class Model extends Base.with(pubsub) {
       _data: {
         enumerable: false,
         configurable: true,
-        value: extend(Object.create(this.default || null), data),
+        value: extend({}, this.default, data),
         writable: true
       }
     });
