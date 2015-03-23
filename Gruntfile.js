@@ -50,7 +50,7 @@ module.exports = function(grunt) {
       dist: {
         files: [{
           expand: true,
-          src: ['*.js', 'trait/*.js', 'util/*.js', '!index.js', '!Gruntfile.js'],
+          src: ['*.js', 'trait/*.js', 'util/*.js', 'View/*.js', '!index.js', '!Gruntfile.js'],
           dest: 'dist/'
         }]
       }

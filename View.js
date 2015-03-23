@@ -25,12 +25,12 @@ class View extends Base.with(pubsub) {
       this.listenTo(this._model, 'all', this._switchNested);
     }
     this.on({
-      prerender: function(...args) {
+      prerender(...args) {
         if (typeof this.prerender === 'function') {
           this.prerender(...args);
         }
       },
-      postrender: function(...args) {
+      postrender(...args) {
         if (typeof this.postrender === 'function') {
           this.postrender(...args);
         }

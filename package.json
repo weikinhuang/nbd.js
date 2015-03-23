@@ -17,9 +17,6 @@
     "url": "git://github.com/behance/nbd.js.git"
   },
   "main": "index.js",
-  "dependencies": {
-    "amdefine": ">=0.0.2"
-  },
   "devDependencies": {
     "almond": "",
     "grunt": "",
