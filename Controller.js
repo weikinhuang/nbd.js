@@ -65,6 +65,10 @@ class Controller extends Base.with(pubsub, {
     this.switchView(ViewClass, this._model);
   }
 
+  get data() {
+    return this._model.data();
+  }
+
   toJSON() {
     return this._model.toJSON();
   }
