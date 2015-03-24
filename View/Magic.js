@@ -1,5 +1,6 @@
 import View from '../View';
 import extend from '../util/extend';
+import debounce from '../util/debounce';
 import sax from 'sax';
 import vdom from 'virtual-dom';
 
@@ -16,9 +17,7 @@ const tagstack = new Proxy([], {
 let tree;
 
 function isAttribute(name) {
-  return [
-    /^data-[\w-]+$/i
-  ].some(re => re.test(name));
+  return /^data-[\w-]+$/i.test(name);
 }
 
 function transformAttributes(properties) {
@@ -68,7 +67,9 @@ extend(_parser, {
 export default class Magic extends View {
   constructor(...args) {
     super(...args);
-    this.listenTo(this._model, 'all', () => this.render());
+    if (this._model.on) {
+      this.listenTo(this._model, 'all', () => debounce.call(this, this.render));
+    }
   }
 
   static domify(html) {
