@@ -12,6 +12,14 @@ class Controller extends Base.with(pubsub, {
   [ModelClassSymbol]: Model
 }) {
   constructor(...args) {
+    // Backward compatibility
+    if (this.constructor.MODEL_CLASS) {
+      this[ModelClassSymbol] = this.constructor.MODEL_CLASS;
+    }
+    if (this.constructor.VIEW_CLASS) {
+      this[ViewClassSymbol] = this.constructor.VIEW_CLASS;
+    }
+
     this._initModel(this[ModelClassSymbol], ...args);
     this.requestView();
   }
