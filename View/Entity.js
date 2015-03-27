@@ -6,13 +6,13 @@ define(['../View'], function(View) {
   var constructor = View.extend({
     init: function(model) {
       this._super();
-      if (typeof model === 'object') {
-        this._model = model;
-      }
+      this._model = model;
 
-      this.id = (model && model.id) || function() {
-        return model;
-      };
+      if (model && typeof model.id === 'function') {
+        this.id = function() {
+          return model.id && model.id();
+        };
+      }
     },
 
     destroy: function(persist) {
@@ -24,7 +24,7 @@ define(['../View'], function(View) {
 
     // All data needed to template the view
     templateData: function() {
-      return (this._model && this._model.data) ? this._model.data() : this.id();
+      return (this._model && this._model.data) ? this._model.data() : this._model;
     },
 
     render: function($parent) {
