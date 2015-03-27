@@ -45,7 +45,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
         instance = new Model(foo);
 
         expect(instance.id()).not.toBeDefined();
-        expect(instance.data()).toBe(foo);
+        expect(instance.data()).toEqual(foo);
       });
 
       it('has optional data as well', function() {
@@ -185,7 +185,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
       });
 
       it('returns the data object', function() {
-        expect(instance.data()).toBe(data);
+        expect(instance.data()).toEqual(data);
       });
 
       describe('watches for changes', function() {
@@ -280,6 +280,21 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
       it('allows JSON.stringify of the model', function() {
         expect(JSON.stringify(instance)).toEqual(JSON.stringify(instance.data()));
+      });
+    });
+
+    describe('.default', function() {
+      it('specifies the default data', function() {
+        var model = new (Model.extend({
+          default: {
+            shim: 'sham'
+          }
+        }))({
+          foo: 'bar'
+        });
+
+        expect(model.get('foo')).toBe('bar');
+        expect(model.get('shim')).toBe('sham');
       });
     });
 
