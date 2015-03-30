@@ -5,8 +5,9 @@ define([
   './Class',
   './View',
   './Model',
+  './Promise',
   './trait/pubsub'
-], function(construct, Class, View, Model, pubsub) {
+], function(construct, Class, View, Model, Promise, pubsub) {
   'use strict';
 
   var constructor = Class.extend({
@@ -17,7 +18,9 @@ define([
 
     render: function($parent, ViewClass) {
       this.requestView(ViewClass);
-      return this._view.render($parent);
+      return new Promise(function(resolve) {
+        resolve(this._view.render($parent));
+      });
     },
 
     destroy: function() {
