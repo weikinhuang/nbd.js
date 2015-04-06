@@ -2,7 +2,7 @@ import mixin from './util/mixin';
 
 export default class Base {
   static with(...mixins) {
-    class Intermediate extends this {}
+    const Intermediate = class extends this {};
     for (let one of mixins) {
       mixin(Intermediate.prototype, one);
       for (let symbol of Object.getOwnPropertySymbols(one)) {
