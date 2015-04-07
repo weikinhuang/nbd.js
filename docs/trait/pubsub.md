@@ -31,7 +31,7 @@ Unbinds callback functions. If an `event` is specified and no callbacks are spec
 
 Fires off an event. As with all uses of `pubsub` functions, `event` can be a space delimited string of event names. All subsequent arguments are passed along to the bound callback functions as arguments.
 
-An `'all'` event will be fired for each triggered event after all events have been triggered – passing in the triggered event's name as an argument to the listener's callback. 
+An `'all'` event will be fired for each triggered event after all events have been triggered – passing in the triggered event's name as an argument to the listener's callback.
 
 ```javascript
 this.trigger('foo');
@@ -46,6 +46,21 @@ this.trigger('bar');
 ## `.listenTo( publisher, event, callback )`
 
 The Inversion-Of-Control version of `.on()`. Whereas `.on()` puts all event management responsibilities on the object providing the publishing functionality, `.listenTo()` handles the bindings on the subscriber. The subscriber can then `.listenTo()` any number of publishers; all bindings are with `this` as the context.
+
+You can also supply an object of event to callback mappings for multiple bindings.
+
+
+```js
+this.listenTo(obj, {
+  foo: function() {
+
+  },
+
+  bar: function() {
+
+  }
+});
+```
 
 **returns** ___this___
 

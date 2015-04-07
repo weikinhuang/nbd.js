@@ -313,6 +313,23 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
         obj.trigger('event');
         expect(spy).toHaveBeenCalled();
       });
+
+      it("supports an object of bindings", function() {
+        extend(spy, pubsub);
+
+        var s1 = jasmine.createSpy(),
+            s2 = jasmine.createSpy();
+
+        spy.listenTo(obj, {
+          foo: s1,
+          bar: s2
+        });
+
+        obj.trigger('foo');
+        obj.trigger('bar');
+        expect(s1).toHaveBeenCalled();
+        expect(s2).toHaveBeenCalled();
+      });
     });
 
     describe('.stopListening()', function() {
