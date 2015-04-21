@@ -4,7 +4,7 @@ define(['../util/media'], function(media) {
   'use strict';
 
   return {
-    requestView: function responsiveRequest(ViewClass) {
+    requestView: function me(ViewClass) {
       if (ViewClass == null && typeof this.constructor.VIEW_CLASS === 'object') {
         if (!this._isMediaBound) {
           this
@@ -20,11 +20,12 @@ define(['../util/media'], function(media) {
         }, this.constructor.VIEW_CLASS);
       }
       // Without super.requestView()
-      var self = this;
+      var self = this, seen = false;
       do {
         self = Object.getPrototypeOf(self);
+        seen = seen || self.requestView === me;
       }
-      while(self.requestView === responsiveRequest);
+      while(!(seen && self.requestView !== me));
       self.requestView.call(this, ViewClass);
     }
   };
