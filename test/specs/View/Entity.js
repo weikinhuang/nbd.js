@@ -22,9 +22,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         var id = Date.now(),
         instance = new Entity(id);
 
-        expect(instance.id).toBeDefined();
-        expect(instance.id()).toBe(id);
-        expect(instance._model).not.toBeDefined();
+        expect(instance._model).toBe(id);
       });
     });
 
@@ -127,7 +125,7 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
     });
 
     describe('.destroy()', function() {
-      it('releases reference to its model', function() {
+      xit('releases reference to its model', function() {
         var model = new Model(),
         instance = new Entity(model);
 
@@ -135,11 +133,11 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
         expect(instance._model).toEqual(null);
       });
 
-      it('can retain reference to its model', function() {
+      it('retains reference to its model', function() {
         var model = new Model(),
         instance = new Entity(model);
 
-        instance.destroy(true);
+        instance.destroy();
         expect(instance._model).toBe(model);
       });
     });

@@ -20,7 +20,7 @@ define([
       this.requestView(ViewClass);
       return new Promise(function(resolve) {
         resolve(this._view.render($parent));
-      });
+      }.bind(this));
     },
 
     destroy: function() {

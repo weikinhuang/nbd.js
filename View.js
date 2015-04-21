@@ -25,7 +25,7 @@ define([
 
       if (model && typeof model.id === 'function') {
         this.id = function() {
-          return model.id && model.id();
+          return model.id();
         };
       }
 
