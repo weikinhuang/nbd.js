@@ -29,11 +29,12 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
       });
 
       it('binds to media', function() {
-        spyOn(Controller.prototype, 'mediaView');
+        Controller.VIEW_CLASS = {};
         instance = new Controller();
+        spyOn(instance, 'requestView');
 
-        media.trigger('test', 'foobar');
-        expect(instance.mediaView).toHaveBeenCalledWith('test', 'foobar');
+        media.trigger('test', true);
+        expect(instance.requestView).toHaveBeenCalledWith('test');
       });
 
       it('expects non-matching views', function() {
@@ -47,12 +48,13 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
     describe('.destroy()', function() {
       var instance;
       it('removes media binding', function() {
-        spyOn(Controller.prototype, 'mediaView');
+        Controller.VIEW_CLASS = {};
         instance = new Controller();
+        spyOn(instance, 'requestView');
 
         instance.destroy();
-        media.trigger('test', 'foobar');
-        expect(instance.mediaView).not.toHaveBeenCalled();
+        media.trigger('test', true);
+        expect(instance.requestView).not.toHaveBeenCalled();
       });
 
       it('expects non-matching views', function() {
@@ -81,7 +83,7 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
         spyOn(instance._view, 'render');
 
         instance.render('foo', 'bar', 'baz', 'baroque');
-        expect(instance._view.render).toHaveBeenCalledWith('foo', 'bar', 'baz', 'baroque');
+        expect(instance._view.render).toHaveBeenCalledWith('foo');
       });
 
       it('expects non-matching view', function() {
@@ -120,7 +122,8 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
 
       it('matches a breakpoint to a view class', function() {
         spyOn(media, 'getState').and.returnValue(['test']);
-        instance.requestView({ test: View });
+        Controller.VIEW_CLASS = { test: View };
+        instance = new Controller();
 
         expect(instance._view).toEqual(jasmine.any(View));
         expect(View).toHaveBeenCalledWith(instance._model);
@@ -129,10 +132,11 @@ define(['real/Controller/Responsive', 'nbd/util/media'], function(Responsive, me
       it('only matches the first matching breakpoint', function() {
         var Bar = jasmine.createSpy('Bar');
         spyOn(media, 'getState').and.returnValue(['bar', 'foo', 'baz']);
-        instance.requestView({
+        Controller.VIEW_CLASS = {
           foo: View,
           baz: Bar
-        });
+        };
+        instance = new Controller();
 
         expect(instance._view).toEqual(jasmine.any(View));
       });

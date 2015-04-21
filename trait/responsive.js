@@ -4,11 +4,15 @@ define(['../util/media'], function(media) {
   'use strict';
 
   return {
-    requestView: function(ViewClass) {
+    requestView: function responsiveRequest(ViewClass) {
       if (ViewClass == null && typeof this.constructor.VIEW_CLASS === 'object') {
         if (!this._isMediaBound) {
           this
-          .listenTo(media, 'all', this.mediaView)
+          .listenTo(media, 'all', function(breakpoint, active) {
+            if (active) {
+              this.requestView(breakpoint);
+            }
+          })
           ._isMediaBound = true;
         }
         media.getState().some(function(state) {
@@ -16,13 +20,12 @@ define(['../util/media'], function(media) {
         }, this.constructor.VIEW_CLASS);
       }
       // Without super.requestView()
-      Object.getPrototypeOf(this).requestView(ViewClass);
-    },
-
-    mediaView: function(breakpoint, active) {
-      if (active) {
-        this.requestView(breakpoint);
+      var self = this;
+      do {
+        self = Object.getPrototypeOf(self);
       }
+      while(self.requestView === responsiveRequest);
+      self.requestView.call(this, ViewClass);
     }
   };
 });
