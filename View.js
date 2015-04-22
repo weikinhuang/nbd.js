@@ -21,7 +21,7 @@ define([
 
   var constructor = Class.extend({
     init: function(model) {
-      this._model = model;
+      this._model = model || {};
 
       if (model && typeof model.id === 'function') {
         this.id = function() {
