@@ -128,6 +128,14 @@ define(['../util/curry'], function(curry) {
       return this;
     },
 
+    listenOnce: function(object, events, callback) {
+      var listeners = this._listeners || (this._listeners = {});
+      var id = object._listenerId || (object._listenerId = uId('l'));
+      listeners[id] = object;
+      object.one(events, callback || this, this);
+      return this;
+    },
+
     // Tell this object to stop listening to either specific events ... or
     // to every object it's currently listening to.
     stopListening: function(object, events, callback) {
