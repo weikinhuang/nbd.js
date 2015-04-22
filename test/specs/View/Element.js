@@ -49,7 +49,7 @@ define(['real/View/Element', 'jquery', 'nbd/View'], function(Element, $, View) {
     describe('.rendered()', function() {
       it('is called when render() completes', function() {
         instance.rendered = jasmine.createSpy('rendered');
-        instance.render();
+        instance.render({ item: "world" });
 
         expect(instance.rendered).toHaveBeenCalledWith(instance.$view);
       });

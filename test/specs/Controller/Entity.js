@@ -45,12 +45,19 @@ define(['jquery', 'real/Controller/Entity', 'nbd/Controller', 'nbd/View/Entity',
         expect(instance._view).toEqual(jasmine.any(NewViewClass));
       });
 
-      it('returns View render\'s return value', function() {
+      it('returns promise of View render\'s return value', function(done) {
         var $parent = $(), retval = 'foobar';
 
         spyOn(instance._view, 'render').and.returnValue(retval);
         var output = instance.render($parent);
-        expect(output).toBe(retval);
+        expect(output).toEqual(jasmine.objectContaining({
+          then: jasmine.any(Function)
+        }));
+
+        output.then(function(value) {
+          expect(value).toBe('foobar');
+          done();
+        });
       });
     });
 

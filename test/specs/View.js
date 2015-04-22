@@ -28,7 +28,7 @@ define(['real/View', 'nbd/Class', 'jquery'], function(View, Class, $) {
         expect(instance.templateData).toHaveBeenCalled();
       });
 
-      it('uses data when given', function() {
+      xit('uses data when given', function() {
         var data = { rand: Math.random() };
 
         spyOn(instance, 'template').and.callThrough();
