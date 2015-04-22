@@ -14,6 +14,7 @@ define([
   './trait/log',
   './trait/promise',
   './trait/pubsub',
+  './trait/responsive',
   './util/async',
   './util/construct',
   './util/curry',
@@ -37,6 +38,7 @@ define([
   log,
   promise,
   pubsub,
+  responsive,
   async,
   construct,
   curry,
@@ -59,7 +61,8 @@ define([
     trait: {
       log: log,
       promise: promise,
-      pubsub: pubsub
+      pubsub: pubsub,
+      responsive: responsive
     },
     util: {
       async: async,

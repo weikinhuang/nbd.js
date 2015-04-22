@@ -273,7 +273,7 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
             instance.set('id', 24601);
           }));
 
-          var spy = jasmine.createSpy('chained spy');
+          var spy = jasmine.createSpy('chained');
           instance.on('id', spy);
 
           instance.set('foo', 'baz');

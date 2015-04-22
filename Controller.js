@@ -52,7 +52,9 @@ define([
         this._view.render();
       }
 
-      existing.destroy();
+      if (existing.destroy) {
+        existing.destroy();
+      }
     },
 
     requestView: function(ViewClass) {
