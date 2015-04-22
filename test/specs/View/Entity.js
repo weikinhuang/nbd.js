@@ -19,9 +19,10 @@ define(['real/View/Entity', 'jquery', 'nbd/View', 'nbd/Model'], function(Entity,
       });
 
       it('accepts non-Models', function() {
-        var instance;
+        var id = Date.now(),
+            instance;
+
         expect(function() {
-          var id = Date.now();
           instance = new Entity(id);
         }).not.toThrow();
 
