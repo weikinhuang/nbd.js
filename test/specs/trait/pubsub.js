@@ -332,6 +332,58 @@ define(['real/trait/pubsub', 'nbd/util/extend'], function(pubsub, extend) {
       });
     });
 
+    describe('.listenOnce()', function() {
+      it("listens once and done", function() {
+        var a = extend({}, pubsub),
+        b = extend({}, pubsub),
+        spyA = jasmine.createSpy('a');
+
+        a.listenOnce(b, 'all', spyA);
+        b.trigger('anything');
+        b.trigger('otherthing');
+
+        expect(spyA).toHaveBeenCalled();
+        expect(spyA.calls.count()).toBe(1);
+      });
+
+      it("stops listening when stopListening is called", function() {
+        var c = extend({}, pubsub),
+        d = extend({}, pubsub),
+        spyC = jasmine.createSpy('c');
+
+        c.listenOnce(d, 'all', spyC);
+        c.stopListening();
+        d.trigger('anything');
+
+        expect(spyC).not.toHaveBeenCalled();
+      });
+
+      it("supports function as calling context", function() {
+        extend(spy, pubsub);
+
+        spy.listenOnce(obj, 'event');
+        obj.trigger('event');
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it("supports an object of bindings", function() {
+        extend(spy, pubsub);
+
+        var s1 = jasmine.createSpy(),
+            s2 = jasmine.createSpy();
+
+        spy.listenOnce(obj, {
+          foo: s1,
+          bar: s2
+        });
+
+        obj.trigger('foo');
+        obj.trigger('bar');
+        expect(s1).toHaveBeenCalled();
+        expect(s2).toHaveBeenCalled();
+      });
+    });
+
     describe('.stopListening()', function() {
       it("selectively unbinds", function() {
         var a = extend({}, pubsub),
