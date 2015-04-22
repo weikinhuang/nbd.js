@@ -80,7 +80,15 @@ define([
     // Corresponding Entity Model class
     MODEL_CLASS: Model
   })
-  .mixin(pubsub);
+  .mixin(pubsub)
+  .mixin({
+    get id() {
+      return this._model.id();
+    },
+    get data() {
+      return this._model.data();
+    }
+  });
 
   return constructor;
 });
