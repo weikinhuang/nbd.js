@@ -1,9 +1,8 @@
 # nbd/util/pipe
-* [()](#-filters-)
 
 `pipe` is a utility function that allows the chaining together of multiple functions, much in the manner of the pipelines in a shell.
 
-## `( filters... )`
+## `(...filters)`
 
 `pipe` is used in order to produce a single function that will pass its own arguments to the first function in `filters`, take the result of that function, send it as the input to the next function in `filters`, and repeat the process until it finally returns the result of the last function in `filters`.
 

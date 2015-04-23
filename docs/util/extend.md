@@ -1,9 +1,8 @@
 # nbd/util/extend
-* [()](#-target-sources-)
 
 The `extend` module is a utility function that merges source objects into the target object.
 
-## `( target, sources... )`
+## `(target, ...sources)`
 
 `extend()` implementation is the same as that in Underscore's [`_.extend()`][1]. The only difference is that instead of using `Array.each` to loop through the source objects, `extend()` uses a simple `for` loop.
 

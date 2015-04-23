@@ -1,9 +1,7 @@
 # nbd/View/Element
   *extends* [nbd/View](../View.md)
   *mixesin* [nbd/trait/pubsub](../../trait/pubsub.md)
-
-* [new Element()](#constructor-parent-)
-* [.render()](#render-data-)
+  *deprecated*
 
 Events:
 * __prerender__
@@ -13,8 +11,8 @@ The `Element` subclass is another specific View class like
 [nbd/View/Entity](Entity.md). Its purpose is different from `nbd/View/Entity`
 in that it represents a section of DOM that data should be rendered into.
 
-    Entities are data that render into a position.
-    Elements are positions that data renders into.
+This class has become deprecated due to the uncommon pattern. There is no
+replacement.
 
 ## `constructor( $parent )`
 

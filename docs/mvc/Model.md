@@ -1,15 +1,9 @@
 # nbd/Model
-  *extends* [nbd/Class](../Class.md)
-  *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
-
-* [new Model()](#constructor-id-data-)
-* [.data()](#data)
-* [.get()](#get-key-)
-* [.set()](#set-key-value-)
-* [.destroy()](#destroy)
+  *extend* [nbd/Class](../Class.md)
+  *mixin* [nbd/trait/pubsub](../trait/pubsub.md)
 
 Events:
-* *Name of any property of the model* : `(currentValue, previousValue)`
+* __Name of any property of the model__ : `(currentValue, previousValue)`
 
 The data-wrapping class of **nbd.js**. It is meant to be instanciated with the
 data object you want to manage. The primary purpose of having the `Model` class
@@ -24,14 +18,20 @@ name as the key of the member that has changed, with the value as the argument
 to the event.  This change detection happens off the current callstack, so as
 not to put overhead on data manipulation itself.
 
-```javascript require(['nbd/Model'], function(Model) { var car = new Model({
-rims: 'plain' });
+```js
+require(['nbd/Model'], function(Model) {
+  var car = new Model({
+    rims: 'plain'
+  });
 
-  car.on('rims', function(is, was) { console.log("New "+is+" rims"); });
+  car.on('rims', function(is, was) {
+    console.log("New "+is+" rims");
+  });
+  car.data().rims = "kickin'"; // logs: New kickin' rims
+});
+```
 
-  car.data().rims = "kickin'"; // logs: New kickin' rims }); ```
-
-## `constructor( [id, ]data )`
+## `constructor([id,] data)`
 
 The `Model` constructor expects the data to be managed. The data is internally
 stored as a reference to `data`, so modifying the original `data` object will
@@ -56,7 +56,7 @@ then have the `Model` automatically detect all the changes.
 
 **returns** *Object* The data object that the instance of `Model` is managing
 
-## `.get( key )`
+## `.get(key)`
 
 The accessor method for retrieving only one value from the data object.
 
@@ -65,7 +65,8 @@ check, since it is intended only to retrieve a value.
 
 **returns** *anything* The value associated with the specified key
 
-## `.set( key, value )` ## `.set( data )`
+## `.set(key, value)`
+## `.set(data)`
 
 The setter function. It takes two forms, either the key-value pair as two
 arguments, or an object of keys and values.  Calling this method **will**
@@ -79,5 +80,3 @@ The `Model` destructor is just a convenience function since in JavaScript,
 destructors are not automatically called when the object is actually destroyed.
 `Model`'s destructor simply unbinds all events that had been bound to that
 instance.
-
-**returns** *nothing*

@@ -1,9 +1,5 @@
 # nbd/util/media
-  *mixesin* [nbd/trait/pubsub](../trait/pubsub.md)
-
-* [()](#-breakpoint-query-)
-* [.is()](#is-breakpoint-)
-* [.getState()](#getstate-breakpoint-)
+  *mixin* [nbd/trait/pubsub](../trait/pubsub.md)
 
 Events:
 * *Name of any breakpoint* : `(isActive)`
@@ -14,8 +10,8 @@ Events:
 
 [1]: https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code
 
-## `( breakpoint, query )`
-## `( breakpoints )`
+## `(breakpoint, query)`
+## `(breakpoints)`
 
 Adds a breakpoint definition to the `media` module. A breakpoint definition is a breakpoint with an associated media query. The `media` module uses matchMedia for evaluating media queries in JavaScript. If no matchMedia support is present, calling `media()` will throw the error "Media queries not supported."
 
@@ -46,13 +42,13 @@ Beware that the `media` module evaluates the media queries once, immediately aft
 
 **returns** *itself*
 
-## `.is( breakpoint )`
+## `.is(breakpoint)`
 
 For checking whether or not `breakpoint` is currently active as defined by its associated media query.
 
 **returns** *Boolean* Whether or not the `breaktpoint` is currently active
 
-## `.getState( [breakpoint] )`
+## `.getState([breakpoint])`
 
 Gets the currently matching breakpoints in an array. If provided a specific breakpoint, behaves exactly as `.is( breakpoint )`.
 

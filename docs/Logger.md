@@ -1,23 +1,10 @@
 # nbd/Logger
-  *extends* [nbd/Class](Class.md)
-  *mixesin* [nbd/trait/pubsub](trait/pubsub.md)
-
-* [new Logger()](#constructor-name-)
-* [.destroy()](#destroy)
-* [.levels](#levels)
-* [.setLevel()](#setlevel-level-)
-* [.attach()](#attach-handler-)
-* [.remove()](#remove-handler-)
-* [.log()](#log-messages-)
-
-* [Logger.get()](#loggerget-name-)
-* [Logger.attach()](#loggerattach-handler-)
-* [Logger.setLevel()](#loggersetlevel-level-handler-)
-* [Logger.console](#loggerconsole)
+  *extend* [nbd/Class](Class.md)
+  *mixin* [nbd/trait/pubsub](trait/pubsub.md)
 
 Logger provides the ability to contextually log with custom log level support.
 
-## `constructor( [name] )`
+## `constructor([name])`
 
 Create a contextual logger with `name` as the context. Produced log messages
 appear as events named for their log levels.
@@ -74,7 +61,7 @@ logger.low('produces a "low" message');
 logger.high('produces a "high" message');
 ```
 
-## `.setLevel( level )`
+## `.setLevel(level)`
 
 Sets the log level. By default, the log level is the lowest level. By setting
 the level to a higher level, all lower levels are swallowed.
@@ -86,24 +73,24 @@ logger.info('will not produce a message');
 logger.warn('will produce a warn message');
 ```
 
-## `.attach( handler )`
+## `.attach(handler)`
 
 Attaches a `handler(logLevel, { context, params })` to the logger instance.
 `logLevel` is the level at which the message was fired. `context` is the name
 of the current context, if one exists. `params` is an array of the rest
 parameters the logger message was created with.
 
-## `.remove( handler )`
+## `.remove(handler)`
 
 Removes an attached `handler` function.
 
-## `.log( ...messages )`
+## `.log(...messages)`
 
 Special function guaranteed by the `Logger` constructor. If the current class
 does not have a `log` level, the `.log()` function will generate a message at
 the lowest log level.
 
-## `Logger.get( [name] )`
+## `Logger.get([name])`
 
 Static logger factory function. This generates a `Logger` instance and attaches
 the global logger handler to it. Instanciating this way attaches the instance
@@ -112,12 +99,12 @@ to the global handlers.
 
 **returns** _logger_ instance of `Logger`
 
-## `Logger.attach( handler )`
+## `Logger.attach(handler)`
 
 Attaches a handler to the global handlers. This handler will be invoked for all
 messages of allowed global levels. By default, these are `debug`, `log`, `info`, `warn`, `error`. The handler has the same signature as [`.attach()`](#attach-handler-).
 
-## `Logger.setLevel( level, handler )`
+## `Logger.setLevel(level, handler)`
 
 Changes the global state of messages from individual loggers. By default, these
 are `debug`, `log`, `info`, `warn`, `error`. In order to turn off the 'info'

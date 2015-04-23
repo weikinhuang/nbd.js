@@ -1,32 +1,5 @@
 # nbd/Promise
 
-* [new Promise()](#constructor-callback-)
-* [resolver.resolve()](#resolverresolve-x-)
-* [resolver.fulfill()](#resolverfulfill-value-)
-* [resolver.reject()](#resolverreject-reason-)
-* [.then()](#then-onfulfilled-onrejected-)
-* [.done()](#done-onfulfilled-onrejected-)
-* [.catch()](#catch-onrejected-)
-* [.finally()](#finally-onsettled-)
-* [.thenable()](#thenable-)
-* [.promise()](#promise-)
-* [.spread()](#spread-onfullfilled-onrejected-)
-* [.get()](#get-name-)
-* [.set()](#set-name-value-)
-* [.delete()](#delete-name-)
-* [.send()](#send-name-args-)
-* [.fcall()](#fcall-args-)
-
-* [Promise.of()](#promiseof-value-)
-* [Promise.from()](#promisefrom-value-)
-* [Promise.resolve()](#promiseresolve-value-)
-* [Promise.reject()](#promisereject-value-)
-* [Promise.race()](#promiserace-args-)
-* [Promise.all()](#promiseall-args-)
-* [Promise.join()](#promisejoin-p1-p2-)
-* [Promise.isPromise()](#promiseispromise-value-)
-* [Promise.isThenable()](#promiseisthenable-value-)
-
 Promises are one of the most useful patterns in JavaScript for dealing with the
 asynchronous nature of the language. It helps separate concerns and gives the
 generic JavaScript callback more context.
@@ -40,7 +13,7 @@ for the eventual inclusion of native Promises.
 [es6-draft]: https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects
 [strawman]: http://wiki.ecmascript.org/doku.php?id=strawman:promises
 
-## `constructor( [callback] )`
+## `constructor([callback])`
 
 Creates an instance of `Promise`, with the optional `callback({ resolve(),
 fulfill(), reject() })`. If the `callback` function is provided, it is
@@ -71,43 +44,9 @@ promise.reject('error');
 promise.then(console.info, console.warn);
 ```
 
-# PromiseResolver
-
-This class is only exposed through the callback to a `Promise` constructor. It
-serves as the object to settle the state of its associated `Promise`.
-
-## `resolver.resolve( x )`
-
-Primary method for resolving a promise's state. If no errors occur, the promise
-will be fulfilled with the value of `x`. Otherwise, the promise will be
-rejected.
-
-If `x` is another promise or a then-able pseudo-promise (has the method
-`.then()` with the same signature), then the current promise will resolve with
-the same state and value as `x`.
-
-Nothing happens if `.resolve()` is called on a promise that's already
-been resolved.
-
-## `resolver.fulfill( value )`
-
-Immediately fulfills the promise with `value`. The `value` may be another
-promise.
-
-Similar to `.resolve()`, nothing happens if it is called on a promise that's
-already been resolved.
-
-## `resolver.reject( reason )`
-
-Outright rejects a pending promise. The promise will be rejected with the
-reason `reason`.
-
-Similar to `.resolve()`, nothing happens if it is called on a promise that's
-already been resolved.
-
 # Promise.prototype
 
-## `.then( onFulfilled, onRejected )`
+## `.then(onFulfilled, onRejected)`
 
 Binds `onFulfilled` and `onRejected` functions to the promise's fufilled and
 rejected states. The bound functions, when the promise is still pending, will
@@ -122,7 +61,7 @@ called with any context.
 fulfilled/rejected state and value of the return values of `onFulfilled` or
 `onRejected`, respectively.
 
-## `.done( onFulfilled, onRejected )`
+## `.done(onFulfilled, onRejected)`
 
 Similar to `.then()`, but exposes any uncaught errors as uncaught exceptions.
 Usually during a promise chain resolution, all errors are caught and translated
@@ -132,7 +71,7 @@ error.
 
 *Note* An error thrown by `.done()` is **uncatchable**.
 
-## `.catch( onRejected )`
+## `.catch(onRejected)`
 
 Binds only `onRejected` to the promise. Semantically equivalent to
 
@@ -140,7 +79,7 @@ Binds only `onRejected` to the promise. Semantically equivalent to
 
 **returns** *Promise*
 
-## `.finally( onSettled )`
+## `.finally(onSettled)`
 
 Binds `onSettled` to any settled state of the promise. Semantically equivalent
 to
@@ -177,15 +116,15 @@ function(Class, promise, $) {
   inst1 = new Delayed(),
   inst2 = new Delayed();
 
-  $.when( inst1, inst2 )
-  .done(function( retVal1, retVal2 ) {
-    console.log( retVal1, retVal2 );
+  $.when(inst1, inst2)
+  .done(function(retVal1, retVal2) {
+    console.log(retVal1, retVal2);
   });
 
-  inst1.resolve( 'foo' );
+  inst1.resolve('foo');
   // nothing happens
 
-  inst2.resolve( 'bar' );
+  inst2.resolve('bar');
   // console logs: foo bar
 
 });
@@ -195,7 +134,7 @@ function(Class, promise, $) {
 
 # Promise-for-Array
 
-## `.spread( onFulfilled, onRejected )`
+## `.spread(onFulfilled, onRejected)`
 
 The promised value is assumed to be an Array. This value is applied to the
 `onFulfilled` function as its arguments when the promise resolves.
@@ -212,7 +151,7 @@ promise.spread(function(zero, one, two) {
 
 # Promise-for-Object
 
-## `.get( name )`
+## `.get(name)`
 
 The promised value is assumed to be an Object. The returned promise is
 fulfilled with the `name` property of the promised value when it resolves.
@@ -230,7 +169,7 @@ promise.get('foo')
 
 **returns** *Promise*
 
-## `.set( name, value )`
+## `.set(name, value)`
 
 The promised value is assumed to be an Object. The returned promise is
 fulfilled with the same value, but with the `name` property changed to `value`.
@@ -248,7 +187,7 @@ promise.set('foo', 'baz')
 
 **returns** *Promise*
 
-## `.delete( name )`
+## `.delete(name)`
 
 The promised value is assumed to be an Object. The returned promise is
 fulfilled with the same value, but with the `name` property deleted.
@@ -266,7 +205,7 @@ promise.delete('foo')
 
 **returns** *Promise*
 
-## `.send( name, ...args )`
+## `.send(name, ...args)`
 
 The promised value is assumed to be an Object. The property `name` of that
 object is assumed to be a function. The returned promise is resolved with the
@@ -287,7 +226,7 @@ promise.send('sum', 12, 30)
 
 # Promise-for-Function
 
-## `.fcall( ...args )`
+## `.fcall(...args)`
 
 The promised value is assumed to be a Function. The returned promise is
 resolved with the return value of the function called with `args` as its
@@ -308,15 +247,7 @@ promise.fcall(12, 30)
 
 # Promise methods
 
-## `Promise.of( value )`
-
-Generates a fulfilled promise with `value`. `value` can be another promise.
-Differs from `Promise.from()` by not detecting whether or not `value` is a
-promise or a thenable. Treats all `value` equally.
-
-**returns** *Promise*
-
-## `Promise.from( value )`
+## `Promise.from(value)`
 
 Coerces `value` into a promise. If `value` is a promise, it is returned as-is.
 If `value` is a *thenable*, it is converted into a promise, taking on the state
@@ -324,7 +255,7 @@ and value of the thenable.
 
 **returns** *Promise*
 
-## `Promise.resolve( value )`
+## `Promise.resolve(value)`
 
 Generates a resolved promise with `value` as its resolution. Differs from
 `Promise.from()` by not checking if `value` is a promise. Will convert
@@ -332,46 +263,39 @@ Generates a resolved promise with `value` as its resolution. Differs from
 
 **returns** *Promise*
 
-## `Promise.reject( value )`
+## `Promise.reject(value)`
 
 Generates a rejected promise with `reason` as its resolution.
 
 **returns** *Promise*
 
-## `Promise.race( ...args )`
+## `Promise.race(iterable)`
 
 Creates a promise that will resolve or reject as soon as the first element of
-`args` settles into either fulfilled or rejected state. The returned promise
+`iterable` settles into either fulfilled or rejected state. The returned promise
 value will be the value of the first settled promise.
 
-All elements of `args` are coerced into promises.
+All elements of `iterable` are coerced into promises.
 
 **returns** *Promise*
 
-## `Promise.all( ...args )`
+## `Promise.all(iterable)`
 
-Creates a promise that will resolve as soon as all elements of `args` have
+Creates a promise that will resolve as soon as all elements of `iterable` have
 resolved, or will reject as soon as the first element rejects. The returned
 promise value will be an array of resolved values.
 
-All elements of `args` are coerced into promises.
+All elements of `iterable` are coerced into promises.
 
 **returns** *Promise*
 
-## `Promise.join( p1, p2 )`
-
-Returns a *thenable* that waits on both `p1` and `p2`. Both `p1` and `p2` are
-assumed to be *thenable*s.
-
-**returns** *thenable*
-
-## `Promise.isPromise( value )`
+## `Promise.isPromise(value)`
 
 Checks if `value` is a `Promise`. Relies on `instanceof`.
 
 **returns** *boolean*
 
-## `Promise.isThenable( value )`
+## `Promise.isThenable(value)`
 
 Checks if `value` is a *thenable*. A *thenable* is an object with the property
 `then` that is a function.
