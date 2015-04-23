@@ -24,7 +24,10 @@ module.exports = function(grunt) {
         "name": "index",
         "baseUrl": ".",
         "optimize": "none",
-        "useStrict": true
+        "useStrict": true,
+        "paths": {
+          "nbd": "."
+        }
       },
       build: {
         options: {
