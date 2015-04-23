@@ -16,9 +16,11 @@ The best way to use **nbd.js** is through an [AMD module loader][amd] like
 
 #### Using Bower ####
 
-If your project uses bower, simply install using bower
-
     bower install --save nbd
+
+#### Using npm ####
+
+    npm install --save nbd
 
 #### Submodule ####
 If you don't use any package management, you can always check out **nbd.js** as
@@ -26,18 +28,19 @@ a git submodule. From the root of your own project's git repository:
 
     git submodule add https://github.com/behance/nbd.js.git path/to/modules/nbd
 
-#### Global ####
+#### Packaged ####
 If your project doesn't make use of a module loader, no big deal. Packaged
 versions of the library live under `dist/` directory
 
-* [dist/nbd.js](dist/nbd.js)
+* [dist/nbd.js](dist/nbd.js) Packed AMD modules
 * [dist/nbd.min.js](dist/nbd.min.js) _Minified_
-
-Including either will make all the modules available under the `nbd` global
-namespace.
+* [dist/nbd.global.js](dist/nbd.global.js) All modules exported as `nbd` global
+* [dist/nbd.global.min.js](dist/nbd.global.min.js) _Minified_
 
 [amd]: https://github.com/amdjs/amdjs-api/wiki/AMD
 [requirejs]: http://requirejs.org/
+
+### Using it ###
 
 ### Documentation ###
 

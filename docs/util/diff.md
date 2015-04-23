@@ -1,10 +1,9 @@
 # nbd/util/diff
-* [()](#-a-b-callback-)
 
 `diff` is a utility function that finds the differences between two objects and reports the differences as an object of arrays.
 
-## `( a, b[, callback] )`
-**callback( key, a[key], b[key] )**
+## `(a, b[, callback])`
+**callback(key, a[key], b[key])**
 
 JavaScript's Object is a simple yet powerful data structure. `diff()` is a utility method for finding the differences in two objects, given that objects are essentially key-value stores. Calling `diff()` on any two objects will find the keys in the two objects that correspond to strictly different values.  This means that according to `diff()`, `{fingers:10}` and `{fingers:"10"}` are two different objects.
 

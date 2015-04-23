@@ -1,10 +1,4 @@
 # nbd/trait/promise
-* [.then()](#then-onfulfilled-onrejected-)
-* [.resolve()](#resolve-x-)
-* [.reject()](#reject-reason-)
-* [.thenable()](#thenable-)
-* [.promise()](#promise-)
-* [Implementation Notes](#implementation-notes)
 
 The `promise` trait is the trait form of [`nbd/Promise`](../Promise.md). This
 allows [`nbd/Class`](../Class.md) subclasses to `.mixin()` the trait, to make
@@ -15,7 +9,7 @@ with `new` to produce a promise.
 
 [1]: http://promises-aplus.github.io/promises-spec/
 
-## `.then( onFulfilled, onRejected )`
+## `.then(onFulfilled, onRejected)`
 
 Binds `onFulfilled` and `onRejected` functions to the promise's fufilled and
 rejected states. THe bound functions, when the promise is still pending, will
@@ -29,7 +23,25 @@ called with any context.
 fulfilled/rejected state and value of the return values of `onFulfilled` or
 `onRejected`, respectively.
 
-## `.resolve( x )`
+## `.catch(onRejected)`
+
+Trait method for specifying only the reject handler. This is semantically
+equivalent to
+
+    this.then(null, onRejected);
+
+**returns** *promise*
+
+## `.finally(onSettled)`
+
+Trait method for specifying the same handler for both the fulfilled and
+rejected states. This is semantically equivalent to
+
+    this.then(onSettled, onSettled);
+
+**returns** *promise*
+
+## `.resolve(x)`
 
 Primary method for resolving a promise's state. If no errors occur, the promise
 will be fulfilled with the value of `x`. Otherwise, the promise will be
@@ -44,7 +56,7 @@ been resolved.
 
 **returns** *nothing*
 
-## `.reject( reason )`
+## `.reject(reason)`
 
 Outright rejects a pending promise. The promise will be rejected with the
 reason `reason`.
@@ -82,28 +94,18 @@ function(Class, promise, $) {
   inst1 = new Delayed(),
   inst2 = new Delayed();
 
-  $.when( inst1, inst2 )
-  .done(function( retVal1, retVal2 ) {
-    console.log( retVal1, retVal2 );
+  $.when(inst1, inst2)
+  .done(function(retVal1, retVal2) {
+    console.log(retVal1, retVal2);
   });
 
-  inst1.resolve( 'foo' );
+  inst1.resolve('foo');
   // nothing happens
 
-  inst2.resolve( 'bar' );
+  inst2.resolve('bar');
   // console logs: foo bar
 
 });
 ```
 
 **returns** *Object* jQuery Deferred-compatible object
-
-## Implementation Notes
-
-The underlying promises are actual objects created and attached to the instance
-with `promise` trait. These promise objects have the same methods as the trait.
-However, `then()`, `resolve()`, and `reject()` have the added benefit of being
-context-independent.
-
-When the trait methods are called, they attach a single seed promise onto
-the context as `this._promise`.

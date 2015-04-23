@@ -1,11 +1,10 @@
 # nbd/util/async
-* [()](#-callback-)
 
 The `async` module is a utility function module. Like all othe utility function modules, it is itself a function that can be called. 
 
 The purpose of `async` is to provide a platform-independent way to make use of timers in JavaScript to start another callstack after the current one.
 
-## `( callback )`
+## `(callback)`
 **callback()**
 
 Since JavaScript is primarily a single-threaded environment, execution of another callstack is kicked off with an event. The `async` module makes use of `window.postMessage()` where available in order to register an event as immediate as possible after the current callstack has completed.
@@ -39,7 +38,5 @@ require(['nbd/util/async'], function(async) {
   }
 });
 ```
-
-**returns** *nothing*
 
 [1]: http://dbaron.org/log/20100309-faster-timeouts

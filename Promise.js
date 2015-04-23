@@ -144,6 +144,10 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
 
   var forEach = Array.prototype.forEach;
 
+  function join(p1, p2) {
+    return p1.then(function() { return p2; });
+  }
+
   extend(Promise.prototype, {
     catch: function(onReject) {
       return this.then(undefined, onReject);
@@ -285,14 +289,10 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
       results.map.call(iterable, function(value, i) {
         return Promise.from(value).then(collect.bind(null, i));
       })
-      .reduce(Promise.join)
+      .reduce(join)
       .then(r.bind(null, results), j);
 
       return p;
-    },
-
-    join: function(p1, p2) {
-      return p1.then(function() { return p2; });
     },
 
     isPromise: function(x) {

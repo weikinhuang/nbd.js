@@ -1,13 +1,10 @@
 # nbd/Class
-* [.extend()](#extend-prototype-static--linear-inheritance)
-* [.mixin()](#mixin-trait--horizontal-inheritance)
-* [.inherits()](#inherits-ancestor-)
 
 The heart of **nbd.js**'s flexibility and power comes from the class `Class`.
 `Class` provides the base functionality from which two main modes of
 inheritance are possible: linear (classical), and horizontal (trait).
 
-## `.extend( prototype, static )` Linear Inheritance
+## `.extend(prototype, static)` Linear Inheritance
 
 This is the inheritance everybody is familiar with. In JavaScript, linear
 inheritance is achieved through the lookup behavior of objects and their
@@ -33,7 +30,7 @@ require(['nbd/Class'], function(Class) {
 
 **returns** *Function* The new class that was created
 
-## `.mixin( trait )` Horizontal Inheritance
+## `.mixin(...traits)` Horizontal Inheritance
 
 Horizontal inheritance is a newer form of inheritance that allows code reuse
 by sharing a common trait. **nbd.js** achieves this through the `.mixin()` function
@@ -59,7 +56,7 @@ require(['nbd/Class'], function(Class) {
 
   instance = new Subclass();
 
-  Subclass.mixin( badTrait );
+  Subclass.mixin(badTrait);
 
   instance.corrupt();
   instance.foo; // 'bad' corrupted!
@@ -73,10 +70,3 @@ functionality at any time regardless of inheritance structure. For example,
 the ability to bind and trigger events.
 
 **returns** *Function* The class `.mixin()` was called on.
-
-## `.inherits( Ancestor )`
-
-`Class` also provides the static function `.inherits()` to its descendants to
-check if it has `Ancestor` class in its inheritance chain.
-
-**returns** *Boolean*

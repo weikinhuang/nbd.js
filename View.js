@@ -39,6 +39,10 @@ define([
           }
         },
         postrender: function($view) {
+          // Entity nesting
+          if (this.nests) {
+            Object.keys(this.nests).forEach(renderMatching, this);
+          }
           // Back-compat for view.rendered()
           if (typeof this.rendered === 'function') {
             this.rendered($view);
@@ -84,11 +88,6 @@ define([
       }
 
       return this.$view;
-    },
-
-    _renderNested: function() {
-      if (!this.nests) { return; }
-      Object.keys(this.nests).forEach(renderMatching, this);
     },
 
     _switchNested: function(key, val, old) {

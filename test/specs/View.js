@@ -178,6 +178,56 @@ define(['real/View', 'nbd/Model', 'jquery'], function(View, Model, $) {
         expect(shun).toHaveBeenCalled();
         expect(shun.calls.count()).toBe(1);
       });
+
+      it('can nest other views', function() {
+        var subview = new View();
+        spyOn(subview, 'render');
+
+        instance.nests = {
+          foo: null
+        };
+        model.set('foo', subview);
+        expect(subview.render).not.toHaveBeenCalled();
+
+        instance.render();
+
+        expect(subview.render).toHaveBeenCalledWith(instance.$view);
+      });
+
+      it('can nest other views into a selector', function() {
+        var subview = new View();
+        spyOn(subview, 'render');
+
+        var $v = $('<div><p>first</p><p class="bar">second</p></div>');
+        instance.template = function() {
+          return $v;
+        };
+        instance.nests = {
+          foo: '.bar'
+        };
+        model.set('foo', subview);
+        expect(subview.render).not.toHaveBeenCalled();
+
+        instance.render();
+
+        expect(subview.render).toHaveBeenCalledWith($v.find('.bar'));
+      });
+
+      it('can nest other views after having been rendered', function(done) {
+        var subview = new View();
+        spyOn(subview, 'render');
+
+        instance.nests = {
+          foo: 'span'
+        };
+        instance.render();
+
+        model.set('foo', subview);
+        setTimeout(function() {
+          expect(subview.render).toHaveBeenCalled();
+          done();
+        }, 50);
+      });
     });
 
     describe('.destroy()', function() {

@@ -1,7 +1,5 @@
 # nbd/trait/log
 
-* [.log](#log)
-
 Trait from [`nbd/Logger`](../Logger.md). When it is mixed into a class, makes a
 logger instance available to instances of the class.
 
