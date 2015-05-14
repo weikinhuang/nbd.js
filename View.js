@@ -11,7 +11,7 @@ define([
     if (!this.$view) { return; }
     var selector = this.nests[key],
     contained = this._model.get ? this._model.get(key) : this._model[key],
-    $context = selector ? this.constructor.find(this.$view, selector) : this.$view;
+    $context = this.constructor.find(this.$view, selector);
 
     if (!$context) { return; }
     if (contained && contained.render) {
@@ -119,6 +119,7 @@ define([
 
     find: function($root, selector) {
       if (!$root) { return; }
+      if (!selector) { return $root; }
       return ($root.find || $root.querySelector).call($root, selector);
     },
 
