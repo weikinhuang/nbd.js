@@ -66,7 +66,7 @@ define([
     },
 
     destroy: function() {
-      this.off();
+      this.stopListening().off();
       async.clearImmediate(this._dirty);
       this._data = null;
     },

@@ -328,6 +328,17 @@ define(['real/Model', 'nbd/Class'], function(Model, Class) {
 
         expect(cb).not.toHaveBeenCalled();
       });
+
+      it('removes all inverted event bindings', function() {
+        var cb = jasmine.createSpy();
+        var source = new Model();
+
+        instance.listenTo(source, 'foo', cb);
+        instance.destroy();
+        source.trigger('foo', 'baz');
+
+        expect(cb).not.toHaveBeenCalled();
+      });
     });
   });
 
