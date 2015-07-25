@@ -163,6 +163,7 @@ define(['../util/curry'], function(curry) {
         }
         this.listenTo(object, events[i], this.trigger.bind(this, events[i]));
       }
+      return this;
     }
   };
 });

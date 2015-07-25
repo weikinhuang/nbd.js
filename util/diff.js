@@ -41,6 +41,12 @@ define(['./extend'], function(extend) {
       if (!equal) { return equal; }
     }
 
+    // Remaining keys in prev means it's different
+    for (key in prev) {
+      if (key in cur) { continue; }
+      return false;
+    }
+
     return equal;
   }
 

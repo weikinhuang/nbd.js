@@ -82,6 +82,16 @@ define(['real/util/diff'], function(diff) {
       expect(r.simple).toBeDefined();
     });
 
+    it('finds modified empty arrays', function() {
+      var o, p, r;
+
+      o = {simple: []};
+      p = {simple: [0]};
+      r = diff(o, p);
+
+      expect(r.simple).toBeDefined();
+    });
+
     it('calls a callback for every difference', function() {
       var o, p, r, cb = jasmine.createSpy('diffspy');
 
