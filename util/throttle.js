@@ -7,7 +7,7 @@ define(function() {
     if (fn._blocking) { return; }
     fn._blocking = true;
 
-    var retval = fn.call(this);
+    var retval = fn.apply(this, Array.prototype.slice.call(arguments, 1));
 
     function unblock() { delete fn._blocking; }
     if (retval && typeof retval.then === 'function') {
