@@ -52,6 +52,20 @@ define(['real/util/throttle', 'nbd/Promise'], function(throttle, Promise) {
       p.finally(done);
       p.resolve();
     });
+
+    it('calls with rest arguments', function(done) {
+      var p = Promise.resolve();
+
+      spy.and.returnValue(p);
+
+      p.then(function() {
+        expect(spy.calls.count()).toBe(1);
+        expect(spy).toHaveBeenCalledWith('foo', 'bar');
+      }).finally(done);
+
+      throttle(spy, 'foo', 'bar');
+      throttle(spy, 'baz');
+    });
   });
 
   return throttle;
