@@ -449,6 +449,12 @@ define('nbd/util/diff',['./extend'], function(extend) {
       if (!equal) { return equal; }
     }
 
+    // Remaining keys in prev means it's different
+    for (key in prev) {
+      if (key in cur) { continue; }
+      return false;
+    }
+
     return equal;
   }
 
@@ -682,6 +688,7 @@ define('nbd/trait/pubsub',['../util/curry'], function(curry) {
         }
         this.listenTo(object, events[i], this.trigger.bind(this, events[i]));
       }
+      return this;
     }
   };
 });
@@ -754,7 +761,7 @@ define('nbd/Model',[
     },
 
     destroy: function() {
-      this.off();
+      this.stopListening().off();
       async.clearImmediate(this._dirty);
       this._data = null;
     },
@@ -826,7 +833,7 @@ define('nbd/View',[
     if (!this.$view) { return; }
     var selector = this.nests[key],
     contained = this._model.get ? this._model.get(key) : this._model[key],
-    $context = selector ? this.constructor.find(this.$view, selector) : this.$view;
+    $context = this.constructor.find(this.$view, selector);
 
     if (!$context) { return; }
     if (contained && contained.render) {
@@ -934,6 +941,7 @@ define('nbd/View',[
 
     find: function($root, selector) {
       if (!$root) { return; }
+      if (!selector) { return $root; }
       return ($root.find || $root.querySelector).call($root, selector);
     },
 
@@ -1029,22 +1037,157 @@ define('nbd/util/construct',[],function() {
 
 /* istanbul ignore if */
 
-define('nbd/Promise',['./util/async', './util/construct', './util/extend'], function(async, construct, extend) {
+define('nbd/Logger',[
+  './Class',
+  './trait/pubsub',
+  './util/construct',
+  './util/extend'
+], function(Class, pubsub, construct, extend) {
   'use strict';
+
+  var _logHandlers = [],
+  _levels = {
+    debug: true,
+    log:  true,
+    info: true,
+    warn: true,
+    error: true
+  },
+
+  Logger = Class.extend({
+    init: function(name) {
+      if (typeof name === 'string') {
+        this.name = name;
+      }
+      else {
+        this.container = name;
+      }
+
+      this.levels.forEach(function(level) {
+        this[level] = this._log.bind(this, level);
+      }, this);
+
+      Object.defineProperty(this, 'level', {
+        writable: true,
+        value: 0
+      });
+
+      if (!this.hasOwnProperty('log')) {
+        this.log = this[this.levels[0]];
+      }
+    },
+
+    destroy: function() {
+      this.off();
+      this.container = null;
+    },
+
+    levels: ['debug', 'log', 'info', 'warn', 'error'],
+
+    setLevel: function(level) {
+      var i;
+      if (~(i = this.levels.indexOf(level))) {
+        this.level = i;
+      }
+    },
+
+    attach: function(route) {
+      this.on('all', route);
+    },
+
+    remove: function(route) {
+      this.off(null, route);
+    },
+
+    _log: function(level) {
+      var i, params;
+
+      if ((i = this.levels.indexOf(level)) < this.level) { return; }
+
+      params = Array.prototype.slice.call(arguments, 1);
+      this.trigger(this.levels[i], {
+        context: this._name(),
+        params: params
+      });
+    },
+
+    _name: function() {
+      var local = this.container &&
+        Object.getPrototypeOf(this.container).constructor;
+      return this.name || local && (local.displayName || local.name);
+    }
+  }, {
+    displayName: 'Logger',
+
+    get: function(name) {
+      var logger = construct.call(this, name);
+      logger.attach(this.global);
+      return logger;
+    },
+
+    attach: function(handler) {
+      if (typeof handler === 'function') {
+        _logHandlers.push(handler);
+      }
+    },
+
+    setLevel: function splat(level, handler) {
+      var key;
+      if (typeof level === 'string') {
+        _levels[level] = typeof handler === 'function' ? handler : !!handler;
+      }
+      else if (typeof level === 'object') {
+        for (key in level) {
+          splat(key, level[key]);
+        }
+      }
+    },
+
+    global: function(level, message) {
+      var allowed = _levels[level];
+      allowed = !!(typeof allowed === 'function' ? allowed(message) : allowed);
+      return allowed && _logHandlers.forEach(function(handler) {
+        handler(level, message);
+      });
+    },
+
+    console: function(level, message) {
+      var params = message.params;
+      if (message.context) {
+        params = ['%c' + message.context, 'color:gray'].concat(params);
+      }
+      return console[level] && console[level].apply(console, params);
+    }
+  })
+  .mixin(pubsub);
+
+  Logger.attach(Logger.console);
+
+  return Logger;
+});
+
+/* istanbul ignore if */
+
+define('nbd/Promise',['./util/async', './util/construct', './util/extend', './Logger'], function(async, construct, extend, Logger) {
+  'use strict';
+
+  var logger = Logger.get('Promise');
 
   function PromiseResolver(promise) {
     var fulfills = [],
         rejects = [],
         state = 0,
+        handled = 0,
         value;
 
     function call(fns, value) {
-      if (fns.length) {
-        async(function() {
-          for (var i = 0; i < fns.length; ++i) { fns[i](value); }
-          fulfills.length = rejects.length = 0;
-        });
-      }
+      async(function() {
+        for (var i = 0; i < fns.length; ++i) { fns[i](value); }
+        if (!handled && state === -1) {
+          logger.warn('Unhandled rejection', value);
+        }
+        fulfills.length = rejects.length = 0;
+      });
     }
 
     function fulfill(x) {
@@ -1059,6 +1202,7 @@ define('nbd/Promise',['./util/async', './util/construct', './util/extend'], func
       state = -1;
       value = reason;
       call(rejects, value);
+      handled |= rejects.length;
     }
 
     function resolve(x) {
@@ -1135,6 +1279,7 @@ define('nbd/Promise',['./util/async', './util/construct', './util/extend'], func
         var toCall = ~state ? onFulfill : onReject;
         if (typeof toCall === 'function') {
           toCall = wrap(toCall);
+          handled |= state === -1;
           async(function() { toCall(value); });
         }
         else {
@@ -1557,137 +1702,6 @@ define('nbd/Controller/Responsive',['./Entity', '../trait/responsive'], function
 
 /* istanbul ignore if */
 
-define('nbd/Logger',[
-  './Class',
-  './trait/pubsub',
-  './util/construct',
-  './util/extend'
-], function(Class, pubsub, construct, extend) {
-  'use strict';
-
-  var _logHandlers = [],
-  _levels = {
-    debug: true,
-    log:  true,
-    info: true,
-    warn: true,
-    error: true
-  },
-
-  Logger = Class.extend({
-    init: function(name) {
-      if (typeof name === 'string') {
-        this.name = name;
-      }
-      else {
-        this.container = name;
-      }
-
-      this.levels.forEach(function(level) {
-        this[level] = this._log.bind(this, level);
-      }, this);
-
-      Object.defineProperty(this, 'level', {
-        writable: true,
-        value: 0
-      });
-
-      if (!this.hasOwnProperty('log')) {
-        this.log = this[this.levels[0]];
-      }
-    },
-
-    destroy: function() {
-      this.off();
-      this.container = null;
-    },
-
-    levels: ['debug', 'log', 'info', 'warn', 'error'],
-
-    setLevel: function(level) {
-      var i;
-      if (~(i = this.levels.indexOf(level))) {
-        this.level = i;
-      }
-    },
-
-    attach: function(route) {
-      this.on('all', route);
-    },
-
-    remove: function(route) {
-      this.off(null, route);
-    },
-
-    _log: function(level) {
-      var i, params;
-
-      if ((i = this.levels.indexOf(level)) < this.level) { return; }
-
-      params = Array.prototype.slice.call(arguments, 1);
-      this.trigger(this.levels[i], {
-        context: this._name(),
-        params: params
-      });
-    },
-
-    _name: function() {
-      var local = this.container &&
-        Object.getPrototypeOf(this.container).constructor;
-      return this.name || local && (local.displayName || local.name);
-    }
-  }, {
-    displayName: 'Logger',
-
-    get: function(name) {
-      var logger = construct.call(this, name);
-      logger.attach(this.global);
-      return logger;
-    },
-
-    attach: function(handler) {
-      if (typeof handler === 'function') {
-        _logHandlers.push(handler);
-      }
-    },
-
-    setLevel: function splat(level, handler) {
-      var key;
-      if (typeof level === 'string') {
-        _levels[level] = typeof handler === 'function' ? handler : !!handler;
-      }
-      else if (typeof level === 'object') {
-        for (key in level) {
-          splat(key, level[key]);
-        }
-      }
-    },
-
-    global: function(level, message) {
-      var allowed = _levels[level];
-      allowed = !!(typeof allowed === 'function' ? allowed(message) : allowed);
-      return allowed && _logHandlers.forEach(function(handler) {
-        handler(level, message);
-      });
-    },
-
-    console: function(level, message) {
-      var params = message.params;
-      if (message.context) {
-        params = ['%c' + message.context, 'color:gray'].concat(params);
-      }
-      return console[level] && console[level].apply(console, params);
-    }
-  })
-  .mixin(pubsub);
-
-  Logger.attach(Logger.console);
-
-  return Logger;
-});
-
-/* istanbul ignore if */
-
 define('nbd/trait/log',['../Logger'], function(Logger) {
   "use strict";
   var trait;
@@ -1886,7 +1900,7 @@ define('nbd/util/throttle',[],function() {
     if (fn._blocking) { return; }
     fn._blocking = true;
 
-    var retval = fn.call(this);
+    var retval = fn.apply(this, Array.prototype.slice.call(arguments, 1));
 
     function unblock() { delete fn._blocking; }
     if (retval && typeof retval.then === 'function') {
