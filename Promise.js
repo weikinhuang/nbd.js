@@ -1,21 +1,25 @@
 /* istanbul ignore if */
 if (typeof define !== 'function') { var define = require('amdefine')(module); }
-define(['./util/async', './util/construct', './util/extend'], function(async, construct, extend) {
+define(['./util/async', './util/construct', './util/extend', './Logger'], function(async, construct, extend, Logger) {
   'use strict';
+
+  var logger = Logger.get('Promise');
 
   function PromiseResolver(promise) {
     var fulfills = [],
         rejects = [],
         state = 0,
+        handled = 0,
         value;
 
     function call(fns, value) {
-      if (fns.length) {
-        async(function() {
-          for (var i = 0; i < fns.length; ++i) { fns[i](value); }
-          fulfills.length = rejects.length = 0;
-        });
-      }
+      async(function() {
+        for (var i = 0; i < fns.length; ++i) { fns[i](value); }
+        if (!handled && state === -1) {
+          logger.warn('Unhandled rejection', value);
+        }
+        fulfills.length = rejects.length = 0;
+      });
     }
 
     function fulfill(x) {
@@ -30,6 +34,7 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
       state = -1;
       value = reason;
       call(rejects, value);
+      handled |= rejects.length;
     }
 
     function resolve(x) {
@@ -106,6 +111,7 @@ define(['./util/async', './util/construct', './util/extend'], function(async, co
         var toCall = ~state ? onFulfill : onReject;
         if (typeof toCall === 'function') {
           toCall = wrap(toCall);
+          handled |= state === -1;
           async(function() { toCall(value); });
         }
         else {
