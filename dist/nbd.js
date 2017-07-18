@@ -1,5 +1,3 @@
-/* istanbul ignore if */
-
 define('nbd/util/mixin',[],function() {
   'use strict';
 
@@ -11,8 +9,6 @@ define('nbd/util/mixin',[],function() {
     Object.defineProperties(target, descriptor);
   };
 });
-
-/* istanbul ignore if */
 
 define('nbd/Class',['./util/mixin'], function(mix) {
   'use strict';
@@ -146,8 +142,6 @@ define('nbd/Class',['./util/mixin'], function(mix) {
 
   return Klass;
 });
-
-/* istanbul ignore if */
 
 /**
  * Utility function to break out of the current JavaScript callstack
@@ -389,8 +383,6 @@ define('nbd/util/async',[],function() {
   return async;
 });
 
-/* istanbul ignore if */
-
 define('nbd/util/extend',[],function() {
   'use strict';
 
@@ -405,8 +397,6 @@ define('nbd/util/extend',[],function() {
     return obj;
   };
 });
-
-/* istanbul ignore if */
 
 define('nbd/util/diff',['./extend'], function(extend) {
   'use strict';
@@ -504,8 +494,6 @@ define('nbd/util/diff',['./extend'], function(extend) {
   };
 });
 
-/* istanbul ignore if */
-
 define('nbd/util/curry',[],function() {
   'use strict';
 
@@ -522,8 +510,6 @@ define('nbd/util/curry',[],function() {
     };
   };
 });
-
-/* istanbul ignore if */
 
 define('nbd/trait/pubsub',['../util/curry'], function(curry) {
   'use strict';
@@ -693,8 +679,6 @@ define('nbd/trait/pubsub',['../util/curry'], function(curry) {
   };
 });
 
-/* istanbul ignore if */
-
 define('nbd/Model',[
   './Class',
   './util/async',
@@ -819,8 +803,6 @@ define('nbd/Model',[
 
   return constructor;
 });
-
-/* istanbul ignore if */
 
 define('nbd/View',[
   './Class',
@@ -968,16 +950,12 @@ define('nbd/View',[
   return constructor;
 });
 
-/* istanbul ignore if */
-
 define('nbd/View/Entity',['../View'], function(View) {
   'use strict';
 
   console.warn('nbd/View/Entity is deprecated. Use nbd/View');
   return View.extend();
 });
-
-/* istanbul ignore if */
 
 define('nbd/View/Element',['../View'], function(View) {
   "use strict";
@@ -1015,8 +993,6 @@ define('nbd/View/Element',['../View'], function(View) {
   return constructor;
 });
 
-/* istanbul ignore if */
-
 define('nbd/util/construct',[],function() {
   'use strict';
 
@@ -1035,14 +1011,11 @@ define('nbd/util/construct',[],function() {
   };
 });
 
-/* istanbul ignore if */
-
 define('nbd/Logger',[
   './Class',
   './trait/pubsub',
-  './util/construct',
-  './util/extend'
-], function(Class, pubsub, construct, extend) {
+  './util/construct'
+], function(Class, pubsub, construct) {
   'use strict';
 
   var _logHandlers = [],
@@ -1165,8 +1138,6 @@ define('nbd/Logger',[
 
   return Logger;
 });
-
-/* istanbul ignore if */
 
 define('nbd/Promise',['./util/async', './util/construct', './util/extend', './Logger'], function(async, construct, extend, Logger) {
   'use strict';
@@ -1485,8 +1456,6 @@ define('nbd/Promise',['./util/async', './util/construct', './util/extend', './Lo
   return Promise;
 });
 
-/* istanbul ignore if */
-
 define('nbd/Controller',[
   './util/construct',
   './Class',
@@ -1580,16 +1549,12 @@ define('nbd/Controller',[
   return constructor;
 });
 
-/* istanbul ignore if */
-
 define('nbd/Controller/Entity',['../Controller'], function(Controller) {
   'use strict';
 
   console.warn('nbd/Controller/Entity is deprecated. Use nbd/Controller');
   return Controller.extend();
 });
-
-/* istanbul ignore if */
 
 /**
  * Responsive media query callbacks
@@ -1658,8 +1623,6 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
   return media;
 });
 
-/* istanbul ignore if */
-
 define('nbd/trait/responsive',['../util/media'], function(media) {
   'use strict';
 
@@ -1691,16 +1654,12 @@ define('nbd/trait/responsive',['../util/media'], function(media) {
   };
 });
 
-/* istanbul ignore if */
-
 define('nbd/Controller/Responsive',['./Entity', '../trait/responsive'], function(Controller, responsive) {
   'use strict';
 
   console.warn('nbd/Controller/Responsive is deprecated. Use nbd/Controller with nbd/trait/responsive');
   return Controller.extend().mixin(responsive);
 });
-
-/* istanbul ignore if */
 
 define('nbd/trait/log',['../Logger'], function(Logger) {
   "use strict";
@@ -1727,8 +1686,6 @@ define('nbd/trait/log',['../Logger'], function(Logger) {
 
   return trait;
 });
-
-/* istanbul ignore if */
 
 define('nbd/trait/promise',['../Promise', '../util/extend'], function(Promise, extend) {
   'use strict';
@@ -1773,8 +1730,6 @@ define('nbd/trait/promise',['../Promise', '../util/extend'], function(Promise, e
     }
   });
 });
-
-/* istanbul ignore if */
 
 /*
  * Extraction of the deparam method from Ben Alman's jQuery BBQ
@@ -1874,8 +1829,6 @@ define('nbd/util/deparam',[],function() {
   };
 });
 
-/* istanbul ignore if */
-
 define('nbd/util/pipe',[],function() {
   'use strict';
 
@@ -1890,8 +1843,6 @@ define('nbd/util/pipe',[],function() {
     };
   };
 });
-
-/* istanbul ignore if */
 
 define('nbd/util/throttle',[],function() {
   'use strict';
