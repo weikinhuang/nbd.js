@@ -1,11 +1,8 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define([
   './Class',
   './trait/pubsub',
-  './util/construct',
-  './util/extend'
-], function(Class, pubsub, construct, extend) {
+  './util/construct'
+], function(Class, pubsub, construct) {
   'use strict';
 
   var _logHandlers = [],

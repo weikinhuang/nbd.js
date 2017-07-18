@@ -1,5 +1,3 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['./util/mixin'], function(mix) {
   'use strict';
 

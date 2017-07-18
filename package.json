@@ -17,18 +17,15 @@
     "url": "git://github.com/behance/nbd.js.git"
   },
   "main": "index.js",
-  "dependencies": {
-    "amdefine": ">=0.0.2"
-  },
   "devDependencies": {
     "almond": "",
-    "promises-aplus-tests": "",
     "grunt": "",
     "grunt-contrib-jshint": "",
     "grunt-contrib-requirejs": "",
     "grunt-contrib-uglify": "",
     "grunt-contrib-clean": "",
     "grunt-karma": "",
+    "karma": "",
     "karma-jasmine": "^0.2",
     "karma-requirejs": "",
     "karma-coverage": "",
