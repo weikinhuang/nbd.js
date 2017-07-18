@@ -1,5 +1,3 @@
-/* istanbul ignore if */
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['./util/async', './util/construct', './util/extend', './Logger'], function(async, construct, extend, Logger) {
   'use strict';
 
