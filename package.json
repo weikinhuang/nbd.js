@@ -1,5 +1,5 @@
 {
-  "name": "nbd",
+  "name": "@behance/nbd",
   "version": "1.1.6",
   "description": "No Big Deal modular MVC and tools library",
   "keywords": [
