@@ -14,19 +14,9 @@ The best way to use **nbd.js** is through an [AMD module loader][amd] like
 
 ### Getting it ###
 
-#### Using Bower ####
-
-    bower install --save nbd
-
 #### Using npm ####
 
-    npm install --save nbd
-
-#### Submodule ####
-If you don't use any package management, you can always check out **nbd.js** as
-a git submodule. From the root of your own project's git repository:
-
-    git submodule add https://github.com/behance/nbd.js.git path/to/modules/nbd
+    npm install --save @behance/nbd
 
 #### Packaged ####
 If your project doesn't make use of a module loader, no big deal. Packaged
