@@ -4,8 +4,19 @@ define([
 ], function(Class, pubsub) {
   "use strict";
 
-  var shadow = document.createDocumentFragment(),
-  renderMatching = function(key) {
+  // `getShadow` ensures that this file can be statically imported
+  // in environments where document is not defined. this is useful
+  // for ergonomics in isomorphic components where only a certain
+  // phase of the component is rendered on the browser.
+  var shadow;
+  var lazyGetShadow = function() {
+    if (!shadow) {
+      shadow = document.createDocumentFragment();
+    }
+    return shadow;
+  };
+
+  var renderMatching = function(key) {
     if (!this.$view) { return; }
     var selector = this.nests[key],
     contained = this._model.get ? this._model.get(key) : this._model[key],
@@ -90,7 +101,7 @@ define([
 
     _switchNested: function(key, val, old) {
       if (this.nests != null && key in this.nests) {
-        if (old && old.render) { old.render(shadow); }
+        if (old && old.render) { old.render(lazyGetShadow()); }
         renderMatching.call(this, key);
       }
     }
