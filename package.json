@@ -1,6 +1,6 @@
 {
   "name": "@behance/nbd",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "No Big Deal modular MVC and tools library",
   "keywords": [
     "mvc",
