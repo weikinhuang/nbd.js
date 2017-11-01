@@ -1,4 +1,3 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['../util/async', '../util/extend'], function(async, extend) {
   'use strict';
 
@@ -74,7 +73,7 @@ define(['../util/async', '../util/extend'], function(async, extend) {
 
       fulfill(x);
     }
-    
+
     function then(onFulfilled, onRejected) {
       var next = new Promise();
 
@@ -115,7 +114,7 @@ define(['../util/async', '../util/extend'], function(async, extend) {
 
       return next;
     }
-    
+
     Object.defineProperties(this, {
       reject : {value: reject},
       resolve: {value: resolve}

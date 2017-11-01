@@ -1,12 +1,10 @@
 (function(root) {
 /**
- * almond 0.2.5 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
- * Available via the MIT or new BSD license.
- * see: http://github.com/jrburke/almond for details
+ * @license almond 0.3.3 Copyright jQuery Foundation and other contributors.
+ * Released under MIT license, http://github.com/requirejs/almond/LICENSE
  */
 //Going sloppy to avoid 'use strict' string cost, but strict practices should
 //be followed.
-/*jslint sloppy: true */
 /*global setTimeout: false */
 
 var requirejs, require, define;
@@ -17,7 +15,8 @@ var requirejs, require, define;
         config = {},
         defining = {},
         hasOwn = Object.prototype.hasOwnProperty,
-        aps = [].slice;
+        aps = [].slice,
+        jsSuffixRegExp = /\.js$/;
 
     function hasProp(obj, prop) {
         return hasOwn.call(obj, prop);
@@ -32,56 +31,59 @@ var requirejs, require, define;
      * @returns {String} normalized name
      */
     function normalize(name, baseName) {
-        var nameParts, nameSegment, mapValue, foundMap,
-            foundI, foundStarMap, starI, i, j, part,
+        var nameParts, nameSegment, mapValue, foundMap, lastIndex,
+            foundI, foundStarMap, starI, i, j, part, normalizedBaseParts,
             baseParts = baseName && baseName.split("/"),
             map = config.map,
             starMap = (map && map['*']) || {};
 
         //Adjust any relative paths.
-        if (name && name.charAt(0) === ".") {
-            //If have a base name, try to normalize against it,
-            //otherwise, assume it is a top-level require that will
-            //be relative to baseUrl in the end.
-            if (baseName) {
+        if (name) {
+            name = name.split('/');
+            lastIndex = name.length - 1;
+
+            // If wanting node ID compatibility, strip .js from end
+            // of IDs. Have to do this here, and not in nameToUrl
+            // because node allows either .js or non .js to map
+            // to same file.
+            if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
+                name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+            }
+
+            // Starts with a '.' so need the baseName
+            if (name[0].charAt(0) === '.' && baseParts) {
                 //Convert baseName to array, and lop off the last part,
-                //so that . matches that "directory" and not name of the baseName's
-                //module. For instance, baseName of "one/two/three", maps to
-                //"one/two/three.js", but we want the directory, "one/two" for
+                //so that . matches that 'directory' and not name of the baseName's
+                //module. For instance, baseName of 'one/two/three', maps to
+                //'one/two/three.js', but we want the directory, 'one/two' for
                 //this normalization.
-                baseParts = baseParts.slice(0, baseParts.length - 1);
+                normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
+                name = normalizedBaseParts.concat(name);
+            }
 
-                name = baseParts.concat(name.split("/"));
-
-                //start trimDots
-                for (i = 0; i < name.length; i += 1) {
-                    part = name[i];
-                    if (part === ".") {
-                        name.splice(i, 1);
-                        i -= 1;
-                    } else if (part === "..") {
-                        if (i === 1 && (name[2] === '..' || name[0] === '..')) {
-                            //End of the line. Keep at least one non-dot
-                            //path segment at the front so it can be mapped
-                            //correctly to disk. Otherwise, there is likely
-                            //no path mapping for a path starting with '..'.
-                            //This can still fail, but catches the most reasonable
-                            //uses of ..
-                            break;
-                        } else if (i > 0) {
-                            name.splice(i - 1, 2);
-                            i -= 2;
-                        }
+            //start trimDots
+            for (i = 0; i < name.length; i++) {
+                part = name[i];
+                if (part === '.') {
+                    name.splice(i, 1);
+                    i -= 1;
+                } else if (part === '..') {
+                    // If at the start, or previous value is still ..,
+                    // keep them so that when converted to a path it may
+                    // still work when converted to a path, even though
+                    // as an ID it is less than ideal. In larger point
+                    // releases, may be better to just kick out an error.
+                    if (i === 0 || (i === 1 && name[2] === '..') || name[i - 1] === '..') {
+                        continue;
+                    } else if (i > 0) {
+                        name.splice(i - 1, 2);
+                        i -= 2;
                     }
                 }
-                //end trimDots
-
-                name = name.join("/");
-            } else if (name.indexOf('./') === 0) {
-                // No baseName, so this is ID is resolved relative
-                // to baseUrl, pull off the leading dot.
-                name = name.substring(2);
             }
+            //end trimDots
+
+            name = name.join('/');
         }
 
         //Apply map config if available.
@@ -143,7 +145,15 @@ var requirejs, require, define;
             //A version of a require function that passes a moduleName
             //value for items that may need to
             //look up paths relative to the moduleName
-            return req.apply(undef, aps.call(arguments, 0).concat([relName, forceSync]));
+            var args = aps.call(arguments, 0);
+
+            //If first arg is not require('string'), and there is only
+            //one arg, it is the array form without a callback. Insert
+            //a null so that the following concat is correct.
+            if (typeof args[0] !== 'string' && args.length === 1) {
+                args.push(null);
+            }
+            return req.apply(undef, args.concat([relName, forceSync]));
         };
     }
 
@@ -186,32 +196,39 @@ var requirejs, require, define;
         return [prefix, name];
     }
 
+    //Creates a parts array for a relName where first part is plugin ID,
+    //second part is resource ID. Assumes relName has already been normalized.
+    function makeRelParts(relName) {
+        return relName ? splitPrefix(relName) : [];
+    }
+
     /**
      * Makes a name map, normalizing the name, and using a plugin
      * for normalization if necessary. Grabs a ref to plugin
      * too, as an optimization.
      */
-    makeMap = function (name, relName) {
+    makeMap = function (name, relParts) {
         var plugin,
             parts = splitPrefix(name),
-            prefix = parts[0];
+            prefix = parts[0],
+            relResourceName = relParts[1];
 
         name = parts[1];
 
         if (prefix) {
-            prefix = normalize(prefix, relName);
+            prefix = normalize(prefix, relResourceName);
             plugin = callDep(prefix);
         }
 
         //Normalize according
         if (prefix) {
             if (plugin && plugin.normalize) {
-                name = plugin.normalize(name, makeNormalize(relName));
+                name = plugin.normalize(name, makeNormalize(relResourceName));
             } else {
-                name = normalize(name, relName);
+                name = normalize(name, relResourceName);
             }
         } else {
-            name = normalize(name, relName);
+            name = normalize(name, relResourceName);
             parts = splitPrefix(name);
             prefix = parts[0];
             name = parts[1];
@@ -258,22 +275,23 @@ var requirejs, require, define;
     };
 
     main = function (name, deps, callback, relName) {
-        var cjsModule, depName, ret, map, i,
+        var cjsModule, depName, ret, map, i, relParts,
             args = [],
+            callbackType = typeof callback,
             usingExports;
 
         //Use name if no relName
         relName = relName || name;
+        relParts = makeRelParts(relName);
 
         //Call the callback to define the module, if necessary.
-        if (typeof callback === 'function') {
-
+        if (callbackType === 'undefined' || callbackType === 'function') {
             //Pull out the defined dependencies and pass the ordered
             //values to the callback.
             //Default to [require, exports, module] if no deps
             deps = !deps.length && callback.length ? ['require', 'exports', 'module'] : deps;
             for (i = 0; i < deps.length; i += 1) {
-                map = makeMap(deps[i], relName);
+                map = makeMap(deps[i], relParts);
                 depName = map.f;
 
                 //Fast path CommonJS standard dependencies.
@@ -298,7 +316,7 @@ var requirejs, require, define;
                 }
             }
 
-            ret = callback.apply(defined[name], args);
+            ret = callback ? callback.apply(defined[name], args) : undefined;
 
             if (name) {
                 //If setting exports via "module" is in play,
@@ -329,10 +347,17 @@ var requirejs, require, define;
             //deps arg is the module name, and second arg (if passed)
             //is just the relName.
             //Normalize module name, if it contains . or ..
-            return callDep(makeMap(deps, callback).f);
+            return callDep(makeMap(deps, makeRelParts(callback)).f);
         } else if (!deps.splice) {
             //deps is a config object, not an array.
             config = deps;
+            if (config.deps) {
+                req(config.deps, config.callback);
+            }
+            if (!callback) {
+                return;
+            }
+
             if (callback.splice) {
                 //callback is an array, which means it is a dependency list.
                 //Adjust args if there are dependencies
@@ -377,14 +402,18 @@ var requirejs, require, define;
      * the config return value is used.
      */
     req.config = function (cfg) {
-        config = cfg;
-        if (config.deps) {
-            req(config.deps, config.callback);
-        }
-        return req;
+        return req(cfg);
     };
 
+    /**
+     * Expose module registry for debugging and tooling
+     */
+    requirejs._defined = defined;
+
     define = function (name, deps, callback) {
+        if (typeof name !== 'string') {
+            throw new Error('See almond README: incorrect module build, no module name');
+        }
 
         //This module may not have dependencies
         if (!deps.splice) {
@@ -407,7 +436,6 @@ var requirejs, require, define;
 
 define("node_modules/almond/almond", function(){});
 
-
 /**
  * Behanced Class
  * Built from Simple JS Inheritance by John Resig
@@ -419,7 +447,7 @@ define("node_modules/almond/almond", function(){});
  */
 /*global xyz */
 define('nbd/Class',[],function() {
-  
+  "use strict";
 
   var Klass, extend, mixin, inherits,
   fnTest = /xyz/.test(function(){return xyz;}) ? /\b_super\b/ : /.*/;
@@ -567,7 +595,6 @@ define('nbd/Class',[],function() {
   return Klass;
 });
 
-
 /**
  * Utility function to break out of the current JavaScript callstack
  * Uses window.postMessage if available, falls back to window.setTimeout
@@ -576,9 +603,9 @@ define('nbd/Class',[],function() {
  */
 /*global postMessage, addEventListener */
 define('nbd/util/async',[],function() {
-  
+  'use strict';
 
-  var timeouts = [], 
+  var timeouts = [],
   messageName = "async-message",
   hasPostMessage = (
     typeof postMessage === "function" &&
@@ -616,9 +643,8 @@ define('nbd/util/async',[],function() {
   return async;
 });
 
-
 define('nbd/util/extend',[],function() {
-  
+  'use strict';
 
   return function(obj) {
     var i, prop, source;
@@ -632,9 +658,8 @@ define('nbd/util/extend',[],function() {
   };
 });
 
-
 define('nbd/util/diff',['./extend'], function(extend) {
-  
+  'use strict';
 
   var stack = [];
 
@@ -643,7 +668,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
 
     // If complex objects, assume different
     if (!(Object.getPrototypeOf(cur) === Object.prototype &&
-          Object.getPrototypeOf(prev) === Object.prototype 
+          Object.getPrototypeOf(prev) === Object.prototype
          )) { return false; }
 
     for (key in cur) {
@@ -652,7 +677,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
       }
 
       if (cur.hasOwnProperty(key) &&
-          typeof cur[key] === "object" && cur[key] && 
+          typeof cur[key] === "object" && cur[key] &&
           Object.getPrototypeOf(cur[key]) === Object.prototype) {
         // Property has been visited, skip
         if (~stack.indexOf(cur[key])) { continue; }
@@ -696,7 +721,7 @@ define('nbd/util/diff',['./extend'], function(extend) {
 
         // if either is not a simple object OR objectCheck fails then mark
         if (!(
-          typeof lhs === "object" && typeof rhs === "object" && 
+          typeof lhs === "object" && typeof rhs === "object" &&
           lhs && rhs &&
           objectCheck(lhs, rhs)
         )) {
@@ -717,20 +742,19 @@ define('nbd/util/diff',['./extend'], function(extend) {
         }
       }
     }
-    
+
     return differences;
   };
 });
 
-
 // Backbone.Events
 // ---------------
 define('nbd/trait/pubsub',[],function() {
-  
+  'use strict';
 
   // Regular expression used to split event strings
   var eventSplitter = /\s+/,
-  
+
   uId = function uid(prefix) {
     uid.i = uid.i || 0;
     return (prefix || '') + (++uid.i);
@@ -871,14 +895,13 @@ define('nbd/trait/pubsub',[],function() {
   };
 });
 
-
 define('nbd/Model',['./Class',
        './util/async',
        './util/extend',
        './util/diff',
        './trait/pubsub'
 ], function(Class, async, extend, diff, pubsub) {
-  
+  "use strict";
 
   var dirtyCheck = function(old, novel) {
     if (!this._dirty) { return; }
@@ -894,7 +917,7 @@ define('nbd/Model',['./Class',
         id = +id;
       }
 
-      if ( data === undefined ) {
+      if ( data === undefined && typeof id === "object" ) {
         data = id;
       }
 
@@ -962,9 +985,8 @@ define('nbd/Model',['./Class',
 
 });
 
-
 define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
-  
+  "use strict";
 
   var constructor = Class.extend({
 
@@ -993,7 +1015,7 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
 
     template: function() {},
     templateData: function() { return {}; },
-    
+
     destroy: function() {
       if ( this.$view && this.$view.remove ) {
         this.$view.remove();
@@ -1009,9 +1031,8 @@ define('nbd/View',['./Class', './trait/pubsub'], function(Class, pubsub) {
 
 });
 
-
 define('nbd/View/Entity',['../View'], function(View) {
-  
+  "use strict";
 
   var constructor = View.extend({
 
@@ -1050,11 +1071,10 @@ define('nbd/View/Entity',['../View'], function(View) {
       }
 
       if ( $parent ) {
-        if ( $existing ) { $existing.remove(); }
         if ( this.$view ) { this.$view.appendTo( $parent ); }
       }
-      else if ( $existing ) {
-        $existing.replaceWith( this.$view );
+      else {
+        if ( $existing ) { $existing.replaceWith( this.$view ); }
       }
 
       if ( fresh ) {
@@ -1075,9 +1095,8 @@ define('nbd/View/Entity',['../View'], function(View) {
 
 });
 
-
 define('nbd/View/Element',['../View'], function(View) {
-  
+  "use strict";
 
   var constructor = View.extend({
 
@@ -1116,9 +1135,8 @@ define('nbd/View/Element',['../View'], function(View) {
 
 });
 
-
 define('nbd/util/construct',[],function() {
-  
+  'use strict';
 
   var toStr = Object.prototype.toString;
 
@@ -1135,12 +1153,11 @@ define('nbd/util/construct',[],function() {
   };
 });
 
-
 define('nbd/Controller',['./Class',
        './View',
        './util/construct'
 ],  function(Class, View, construct) {
-  
+  "use strict";
 
   var constructor = Class.extend({
     View  : null,
@@ -1172,13 +1189,12 @@ define('nbd/Controller',['./Class',
 
 });
 
-
 define('nbd/Controller/Entity',['../util/construct',
-       '../Controller', 
-       '../View/Entity', 
+       '../Controller',
+       '../View/Entity',
        '../Model'
 ], function(construct, Controller, View, Model) {
-  
+  'use strict';
 
   var constructor = Controller.extend({
     Model : null,
@@ -1217,9 +1233,8 @@ define('nbd/Controller/Entity',['../util/construct',
 
 });
 
-
 define('nbd/event',['./util/extend', './trait/pubsub'], function(extend, pubsub) {
-  
+  'use strict';
 
   var exports = extend({}, pubsub);
 
@@ -1231,9 +1246,8 @@ define('nbd/event',['./util/extend', './trait/pubsub'], function(extend, pubsub)
   return exports;
 });
 
-
 define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, extend) {
-  
+  'use strict';
 
   function Promise() {
     var self = this,
@@ -1307,7 +1321,7 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
 
       fulfill(x);
     }
-    
+
     function then(onFulfilled, onRejected) {
       var next = new Promise();
 
@@ -1348,7 +1362,7 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
 
       return next;
     }
-    
+
     Object.defineProperties(this, {
       reject : {value: reject},
       resolve: {value: resolve}
@@ -1423,18 +1437,17 @@ define('nbd/trait/promise',['../util/async', '../util/extend'], function(async, 
   return Promise;
 });
 
-
 /*
  * Extraction of the deparam method from Ben Alman's jQuery BBQ
  * @see http://benalman.com/projects/jquery-bbq-plugin/
  */
 define('nbd/util/deparam',[],function() {
-  
+  'use strict';
 
   return function (params, coerce) {
     var obj = {},
         coerce_types = { 'true': true, 'false': false, 'null': null };
-      
+
     // Iterate over all name=value pairs.
     params.replace(/\+/g, ' ').split('&').forEach(function (v) {
       var param = v.split('='),
@@ -1442,32 +1455,32 @@ define('nbd/util/deparam',[],function() {
           val,
           cur = obj,
           i = 0,
-            
+
           // If key is more complex than 'foo', like 'a[]' or 'a[b][c]', split it
           // into its component parts.
           keys = key.split(']['),
           keys_last = keys.length - 1;
-        
+
       // If the first keys part contains [ and the last ends with ], then []
       // are correctly balanced.
       if (/\[/.test(keys[0]) && /\]$/.test(keys[keys_last])) {
         // Remove the trailing ] from the last keys part.
         keys[keys_last] = keys[keys_last].replace(/\]$/, '');
-          
+
         // Split first keys part into two parts on the [ and add them back onto
         // the beginning of the keys array.
         keys = keys.shift().split('[').concat(keys);
-          
+
         keys_last = keys.length - 1;
       } else {
         // Basic 'foo' style key.
         keys_last = 0;
       }
-        
+
       // Are we dealing with a name=value pair, or just a name?
       if (param.length === 2) {
         val = decodeURIComponent(param[1]);
-          
+
         // Coerce values.
         if (coerce) {
           val = val && !isNaN(val)              ? +val              // number
@@ -1475,11 +1488,11 @@ define('nbd/util/deparam',[],function() {
               : coerce_types[val] !== undefined ? coerce_types[val] // true, false, null
               : val;                                                // string
         }
-          
+
         if ( keys_last ) {
           // Complex key, build deep object structure based on a few rules:
           // * The 'cur' pointer starts at the object top-level.
-          // * [] = array push (n is set to array length), [n] = array if n is 
+          // * [] = array push (n is set to array length), [n] = array if n is
           //   numeric, otherwise object.
           // * If at the last keys part, set the value.
           // * For each keys part, if the current level is undefined create an
@@ -1492,26 +1505,26 @@ define('nbd/util/deparam',[],function() {
               ? cur[key] || (keys[i+1] && isNaN(keys[i+1]) ? {} : [])
               : val;
           }
-            
+
         } else {
           // Simple key, even simpler rules, since only scalars and shallow
           // arrays are allowed.
-            
+
           if (Array.isArray(obj[key])) {
             // val is already an array, so push on the next value.
             obj[key].push( val );
-              
+
           } else if (obj[key] !== undefined) {
             // val isn't an array, but since a second value has been specified,
             // convert val into an array.
             obj[key] = [obj[key], val];
-              
+
           } else {
             // val is a scalar.
             obj[key] = val;
           }
         }
-          
+
       } else if (key) {
         // No value was defined, so set something meaningful.
         obj[key] = coerce
@@ -1519,12 +1532,11 @@ define('nbd/util/deparam',[],function() {
           : '';
       }
     });
-      
+
     return obj;
   };
 
 });
-
 
 /**
  * Responsive media query callbacks
@@ -1532,7 +1544,7 @@ define('nbd/util/deparam',[],function() {
  */
 /*global matchMedia, msMatchMedia */
 define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub) {
-  
+  'use strict';
 
   var queries = {},
   mqChange,
@@ -1597,9 +1609,8 @@ define('nbd/util/media',['./extend', '../trait/pubsub'], function(extend, pubsub
 
 });
 
-
 define('nbd/util/pipe',[],function() {
-  
+  'use strict';
   return function chain() {
     var chainArgs = arguments;
     return function() {
@@ -1612,14 +1623,13 @@ define('nbd/util/pipe',[],function() {
   };
 });
 
-
-/** 
+/**
  * Prototype chain append utility
  * Inspired by Mozilla's Object.appendChain()
- * @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/GetPrototypeOf#Notes 
+ * @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/GetPrototypeOf#Notes
  */
 define('nbd/util/protochain',[],function() {
-  
+  'use strict';
 
   function swapProto(lProto, oProto) {
     var inst, p;
@@ -1650,7 +1660,7 @@ define('nbd/util/protochain',[],function() {
     if (typeof Class !== "function") {
       throw new TypeError("Second argument must be a constructor");
     }
-    
+
     var it = Klass.prototype, up;
 
     // Find the top non-native prototype
@@ -1662,13 +1672,12 @@ define('nbd/util/protochain',[],function() {
         it.__proto__ = Class.prototype;
         return;
       }
-      throw new Error("Cannot modify prototype chain"); 
+      throw new Error("Cannot modify prototype chain");
     }
 
     swapProto(Klass.prototype, Class.prototype);
   }
 });
-
 
 
 define('build/all',[
@@ -1691,7 +1700,7 @@ define('build/all',[
        'nbd/util/pipe',
        'nbd/util/protochain'
 ], function(Class, Model, View, EntityView, ElementView, Controller, Entity, event, promise, pubsub, async, construct, deparam, diff, extend, media, pipe, protochain) {
-  
+  'use strict';
 
   var exports = {
     Class : Class,
@@ -1721,4 +1730,5 @@ define('build/all',[
 
   return exports;
 });
+
 root.nbd = require('build/all'); })(this);

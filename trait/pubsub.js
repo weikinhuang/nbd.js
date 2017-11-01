@@ -1,4 +1,3 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 // Backbone.Events
 // ---------------
 define(function() {
@@ -6,7 +5,7 @@ define(function() {
 
   // Regular expression used to split event strings
   var eventSplitter = /\s+/,
-  
+
   uId = function uid(prefix) {
     uid.i = uid.i || 0;
     return (prefix || '') + (++uid.i);

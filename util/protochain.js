@@ -1,8 +1,7 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
-/** 
+/**
  * Prototype chain append utility
  * Inspired by Mozilla's Object.appendChain()
- * @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/GetPrototypeOf#Notes 
+ * @see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/GetPrototypeOf#Notes
  */
 define(function() {
   'use strict';
@@ -36,7 +35,7 @@ define(function() {
     if (typeof Class !== "function") {
       throw new TypeError("Second argument must be a constructor");
     }
-    
+
     var it = Klass.prototype, up;
 
     // Find the top non-native prototype
@@ -48,7 +47,7 @@ define(function() {
         it.__proto__ = Class.prototype;
         return;
       }
-      throw new Error("Cannot modify prototype chain"); 
+      throw new Error("Cannot modify prototype chain");
     }
 
     swapProto(Klass.prototype, Class.prototype);

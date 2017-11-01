@@ -1,4 +1,3 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /**
  * Utility function to break out of the current JavaScript callstack
  * Uses window.postMessage if available, falls back to window.setTimeout
@@ -9,7 +8,7 @@ if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(function() {
   'use strict';
 
-  var timeouts = [], 
+  var timeouts = [],
   messageName = "async-message",
   hasPostMessage = (
     typeof postMessage === "function" &&
