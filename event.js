@@ -1,4 +1,3 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['./util/extend', './trait/pubsub'], function(extend, pubsub) {
   'use strict';
 

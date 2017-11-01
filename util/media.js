@@ -1,4 +1,3 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /**
  * Responsive media query callbacks
  * @see https://developer.mozilla.org/en-US/docs/DOM/Using_media_queries_from_code

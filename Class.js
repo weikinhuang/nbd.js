@@ -1,4 +1,3 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 /**
  * Behanced Class
  * Built from Simple JS Inheritance by John Resig

@@ -1,4 +1,3 @@
-if (typeof define !== 'function') { var define = require('amdefine')(module); }
 define(['./Class', './trait/pubsub'], function(Class, pubsub) {
   "use strict";
 
@@ -29,7 +28,7 @@ define(['./Class', './trait/pubsub'], function(Class, pubsub) {
 
     template: function() {},
     templateData: function() { return {}; },
-    
+
     destroy: function() {
       if ( this.$view && this.$view.remove ) {
         this.$view.remove();
