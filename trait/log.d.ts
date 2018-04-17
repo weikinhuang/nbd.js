@@ -1,5 +1,5 @@
 import { Logger } from '../Logger';
-// export { Logger } from '../Logger';
+export { Logger } from '../Logger';
 
 export interface LogTrait {
   log: Logger;
