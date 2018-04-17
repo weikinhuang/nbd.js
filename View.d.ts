@@ -1,7 +1,6 @@
 import { ClassBuilder } from './Class';
 import { PubSubTrait } from './trait/pubsub';
-import { ModelInstance } from './Model';
-type NbdElement = JQuery | HTMLElement;
+export type NbdElement = JQuery | HTMLElement;
 
 export interface ViewInstance extends PubSubTrait {
   new(model?: any): this;

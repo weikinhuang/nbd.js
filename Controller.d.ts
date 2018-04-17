@@ -40,5 +40,4 @@ export interface ControllerConstructor<I extends ControllerInstance = Controller
 }
 
 declare const Controller: ControllerConstructor;
-// @ts-ignore conflict with @behance/nbd/* typings
 export default Controller;
