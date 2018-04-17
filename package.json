@@ -18,19 +18,21 @@
   },
   "main": "index.js",
   "devDependencies": {
+    "@types/jquery": "^3.3.1",
     "almond": "",
     "grunt": "",
+    "grunt-contrib-clean": "",
     "grunt-contrib-jshint": "",
     "grunt-contrib-requirejs": "",
     "grunt-contrib-uglify": "",
-    "grunt-contrib-clean": "",
     "grunt-karma": "",
     "karma": "",
-    "karma-jasmine": "^0.2",
-    "karma-requirejs": "",
     "karma-coverage": "",
     "karma-firefox-launcher": "",
-    "karma-phantomjs-launcher": ""
+    "karma-jasmine": "^0.2",
+    "karma-phantomjs-launcher": "",
+    "karma-requirejs": "",
+    "typescript": "^2.8.1"
   },
   "scripts": {
     "test": "grunt travis"
