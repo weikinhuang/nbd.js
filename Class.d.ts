@@ -1,7 +1,7 @@
 export interface ClassBuilder<I> {
   new(...args: any[]): I;
 
-  extend<T extends I, G extends {} = {}>(a: T, b?: G): ClassBuilder<T> & G;
+  extend<T extends I, G extends {} = {}>(proto: T, statics?: G): ClassBuilder<T> & G;
 
   mixin<T>(this: T, ...args: any[]): T;
 
